@@ -27,10 +27,10 @@ workbox.core.clientsClaim();
  */
 self.__precacheManifest = [
   {
-    "url": "webpack-runtime-51162cf50f2e44e25a33.js"
+    "url": "webpack-runtime-2de1f2bf6dc7ab322b94.js"
   },
   {
-    "url": "styles.67f0acc956b86155e8b5.css"
+    "url": "styles.f49630f2357441294871.css"
   },
   {
     "url": "styles-6b8affa5cc22cb60670e.js"
@@ -39,26 +39,18 @@ self.__precacheManifest = [
     "url": "framework-13c59b4b3c9786e140ad.js"
   },
   {
-    "url": "app-63257a022b55dddf228c.js"
+    "url": "app-c190d65ce10cadc79a77.js"
   },
   {
     "url": "offline-plugin-app-shell-fallback/index.html",
-    "revision": "90d1b7a7ae0b6c8b9e17265e3434b8f6"
+    "revision": "d8df22da2210dc6ee0c1cf3da2b39b39"
   },
   {
     "url": "component---cache-caches-gatsby-plugin-offline-app-shell-js-e36cbe850dd4d52ef5a6.js"
   },
   {
-    "url": "page-data/offline-plugin-app-shell-fallback/page-data.json",
-    "revision": "43232b01cc861c0701a3ece4bd67720b"
-  },
-  {
-    "url": "page-data/app-data.json",
-    "revision": "5d4c5c788fb01eabc22d3a8da8b66f60"
-  },
-  {
     "url": "manifest.webmanifest",
-    "revision": "315ab6efebd73f5aeb254c5d81255bea"
+    "revision": "fee04e5e93833fb97fa5cc778f9f0028"
   }
 ].concat(self.__precacheManifest || []);
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
@@ -146,12 +138,12 @@ const navigationRoute = new NavigationRoute(async ({ event }) => {
   lastNavigationRequest = event.request.url
 
   let { pathname } = new URL(event.request.url)
-  pathname = pathname.replace(new RegExp(`^/JimmyVanVeen.com`), ``)
+  pathname = pathname.replace(new RegExp(`^`), ``)
 
   // Check for resources + the app bundle
   // The latter may not exist if the SW is updating to a new version
   const resources = await idbKeyval.get(`resources:${pathname}`)
-  if (!resources || !(await caches.match(`/JimmyVanVeen.com/app-63257a022b55dddf228c.js`))) {
+  if (!resources || !(await caches.match(`/app-c190d65ce10cadc79a77.js`))) {
     return await fetch(event.request)
   }
 
@@ -164,7 +156,7 @@ const navigationRoute = new NavigationRoute(async ({ event }) => {
     }
   }
 
-  const offlineShell = `/JimmyVanVeen.com/offline-plugin-app-shell-fallback/index.html`
+  const offlineShell = `/offline-plugin-app-shell-fallback/index.html`
   const offlineShellWithKey = workbox.precaching.getCacheKeyForURL(offlineShell)
   return await caches.match(offlineShellWithKey)
 })
