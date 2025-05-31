@@ -1,8 +1,8 @@
 import * as React from "react"
-import { NavLink, useTransition } from "@remix-run/react"
+import { NavLink, useNavigation } from "react-router"
 
 const baseClassName =
-  "block text-center text-white uppercase font-raleway py-2 rounded"
+  "block text-center text-white uppercase font-raleway py-2 rounded-sm"
 const activeClassName = `${baseClassName} bg-black/10`
 const inactiveClassName = `${baseClassName} hover:bg-black/10`
 
@@ -11,7 +11,7 @@ let timeoutRef: NodeJS.Timeout
 export function Menu() {
   const [openMenu, setOpenMenu] = React.useState(false)
 
-  const transition = useTransition()
+  const transition = useNavigation()
 
   const isLoading = transition.state === "loading"
 
@@ -58,6 +58,7 @@ export function Menu() {
             <>
               <NavLink
                 to="/"
+                end
                 className={({ isActive }) =>
                   `${isActive ? activeClassName : inactiveClassName}`
                 }
@@ -68,6 +69,7 @@ export function Menu() {
               </NavLink>
               <NavLink
                 to="/blog"
+                end
                 className={({ isActive }) =>
                   `${isActive ? activeClassName : inactiveClassName}`
                 }

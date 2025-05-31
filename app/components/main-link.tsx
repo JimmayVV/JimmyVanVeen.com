@@ -1,4 +1,4 @@
-import { Link, type LinkProps } from "@remix-run/react"
+import { Link, type LinkProps } from "react-router"
 
 interface MainLinkProps extends LinkProps {
   flip?: boolean

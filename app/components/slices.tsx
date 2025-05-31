@@ -28,6 +28,7 @@ export default function Slices({
     <>
       {React.Children.map(children, (child, index) => {
         const flipDisplay = index % 2 !== 0
+        const isLastChild = index === React.Children.count(children) - 1
 
         const childElement =
           React.isValidElement(child) && child.type === SliceContent
@@ -44,7 +45,11 @@ export default function Slices({
             : child
 
         return (
-          <Slice color={colors[index % colors.length]} flip={flipDisplay}>
+          <Slice
+            color={colors[index % colors.length]}
+            flip={flipDisplay}
+            isLastChild={isLastChild}
+          >
             {childElement}
           </Slice>
         )

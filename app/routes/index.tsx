@@ -1,7 +1,6 @@
 // Libs
 import * as React from "react"
-import { useLoaderData } from "@remix-run/react"
-import { json } from "@remix-run/node"
+import { Await } from "react-router"
 
 // Components
 import Banner from "~/components/banner"
@@ -11,8 +10,10 @@ import MainLink from "~/components/main-link"
 import Project from "~/components/project"
 
 // Utils
-import { getRepositoriesByNodeId } from "~/utils/github.server"
-import { getProjects } from "~/utils/contentful.server"
+import { getRepositoriesByNodeId } from "~/utils/github"
+import { getProjects } from "~/utils/contentful"
+
+import type { Route } from "./+types/index"
 
 type Repository = {
   /** The name of the repository */
@@ -30,39 +31,75 @@ type Repository = {
 }
 
 export async function loader() {
-  const projects = await getProjects()
+  async function getData() {
+    const projects = await getProjects()
+    const repos = await getRepositoriesByNodeId(
+      projects
+        .sort((a, b) => Number(a.fields.priority) - Number(b.fields.priority))
+        .map(p => p.fields.ghId),
+    )
+    const repositories: Repository[] = repos.map(repo => {
+      const project = projects.find(p => p.fields.ghId === repo.node_id)
+      return {
+        name: repo.name,
+        id: repo.id,
+        homepageUrl: repo.homepage,
+        description: repo.description,
+        url: repo.html_url,
+        screenshotUrl: project?.fields.screenshot?.fields?.file?.url,
+      } satisfies Repository
+    })
+    return repositories
+  }
 
-  const repos = await getRepositoriesByNodeId(
-    projects
-      .sort((a, b) => Number(a.fields.priority) - Number(b.fields.priority))
-      .map(p => p.fields.ghId),
-  )
-
-  const repositories: Repository[] = repos.map(repo => {
-    const project = projects.find(p => p.fields.ghId === repo.node_id)
-
-    return {
-      name: repo.name,
-      id: repo.id,
-      homepageUrl: repo.homepage,
-      description: repo.description,
-      url: repo.html_url,
-      screenshotUrl: project?.fields?.screenshot?.fields?.file?.url,
-    }
-  })
-
-  return json<Repository[]>(repositories)
+  return getData()
 }
 
-export default function Index() {
-  const repos = useLoaderData<typeof loader>()
-
+export default function Index({ loaderData: repos }: Route.ComponentProps) {
   return (
-    <div>
-      <Banner>
-        <BannerContent />
+    <>
+      <Banner noBg>
+        <h2 className="text-2xl font-mono mb-4 text-white">
+          Mission Statement
+        </h2>
+        <p className="text-[#B0B0B0] text-lg leading-relaxed pb-20">
+          My mission is to create innovative and user-centric digital
+          experiences that seamlessly blend aesthetics with functionality. I
+          strive to push the boundaries of web design and game development,
+          always aiming to deliver solutions that not only meet but exceed user
+          expectations.
+        </p>
       </Banner>
-      <Slices colors={["#21d", "#1e0ed0", "#1b0cc4", "#333"]}>
+
+      <Slices colors={["#333"]}>
+        <SliceContent title="Projects">
+          <React.Suspense fallback={"Loading projects..."}>
+            <Await
+              resolve={repos}
+              errorElement={"Could not load projects"}
+              children={resolvedRepos => {
+                return (
+                  <section className="md:grid md:gap-8 pb-10 md:grid-cols-2">
+                    {resolvedRepos.map(repo => {
+                      return (
+                        <Project
+                          key={repo.id}
+                          title={repo.name}
+                          description={repo.description}
+                          repoUrl={repo.url}
+                          url={repo.homepageUrl}
+                          screenshotUrl={repo.screenshotUrl}
+                        />
+                      )
+                    })}
+                  </section>
+                )
+              }}
+            ></Await>
+          </React.Suspense>
+        </SliceContent>
+      </Slices>
+      {/* <Slices colors={["#21d", "#1e0ed0", "#1b0cc4", "#333"]}>
         <SliceContent
           title="Watch out for me in Sim!"
           image="/images/jimmy_car.png"
@@ -137,52 +174,17 @@ export default function Index() {
           </section>
           <a
             href="https://github.com/JimmayVV?tab=repositories"
-            className="uppercase font-raleway font-bold text-sm tracking-widest rounded border-2 border-white/30 px-10 py-4 hover:bg-white/10"
+            className="uppercase font-raleway font-bold text-sm tracking-widest rounded-sm border-2 border-white/30 px-10 py-4 hover:bg-white/10"
             target="_blank"
           >
             Browse All
           </a>
         </SliceContent>
-      </Slices>
-    </div>
+      </Slices> */}
+    </>
   )
 }
 
-function BannerContent() {
-  const [loaded, setLoaded] = React.useState(false)
-
-  React.useEffect(() => {
-    setLoaded(true)
-  }, [])
-
-  return (
-    <>
-      <div
-        className={`w-20 h-20 leading-5 transition duration-1000 border-2 rounded-full border-zinc-500/50 px-5 pt-6 mb-8 ${
-          loaded ? "" : "translate-y-2 opacity-0"
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
-          <path
-            fill="white"
-            d="M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z"
-          />
-        </svg>
-      </div>
-      <h2
-        className={`blur-0 delay-700 border-b-2 border-b-zinc-500/50 text-4xl mb-6 pb-4 transition duration-500 leading-[60px] font-bold tracking-widest ${
-          loaded ? "" : "translate-x-1 opacity-0 blur-sm"
-        }`}
-      >
-        Jimmy Van Veen
-      </h2>
-      <p
-        className={`delay-[0.8s] transition duration-500 mb-8 tracking-widest text-base ${
-          loaded ? "" : "translate-x-2 opacity-0 blur-sm"
-        }`}
-      >
-        Full time Web Developer. Part time speed demon.
-      </p>
-    </>
-  )
+export function ErrorBoundary() {
+  return "Whoops"
 }

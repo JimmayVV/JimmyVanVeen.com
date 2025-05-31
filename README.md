@@ -1,3 +1,12 @@
+# TODO to finish migrating:
+
+- [ ] Lint Staged
+- [ ] Eslint
+- [ ] Prettier
+- [ ] Sort Import Statements Prettier plugin
+
+# Jimmy Van Veen's Portfolio
+
 Web Development has been a never-ending process of continual improvement, and
 constant learning.
 

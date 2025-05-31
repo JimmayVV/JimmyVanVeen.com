@@ -1,10 +1,10 @@
 import nodemailer from "nodemailer"
 
 const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE,
+  service: import.meta.env.JVV_EMAIL_SERVICE,
   auth: {
-    user: process.env.EMAIL_ADDRESS,
-    pass: process.env.EMAIL_APP_PASSWORD,
+    user: import.meta.env.JVV_EMAIL_ADDRESS,
+    pass: import.meta.env.JVV_EMAIL_APP_PASSWORD,
   },
 })
 
@@ -21,7 +21,7 @@ export async function sendMail({
 }) {
   const mailOptions = {
     from: "contact@jimmyvanveen.com",
-    to: process.env.EMAIL_ADDRESS,
+    to: import.meta.env.JVV_EMAIL_ADDRESS,
     subject: "New Message from JimmyVanVeen.com",
     text: `
 			Name: ${name}
