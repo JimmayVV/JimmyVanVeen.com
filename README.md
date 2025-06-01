@@ -1,3 +1,14 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/1fb9ad3c-9c4b-4783-9ef8-7af1eb3daf8d/deploy-status)](https://app.netlify.com/sites/jimmyvanveencom/deploys)
+
+# TODO to finish migrating:
+
+- [ ] Lint Staged
+- [ ] Eslint
+- [ ] Prettier
+- [ ] Sort Import Statements Prettier plugin
+
+# Jimmy Van Veen's Portfolio
+
 Web Development has been a never-ending process of continual improvement, and
 constant learning.
 

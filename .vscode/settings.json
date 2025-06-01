@@ -1,8 +1,26 @@
 {
-	"files.associations": {
-		"*.css": "tailwindcss"
-	},
-	"editor.rulers": [
-	 80
-	]
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.rulers": [80],
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#ff1b15",
+    "activityBar.background": "#ff1b15",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#006002",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#ff1b15",
+    "statusBar.background": "#e10600",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#ff1b15",
+    "statusBarItem.remoteBackground": "#e10600",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#e10600",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#e1060099",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.remoteColor": "#E10600"
 }

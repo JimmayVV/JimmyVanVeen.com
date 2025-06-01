@@ -1,57 +1,132 @@
-import { json, LoaderFunction, MetaFunction } from "@remix-run/node"
+import * as React from "react"
 import {
+  isRouteErrorResponse,
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
-} from "@remix-run/react"
+} from "react-router"
 
-import Footer from "~/components/footer"
-import Menu from "~/components/menu"
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar"
+import { AppSidebar } from "~/components/app-sidebar/app-sidebar"
+import { type BlogTopics, AppHeader } from "~/components/app-header"
 
-export const meta: MetaFunction = () => ({
-  charset: "utf-8",
-  title: "Jimmy Van Veen",
-  viewport: "width=device-width,initial-scale=1",
-})
+import styles from "./app.css?url"
 
-import styles from "./styles/app.css"
+import { getAllBlogPosts } from "~/utils/contentful"
 
-export function links() {
-  return [{ rel: "stylesheet", href: styles }]
+import type { Route } from "./+types/root"
+
+export const meta: Route.MetaFunction = () => [
+  {
+    title: "Jimmy Van Veen",
+  },
+]
+
+export const links: Route.LinksFunction = () => {
+  return [
+    { rel: "preconnect", href: "https://fonts.googleapis.com" },
+    {
+      rel: "preconnect",
+      href: "https://fonts.gstatic.com",
+      crossOrigin: "anonymous",
+    },
+    {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap",
+    },
+    { rel: "stylesheet", href: styles },
+  ]
 }
 
-interface LoaderData {
-  recaptchaKey: string
+export async function loader() {
+  const blogPosts = await getAllBlogPosts()
+
+  return blogPosts.map(blog => ({
+    title: blog.fields.title,
+    date: new Date(blog.fields.publishDate)
+      .toLocaleDateString("en-us", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+      .toString(),
+    link: blog.fields.slug,
+  }))
 }
 
-export const loader: LoaderFunction = async () => {
-  const recaptchaKey: string = process.env.RECAPTCHA_SITE_KEY as string
-  return json<LoaderData>({ recaptchaKey })
-}
-
-const MIN_WIDTH = 320
-
-export default function App() {
-  const { recaptchaKey } = useLoaderData<LoaderData>()
-
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`min-w-[${MIN_WIDTH}px] box-border`}>
+    <html lang="en" className={`box-border`}>
       <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body className={`min-w-[${MIN_WIDTH}px]`}>
-        <Menu />
-        <Outlet />
-        <Footer recaptchaKey={recaptchaKey} />
+      <body className={`min-w-(--min-width) min-h-screen`}>
+        {children}
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
+  )
+}
+
+export default function App({ loaderData }: Route.ComponentProps) {
+  return (
+    <Template blogPosts={loaderData}>
+      <Outlet />
+    </Template>
+  )
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  let message = "Oops!"
+  let details = "An unexpected error occurred."
+  let stack: string | undefined
+
+  if (isRouteErrorResponse(error)) {
+    message = error.status === 404 ? "404" : "Error"
+    details =
+      error.status === 404
+        ? "The requested page could not be found."
+        : error.statusText || details
+  } else if (import.meta.env.DEV && error && error instanceof Error) {
+    details = error.message
+    stack = error.stack
+  }
+
+  return (
+    <Template>
+      <main className="pt-16 p-4 container mx-auto">
+        <h1>{message}</h1>
+        <p>{details}</p>
+        {stack && (
+          <pre className="w-full p-4 overflow-x-auto">
+            <code>{stack}</code>
+          </pre>
+        )}
+      </main>
+    </Template>
+  )
+}
+
+function Template({
+  children,
+  blogPosts,
+}: {
+  children: React.ReactNode
+  blogPosts?: BlogTopics[]
+}) {
+  return (
+    <SidebarProvider className="flex flex-col">
+      <AppHeader blogs={blogPosts} />
+      <div className="flex flex-1">
+        <AppSidebar />
+        <SidebarInset className="bg-black">{children}</SidebarInset>
+      </div>
+    </SidebarProvider>
   )
 }

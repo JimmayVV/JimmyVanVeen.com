@@ -1,6 +1,5 @@
 // Libs
-import { Link, useLoaderData } from "@remix-run/react"
-import { json } from "@remix-run/node"
+import { Link, useLoaderData } from "react-router"
 
 // Components
 import Banner from "~/components/banner"
@@ -8,11 +7,10 @@ import Slices from "~/components/slices"
 import SliceContent from "~/components/slice-content"
 
 // Utils
-import { getAllBlogPosts } from "~/utils/contentful.server"
+import { getAllBlogPosts } from "~/utils/contentful"
 
 export async function loader() {
-  const blogs = await getAllBlogPosts()
-  return json(blogs)
+  return await getAllBlogPosts()
 }
 
 export default function BlogIndex() {
@@ -33,7 +31,7 @@ export default function BlogIndex() {
           reference back on it as I please.
         </p>
       </Banner>
-      <Slices colors={["#21d", "#1e0ed0", "#1b0cc4"]} staticAlignment>
+      <Slices colors={["#333", "#222"]} staticAlignment>
         {data?.length > 0 ? (
           data.map(blog => {
             const title = `${blog.fields.title} (${new Date(

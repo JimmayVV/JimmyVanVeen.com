@@ -1,13 +1,18 @@
-import { type ActionArgs, json } from "@remix-run/node"
+import { sendMail } from "~/utils/mail"
 
-import { sendMail } from "~/utils/mail.server"
+import type { Route } from "./+types/email"
+import { redirect } from "react-router"
 
-export async function action({ request }: ActionArgs) {
-  if (process.env.ALLOW_EMAILS !== "true") {
-    return json({
+export async function loader() {
+  throw redirect("/")
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  if (import.meta.env.ALLOW_EMAILS !== "true") {
+    return {
       success: false,
       error: "Contact me not enabled at this time",
-    })
+    }
   }
 
   const formData = await request.formData()
@@ -20,7 +25,7 @@ export async function action({ request }: ActionArgs) {
 
   // Ping the google recaptcha verify API to verify the captcha code you received
   const response = await fetch(
-    `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${captcha}`,
+    `https://www.google.com/recaptcha/api/siteverify?secret=${import.meta.env.RECAPTCHA_SECRET_KEY}&response=${captcha}`,
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
@@ -51,14 +56,14 @@ export async function action({ request }: ActionArgs) {
   }
 
   if (Object.values(fieldErrors).some(e => e) || !data.success) {
-    return json({
+    return {
       success: false,
       fieldErrors,
       fields,
       error: !data.success
         ? "Unproccesable request, Invalid captcha code"
         : undefined,
-    })
+    }
   }
 
   await sendMail({
@@ -68,5 +73,5 @@ export async function action({ request }: ActionArgs) {
     message,
   })
 
-  return json({ success: true, fields })
+  return { success: true, fields }
 }

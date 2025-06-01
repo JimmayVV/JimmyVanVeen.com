@@ -14,7 +14,7 @@ export function Project({
   repoUrl: string
 }) {
   return (
-    <div className="rounded shadow-lg bg-[#3b3b3b]">
+    <div className="rounded-sm shadow-lg bg-[#3b3b3b]">
       <img src={screenshotUrl} className="rounded-t" alt="" />
       <div className="p-6">
         <h2 className="font-bold uppercase pb-4 border-b-2 border-white/30 tracking-widest">

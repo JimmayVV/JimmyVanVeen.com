@@ -1,9 +1,9 @@
 // Libs
-import { Link, useLoaderData } from "@remix-run/react"
-import { json, redirect, type LoaderArgs } from "@remix-run/node"
-import ReactMarkdown from "react-markdown"
-// @ts-ignore
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { redirect } from "react-router"
+import rehypeExternalLinks from "rehype-external-links"
+import { format } from "date-fns"
+
+import type { Route } from "./+types/$slug"
 
 // Components
 import Banner from "~/components/banner"
@@ -11,9 +11,13 @@ import Slices from "~/components/slices"
 import SliceContent from "~/components/slice-content"
 
 // Utils
-import { getBlogPostBySlug } from "~/utils/contentful.server"
+import { getBlogPostBySlug } from "~/utils/contentful"
 
-export async function loader({ params }: LoaderArgs) {
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
+import ReactMarkdown from "react-markdown"
+
+export async function loader({ params }: Route.LoaderArgs) {
   const slug: string = params.slug
   const blog = await getBlogPostBySlug(slug)
 
@@ -21,12 +25,10 @@ export async function loader({ params }: LoaderArgs) {
     return redirect("/blog", { status: 302 })
   }
 
-  return json(blog)
+  return blog
 }
 
-export default function Index() {
-  const blog = useLoaderData<typeof loader>()
-
+export default function Index({ loaderData: blog }: Route.ComponentProps) {
   return (
     <div>
       <Banner>
@@ -40,15 +42,15 @@ export default function Index() {
           <div id="blogContent">
             <ReactMarkdown
               components={{
-                code({ node, inline, className, children, ...props }) {
+                code({ node, className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || "")
-                  return !inline && match ? (
+                  return match ? (
                     <SyntaxHighlighter
                       showLineNumbers
                       children={String(children).replace(/\n$/, "")}
                       language={match[1]}
+                      style={vscDarkPlus}
                       PreTag="div"
-                      {...props}
                     />
                   ) : (
                     <code className={className} {...props}>
@@ -57,10 +59,16 @@ export default function Index() {
                   )
                 },
               }}
+              rehypePlugins={[[rehypeExternalLinks, { target: "_blank" }]]}
             >
               {blog.fields.body}
             </ReactMarkdown>
           </div>
+
+          <h3 className="mb-6 mt-10 pt-9 font-sans font-bold italic underline text-lg border-t-2">
+            Posted on{" "}
+            {format(new Date(blog.fields.publishDate), "MMMM dd, yyyy")}
+          </h3>
         </SliceContent>
       </Slices>
     </div>
