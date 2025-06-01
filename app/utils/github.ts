@@ -4,7 +4,7 @@ import { throttling } from "@octokit/plugin-throttling"
 const Octokit = createOctokit.plugin(throttling)
 
 const octokit = new Octokit({
-  auth: import.meta.env.JVV_GITHUB_TOKEN,
+  auth: process.env.GITHUB_TOKEN,
   throttle: {
     onRateLimit: (retryAfter, options) => {
       console.warn(

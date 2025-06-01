@@ -28,8 +28,8 @@ export type ProjectFieldsSkeleton = Contentful.EntrySkeletonType<
 >
 
 const client = Contentful.createClient({
-  space: import.meta.env.JVV_CONTENTFUL_SPACE_ID ?? "",
-  accessToken: import.meta.env.JVV_CONTENTFUL_ACCESS_TOKEN ?? "",
+  space: process.env.CONTENTFUL_SPACE_ID ?? "",
+  accessToken: process.env.CONTENTFUL_ACCESS_TOKEN ?? "",
 })
 
 /**

@@ -5,12 +5,13 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "react-router build",
-    "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "build": "react-router build && node netlify/prepare.js",
+    "dev": "cross-env NODE_ENV=development node ./dev-server.js",
+    "start": "netlify serve",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@netlify/functions": "^4.0.0",
     "@octokit/plugin-throttling": "^11.0.1",
     "@octokit/rest": "^22.0.0",
     "@radix-ui/react-dialog": "^1.1.6",
@@ -39,6 +40,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@mjackson/node-fetch-server": "^0.6.1",
     "@netlify/vite-plugin-react-router": "^1.0.1",
     "@react-router/dev": "^7.2.0",
     "@tailwindcss/vite": "^4.0.9",
@@ -47,6 +49,9 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.5.0",
+    "netlify-cli": "^21.5.0",
     "prettier": "^3.5.3",
     "react-router-devtools": "^5.0.6",
     "tailwindcss": "^4.0.8",
