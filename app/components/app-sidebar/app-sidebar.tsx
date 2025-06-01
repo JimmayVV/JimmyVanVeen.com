@@ -18,7 +18,7 @@ import { href, Link } from "react-router"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar
-      className="top-(--header-height) !h-[calc(100svh-var(--header-height))] bg-(--sidebar-background)"
+      className="top-[var(--header-height)] !h-[calc(100svh-var(--header-height))] bg-[var(--sidebar-background)]"
       id="app-sidebar"
       {...props}
     >
