@@ -39,7 +39,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@netlify/vite-plugin-react-router": "^1.0.0",
+    "@netlify/vite-plugin-react-router": "^1.0.1",
     "@react-router/dev": "^7.2.0",
     "@tailwindcss/vite": "^4.0.9",
     "@types/node": "^22.13.9",
