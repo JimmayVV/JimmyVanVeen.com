@@ -1,12 +1,5 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/1fb9ad3c-9c4b-4783-9ef8-7af1eb3daf8d/deploy-status)](https://app.netlify.com/sites/jimmyvanveencom/deploys)
 
-# TODO to finish migrating:
-
-- [ ] Lint Staged
-- [ ] Eslint
-- [ ] Prettier
-- [ ] Sort Import Statements Prettier plugin
-
 # Jimmy Van Veen's Portfolio
 
 Web Development has been a never-ending process of continual improvement, and
@@ -29,3 +22,11 @@ extract the projects from it into their own repo's, but have held off for now.
 This portfolio is built using React, GraphQL, and ES6 JavaScript, communicating
 with version 4 of Github's API. If you have any questions, feel free to
 [contact me](https://www.jimmyvanveen.com/#contact).
+
+## 🚀 Development Roadmap
+
+I'm actively improving this portfolio. See what I'm working on:
+
+- 📋 [**Project Board**](https://github.com/JimmayVV/JimmyVanVeen.com/projects) - Current priorities and progress
+- 🐛 [**Open Issues**](https://github.com/JimmayVV/JimmyVanVeen.com/issues) - All planned improvements
+- 🏷️ [**By Priority**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+label%3Apriority%3Ahigh) - High priority items
