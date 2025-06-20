@@ -27,6 +27,7 @@ with version 4 of Github's API. If you have any questions, feel free to
 
 I'm actively improving this portfolio. See what I'm working on:
 
-- 📋 [**Project Board**](https://github.com/JimmayVV/JimmyVanVeen.com/projects) - Current priorities and progress
-- 🐛 [**Open Issues**](https://github.com/JimmayVV/JimmyVanVeen.com/issues) - All planned improvements
-- 🏷️ [**By Priority**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+label%3Apriority%3Ahigh) - High priority items
+- ✅ [**Committed Work**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%3Acommitted) - Features I've committed to building
+- 🏷️ [**High Priority**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+label%3Apriority%3Ahigh) - My current focus
+- 💡 [**Suggestions**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+-label%3Astatus%3Acommitted) - Community ideas (not yet committed)
+- 🐛 [**All Issues**](https://github.com/JimmayVV/JimmyVanVeen.com/issues) - Everything tracked
