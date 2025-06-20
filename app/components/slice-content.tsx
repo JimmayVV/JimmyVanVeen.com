@@ -54,7 +54,7 @@ export default function SliceContent({
         >
           {children}
         </div>
-        {footer ? footer : null}
+        {footer ?? null}
       </div>
       {image ? (
         <div
@@ -62,7 +62,7 @@ export default function SliceContent({
             flip ? "ml-8" : "mr-8"
           }`}
         >
-          <img src={image} className="w-52 top-1/2 absolute -translate-y-1/2" />
+          <img src={image} className="w-52 top-1/2 absolute -translate-y-1/2" alt={typeof title === "string" ? `${title} illustration` : "Content illustration"} />
         </div>
       ) : null}
     </div>

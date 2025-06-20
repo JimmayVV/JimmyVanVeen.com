@@ -11,7 +11,7 @@ export default function Banner({
   return (
     <section
       id="banner"
-      className={clsx(`pt-28 pb-32 -mb-24 text-white uppercase font-raleway`, {
+      className={clsx("pt-28 pb-32 -mb-24 text-white uppercase font-raleway", {
         "bg-hero-pattern bg-[auto,cover]": !noBg,
       })}
     >

@@ -42,16 +42,17 @@ export default function Index({ loaderData: blog }: Route.ComponentProps) {
           <div id="blogContent">
             <ReactMarkdown
               components={{
-                code({ node, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className || "")
+                code({ node: _node, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className ?? "")
                   return match ? (
                     <SyntaxHighlighter
                       showLineNumbers
-                      children={String(children).replace(/\n$/, "")}
                       language={match[1]}
                       style={vscDarkPlus}
                       PreTag="div"
-                    />
+                    >
+                      {String(children).replace(/\n$/, "")}
+                    </SyntaxHighlighter>
                   ) : (
                     <code className={className} {...props}>
                       {children}

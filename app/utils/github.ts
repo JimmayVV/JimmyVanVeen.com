@@ -8,14 +8,14 @@ const octokit = new Octokit({
   throttle: {
     onRateLimit: (retryAfter, options) => {
       console.warn(
-        `Request quota exhausted for request ${options.method} ${options.url}. Retrying after ${retryAfter} seconds.`,
+        `Request quota exhausted for request ${options.method} ${options.url}. Retrying after ${String(retryAfter)} seconds.`,
       )
 
       return true
     },
     onSecondaryRateLimit: (retryAfter, options) => {
       console.warn(
-        `SecondaryRateLimit detected for request ${options.method} ${options.url}. Retrying after ${retryAfter} seconds.`,
+        `SecondaryRateLimit detected for request ${options.method} ${options.url}. Retrying after ${String(retryAfter)} seconds.`,
       )
 
       return true

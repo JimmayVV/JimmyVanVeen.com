@@ -3,7 +3,7 @@ import { sendMail } from "~/utils/mail"
 import type { Route } from "./+types/email"
 import { redirect } from "react-router"
 
-export async function loader() {
+export function loader() {
   throw redirect("/")
 }
 
@@ -25,7 +25,8 @@ export async function action({ request }: Route.ActionArgs) {
 
   // Ping the google recaptcha verify API to verify the captcha code you received
   const response = await fetch(
-    `https://www.google.com/recaptcha/api/siteverify?secret=${import.meta.env.RECAPTCHA_SECRET_KEY}&response=${captcha}`,
+    `https://www.google.com/recaptcha/api/siteverify?secret=${String(import.meta.env.RECAPTCHA_SECRET_KEY)}&response=${String(captcha ?? "")}`,
+
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
@@ -34,7 +35,7 @@ export async function action({ request }: Route.ActionArgs) {
     },
   )
 
-  const data = await response.json()
+  const data = await response.json() as { success: boolean }
 
   /**
    * The structure of response from the veirfy API is
@@ -55,7 +56,7 @@ export async function action({ request }: Route.ActionArgs) {
     message: !message ? "Message is required" : null,
   }
 
-  if (Object.values(fieldErrors).some(e => e) || !data.success) {
+  if (Object.values(fieldErrors).some(Boolean) || !data.success) {
     return {
       success: false,
       fieldErrors,

@@ -6,7 +6,6 @@ import { Await } from "react-router"
 import Banner from "~/components/banner"
 import Slices from "~/components/slices"
 import SliceContent from "~/components/slice-content"
-import MainLink from "~/components/main-link"
 import Project from "~/components/project"
 
 // Utils
@@ -15,7 +14,7 @@ import { getProjects } from "~/utils/contentful"
 
 import type { Route } from "./+types/index"
 
-type Repository = {
+interface Repository {
   /** The name of the repository */
   name: string
   /** The ID of the repository */
@@ -46,7 +45,7 @@ export async function loader() {
         homepageUrl: repo.homepage,
         description: repo.description,
         url: repo.html_url,
-        screenshotUrl: project?.fields.screenshot?.fields?.file?.url,
+        screenshotUrl: project?.fields.screenshot?.fields.file?.url ?? undefined,
       } satisfies Repository
     })
     return repositories
@@ -77,7 +76,8 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
             <Await
               resolve={repos}
               errorElement={"Could not load projects"}
-              children={resolvedRepos => {
+            >
+              {resolvedRepos => {
                 return (
                   <section className="md:grid md:gap-8 pb-10 md:grid-cols-2">
                     {resolvedRepos.map(repo => {
@@ -95,7 +95,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
                   </section>
                 )
               }}
-            ></Await>
+            </Await>
           </React.Suspense>
         </SliceContent>
       </Slices>

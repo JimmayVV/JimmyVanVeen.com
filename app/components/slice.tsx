@@ -35,7 +35,7 @@ export default function Slice({
       </div>
       {isLastChild ? null : (
         <div
-          className={`h-8 md:h-16 lg:h-28 w-full left-0`}
+          className={"h-8 md:h-16 lg:h-28 w-full left-0"}
           style={{ backgroundColor: color }}
         />
       )}
