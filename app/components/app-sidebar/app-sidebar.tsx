@@ -6,6 +6,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "~/components/ui/sidebar"
 
 import * as React from "react"
@@ -16,6 +17,14 @@ import logo from "~/components/app-sidebar/jimmyvanveen.svg?url"
 import { href, Link } from "react-router"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { setOpenMobile, isMobile } = useSidebar()
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
+
   return (
     <Sidebar
       className="top-[var(--header-height)] !h-[calc(100svh-var(--header-height))] bg-[var(--sidebar-background)]"
@@ -26,7 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="xl" asChild className="mb-3">
-              <Link to={href("/")}>
+              <Link to={href("/")} onClick={handleLinkClick}>
                 <div className="flex aspect-square size-16 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <img src={logo} alt="Jimmy Van Veen" />
                 </div>
@@ -48,6 +57,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
         <Link
           to={href("/blog")}
+          onClick={handleLinkClick}
           className="bg-accent-foreground hover:bg-accent hover:text-accent-foreground font-bold py-4 px-6 rounded-xl"
         >
           Jimmy's Blog
