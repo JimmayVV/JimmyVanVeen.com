@@ -30,18 +30,20 @@ export default function Slices({
         const flipDisplay = index % 2 !== 0
         const isLastChild = index === React.Children.count(children) - 1
 
-        const childElement =
-          React.isValidElement(child) && child.type === SliceContent
-            ? React.cloneElement(
-                child as React.ReactElement<SliceContentProps>,
-                {
-                  flip:
-                    // If the child doesn't have a flip prop, then we'll apply one programmatically.
-                    child.props.flip === undefined
-                      ? !staticAlignment && flipDisplay
-                      : child.props.flip,
-                },
-              )
+        const isSliceContentElement = (
+          element: React.ReactNode
+        ): element is React.ReactElement<SliceContentProps> => {
+          return React.isValidElement(element) && element.type === SliceContent
+        }
+
+        const childElement = isSliceContentElement(child)
+          ? React.cloneElement(child, {
+              flip:
+                // If the child doesn't have a flip prop, then we'll apply one programmatically.
+                child.props.flip === undefined
+                  ? !staticAlignment && flipDisplay
+                  : child.props.flip,
+            })
             : child
 
         return (
