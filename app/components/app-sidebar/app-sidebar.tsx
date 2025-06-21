@@ -60,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           onClick={handleLinkClick}
           className="bg-accent-foreground hover:bg-accent hover:text-accent-foreground font-bold py-4 px-6 rounded-xl"
         >
-          Jimmy's Blog
+          Jimmy&apos;s Blog
         </Link>
       </SidebarContent>
       <SidebarFooter id="sidebar-footer">

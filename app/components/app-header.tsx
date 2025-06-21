@@ -39,7 +39,7 @@ export function AppHeader({ blogs = [] }: { blogs?: BlogTopics[] }) {
               {blogs.map(blog => (
                 <span key={blog.title}>
                   <Link
-                    to={href(`/blog/:slug`, { slug: blog.link })}
+                    to={href("/blog/:slug", { slug: blog.link })}
                     className="italic hover:underline"
                   >
                     {blog.title}

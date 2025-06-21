@@ -24,7 +24,7 @@ export default function BlogIndex() {
         </h2>
         <p className="leading-8 tracking-widest">
           These blog posts more or less will be occupied by various topic and
-          resources I've struggled to find concrete information about in a
+          resources I&apos;ve struggled to find concrete information about in a
           timely manner. These blog posts are not meant to be unique, nor are
           they trying to be entirely original. They will attempt to log
           information that was less than easy for me to find on my own, and to

@@ -22,31 +22,31 @@ export function Menu() {
 
   return (
     <>
-      <div
+      <button
         onClick={() => setOpenMenu(open => !open)}
         className={`fixed z-20 top-2 right-3 text-white font-raleway uppercase
                     font-bold border-2 px-6 py-2 border-white/20 rounded
-                    text-sm tracking-widest hover:cursor-pointer
+                    text-sm tracking-widest hover:cursor-pointer bg-transparent
                     hover:bg-white/10`}
       >
         Menu
-      </div>
+      </button>
 
       <div
         className={`fixed top-0 left-0 bottom-0 right-0 bg-black/50
                     transition-all ${
-                      openMenu || isLoading
-                        ? "opacity-100 z-10"
-                        : "opacity-0 invisible"
-                    }`}
+    openMenu || isLoading
+      ? "opacity-100 z-10"
+      : "opacity-0 invisible"
+    }`}
       >
         <div
           className={`absolute top-1/2 left-1/2 -translate-x-1/2 w-80 
                     bg-primary rounded p-7 text-center transition-all ${
-                      openMenu || isLoading
-                        ? "-translate-y-1/2 opacity-100"
-                        : "-translate-y-8 opacity-0 -z-10"
-                    }`}
+    openMenu || isLoading
+      ? "-translate-y-1/2 opacity-100"
+      : "-translate-y-8 opacity-0 -z-10"
+    }`}
         >
           <h2
             className={`text-xl uppercase font-raleway pb-4 mb-4 border-b
@@ -60,7 +60,7 @@ export function Menu() {
                 to="/"
                 end
                 className={({ isActive }) =>
-                  `${isActive ? activeClassName : inactiveClassName}`
+                  isActive ? activeClassName : inactiveClassName
                 }
                 onClick={() => closeMenu()}
                 rel="prefetch"
@@ -71,7 +71,7 @@ export function Menu() {
                 to="/blog"
                 end
                 className={({ isActive }) =>
-                  `${isActive ? activeClassName : inactiveClassName}`
+                  isActive ? activeClassName : inactiveClassName
                 }
                 onClick={() => closeMenu()}
                 rel="prefetch"

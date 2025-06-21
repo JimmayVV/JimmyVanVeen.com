@@ -1,7 +1,6 @@
 import { Link, type LinkProps } from "react-router"
 
 interface MainLinkProps extends LinkProps {
-  flip?: boolean
   external?: boolean
 }
 
@@ -9,7 +8,6 @@ const classNames =
   "flex mt-5 uppercase font-raleway font-bold text-sm tracking-widest items-center main-link group"
 
 export default function MainLink({
-  flip,
   children,
   external,
   to,
@@ -18,7 +16,6 @@ export default function MainLink({
   const content = (
     <>
       <div>
-        {/* <div className={flip ? "flex-1 text-right" : ""}> */}
         <span className="rounded-full border-2 border-white/10 w-8 h-8 p-2.5 mr-3 leading-5 inline-block group-hover:bg-white/10 duration-100 transition-all">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +32,7 @@ export default function MainLink({
   )
 
   return external ? (
-    <a href={to as string} className={classNames} {...props} target="_blank">
+    <a href={to as string} className={classNames} {...props} target="_blank" rel="noreferrer">
       {content}
     </a>
   ) : (
