@@ -86,3 +86,8 @@ Prefix custom environment variables with `JVV_`:
 - Blog header includes animated marquee of recent posts
 - Rate limiting and retry logic in GitHub API integration
 - Type generation runs automatically during builds
+
+## Git Commit Guidelines
+
+- NEVER add Claude signatures or co-author lines to git commit messages
+- Keep commit messages concise and descriptive
