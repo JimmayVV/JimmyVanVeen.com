@@ -38,12 +38,12 @@ export default function Slices({
 
         const childElement = isSliceContentElement(child)
           ? React.cloneElement(child, {
-            flip:
+              flip:
                 // If the child doesn't have a flip prop, then we'll apply one programmatically.
                 child.props.flip === undefined
-                  ? (!staticAlignment && flipDisplay) ?? false
+                  ? ((!staticAlignment && flipDisplay) ?? false)
                   : child.props.flip,
-          })
+            })
           : child
 
         return (

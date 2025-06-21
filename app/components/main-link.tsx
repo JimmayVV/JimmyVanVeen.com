@@ -32,7 +32,13 @@ export default function MainLink({
   )
 
   return external ? (
-    <a href={to as string} className={classNames} {...props} target="_blank" rel="noreferrer">
+    <a
+      href={to as string}
+      className={classNames}
+      {...props}
+      target="_blank"
+      rel="noreferrer"
+    >
       {content}
     </a>
   ) : (

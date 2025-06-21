@@ -1,0 +1,28 @@
+# dependencies
+node_modules
+
+# production
+build
+dist
+.netlify
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env*.local
+
+# generated files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# coverage
+coverage
