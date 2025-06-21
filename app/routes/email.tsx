@@ -35,7 +35,7 @@ export async function action({ request }: Route.ActionArgs) {
     },
   )
 
-  const data = await response.json() as { success: boolean }
+  const data = (await response.json()) as { success: boolean }
 
   /**
    * The structure of response from the veirfy API is

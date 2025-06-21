@@ -25,15 +25,39 @@ curriculum are stored. This means that one repository has many projects within
 it. It's a mini site in and of itself. I have been debating whether or not to
 extract the projects from it into their own repo's, but have held off for now.
 
-This portfolio is built using React, GraphQL, and ES6 JavaScript, communicating
-with version 4 of Github's API. If you have any questions, feel free to
+This portfolio is built using React Router v7, React 19, TypeScript, and
+Tailwind CSS v4, with content managed through Contentful CMS and dynamic project
+data from GitHub's API. Development is accelerated through AI-assisted coding
+with Claude Code. If you have any questions, feel free to
 [contact me](https://www.jimmyvanveen.com/#contact).
+
+## 📚 Architecture Documentation
+
+For detailed information about the technical architecture, design decisions, and
+implementation details, see the [comprehensive documentation](./docs/README.md):
+
+- **[Architecture Overview](./docs/architecture/overview.md)** - High-level
+  system design
+- **[Architecture Decision Records](./docs/README.md#architecture-decision-records-adrs)** -
+  Technology choices and rationale
+- **[Development Workflow](./docs/architecture/development-workflow.md)** -
+  AI-assisted development process
+
+Perfect for understanding how everything works or replicating parts of this
+setup!
 
 ## 🚀 Development Roadmap
 
 I'm actively improving this portfolio. See what I'm working on:
 
-- ✅ [**Committed Work**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%3Acommitted) - Features I've committed to building
-- 🏷️ [**High Priority**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+label%3Apriority%3Ahigh) - My current focus
-- 💡 [**Suggestions**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+-label%3Astatus%3Acommitted) - Community ideas (not yet committed)
-- 🐛 [**All Issues**](https://github.com/JimmayVV/JimmyVanVeen.com/issues) - Everything tracked
+- ✅
+  [**Committed Work**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%3Acommitted) -
+  Features I've committed to building
+- 🏷️
+  [**High Priority**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+label%3Apriority%3Ahigh) -
+  My current focus
+- 💡
+  [**Suggestions**](https://github.com/JimmayVV/JimmyVanVeen.com/issues?q=is%3Aopen+is%3Aissue+-label%3Astatus%3Acommitted) -
+  Community ideas (not yet committed)
+- 🐛 [**All Issues**](https://github.com/JimmayVV/JimmyVanVeen.com/issues) -
+  Everything tracked

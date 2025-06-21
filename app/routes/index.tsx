@@ -45,7 +45,8 @@ export async function loader() {
         homepageUrl: repo.homepage,
         description: repo.description,
         url: repo.html_url,
-        screenshotUrl: project?.fields.screenshot?.fields.file?.url ?? undefined,
+        screenshotUrl:
+          project?.fields.screenshot?.fields.file?.url ?? undefined,
       } satisfies Repository
     })
     return repositories
@@ -73,10 +74,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
       <Slices colors={["#333"]}>
         <SliceContent title="Projects">
           <React.Suspense fallback={"Loading projects..."}>
-            <Await
-              resolve={repos}
-              errorElement={"Could not load projects"}
-            >
+            <Await resolve={repos} errorElement={"Could not load projects"}>
               {resolvedRepos => {
                 return (
                   <section className="md:grid md:gap-8 pb-10 md:grid-cols-2">

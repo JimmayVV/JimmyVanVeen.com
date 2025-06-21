@@ -35,18 +35,18 @@ export function Menu() {
       <div
         className={`fixed top-0 left-0 bottom-0 right-0 bg-black/50
                     transition-all ${
-    openMenu || isLoading
-      ? "opacity-100 z-10"
-      : "opacity-0 invisible"
-    }`}
+                      openMenu || isLoading
+                        ? "opacity-100 z-10"
+                        : "opacity-0 invisible"
+                    }`}
       >
         <div
           className={`absolute top-1/2 left-1/2 -translate-x-1/2 w-80 
                     bg-primary rounded p-7 text-center transition-all ${
-    openMenu || isLoading
-      ? "-translate-y-1/2 opacity-100"
-      : "-translate-y-8 opacity-0 -z-10"
-    }`}
+                      openMenu || isLoading
+                        ? "-translate-y-1/2 opacity-100"
+                        : "-translate-y-8 opacity-0 -z-10"
+                    }`}
         >
           <h2
             className={`text-xl uppercase font-raleway pb-4 mb-4 border-b

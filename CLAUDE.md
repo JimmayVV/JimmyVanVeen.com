@@ -86,3 +86,70 @@ Prefix custom environment variables with `JVV_`:
 - Blog header includes animated marquee of recent posts
 - Rate limiting and retry logic in GitHub API integration
 - Type generation runs automatically during builds
+
+## Git Workflow Guidelines
+
+### Commit Messages
+
+- NEVER add Claude signatures or co-author lines to git commit messages
+- Keep commit messages concise and descriptive
+
+### Branch Naming
+
+Always use organized branch prefixes that correlate with GitHub issue types:
+
+**Format**: `<type>/<issue-number>-<short-description>` or
+`<type>/<short-description>`
+
+**Branch Types**:
+
+- `feature/` - New features and functionality
+- `enhancement/` - Improvements to existing features
+- `fix/` - Bug fixes and corrections
+- `hotfix/` - Urgent production fixes
+- `refactor/` - Code restructuring without functionality changes
+- `test/` - Adding or updating tests
+- `docs/` - Documentation updates
+- `chore/` - Maintenance tasks, dependency updates, tooling
+- `ci/` - CI/CD pipeline changes
+- `security/` - Security-related fixes and improvements
+- `perf/` - Performance optimizations
+
+**Examples**:
+
+```bash
+feature/67-prettier-setup
+fix/sidebar-mobile-responsive
+docs/architecture-decision-records
+chore/dependency-updates
+```
+
+### Workflow
+
+- Always create appropriately named feature branches
+- Reference GitHub issue numbers when applicable
+- Use descriptive branch names that indicate the work being done
+
+### Branch Creation Examples
+
+When creating branches, use commands like:
+
+```bash
+# For new features
+git checkout -b feature/issue-number-description
+
+# For bug fixes
+git checkout -b fix/issue-number-description
+
+# For documentation
+git checkout -b docs/topic-description
+
+# For maintenance
+git checkout -b chore/task-description
+```
+
+### GitHub Issue Correlation
+
+- Ensure branch names align with GitHub issue labels
+- Reference issue numbers in branch names when applicable
+- Use consistent naming that makes work tracking easy
