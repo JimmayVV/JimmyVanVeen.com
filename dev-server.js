@@ -14,7 +14,6 @@ app.disable("x-powered-by");
 console.log("Starting development server");
 
 const viteDevServer = await createServer({
-  configFile: "./config/vite.config.ts",
   server: { middlewareMode: true },
 });
 app.use(viteDevServer.middlewares);

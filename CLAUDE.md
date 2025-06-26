@@ -42,7 +42,7 @@ npm start
 - `app/utils/` - API integrations (Contentful, GitHub, email)
 - `app/components/ui/` - shadcn/ui component library
 - `server/app.ts` - Netlify Functions entry point
-- `config/` - Configuration files (eslint, prettier, vite)
+- `config/` - Configuration files (eslint, prettier)
 
 ### Data Flow
 
