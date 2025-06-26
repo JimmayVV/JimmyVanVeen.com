@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    groups:
+      react-ecosystem:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      dev-tools:
+        patterns:
+          - "eslint*"
+          - "prettier*"
+          - "@types/*"
+          - "typescript*"
+      build-tools:
+        patterns:
+          - "vite*"
+          - "@react-router/*"
+          - "tailwindcss*"
+    ignore:
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]

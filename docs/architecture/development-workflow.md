@@ -144,9 +144,22 @@ fi
 
 #### Continuous Integration
 
-- Automatic builds on PR creation
-- Lint and type checking in CI
-- Preview deployments for testing
+**GitHub Actions Pipeline** (ADR 12):
+
+- **Multi-stage validation**: Lint → TypeScript → Build
+- **Automatic builds**: Every push to master and PR creation
+- **Quality gates**: Must pass all stages before merge
+- **Environment testing**: Build validation with test configuration
+- **Performance optimized**: 10-minute timeouts, npm caching, concurrency
+  control
+
+**Dependabot Automation**:
+
+- **Weekly scans**: Monday 9 AM dependency updates
+- **Grouped updates**: Logical ecosystem groupings (React, dev tools, build
+  tools)
+- **Auto-merge**: Patch/minor updates automatically merged after CI passes
+- **Safety controls**: Major React updates blocked for manual review
 
 ### Development Environment
 
@@ -185,10 +198,10 @@ npm run typecheck # Type validation
 
 ### Phase 3: Quality Assurance
 
-- Run full test suite
-- Lint and format code
-- Type checking validation
-- Manual testing of features
+- **Automated CI pipeline**: GitHub Actions validates all changes
+- **Local validation**: Run full test suite, lint, format, and type checking
+- **Build verification**: Ensure successful build with test environment
+- **Manual testing**: Feature validation and user experience testing
 
 ### Phase 4: Review and Integration
 

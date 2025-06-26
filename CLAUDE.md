@@ -17,12 +17,29 @@ npm run dev
 # Build for production
 npm run build
 
+# Linting and formatting
+npm run lint
+npm run format
+npm run format:check
+
 # Type generation and checking
 npm run typecheck
 
 # Start local Netlify server
 npm start
 ```
+
+## CI/CD Pipeline
+
+**GitHub Actions** automatically validates all code changes:
+
+- **Triggers**: Every push to `master` and all pull requests
+- **Pipeline**: ESLint → Prettier → TypeScript → Build
+- **Environment**: Node.js v20 with test configuration
+- **Dependabot**: Weekly dependency updates with auto-merge for patch/minor
+  versions
+
+**Quality Gates**: All CI checks must pass before merging to master.
 
 ## Architecture
 
