@@ -45,7 +45,7 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.5.2",
     "isbot": "^5.1.23",
-    "lucide-react": "^0.518.0",
+    "lucide-react": "^0.523.0",
     "nodemailer": "^7.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
