@@ -42,6 +42,7 @@ npm start
 - `app/utils/` - API integrations (Contentful, GitHub, email)
 - `app/components/ui/` - shadcn/ui component library
 - `server/app.ts` - Netlify Functions entry point
+- `config/` - Configuration files (eslint, prettier, vite)
 
 ### Data Flow
 
@@ -82,10 +83,11 @@ Prefix custom environment variables with `JVV_`:
 
 ## Notable Implementation Details
 
-- Custom dev server at `dev-server.js` wraps Vite with Express
+- Custom dev server at `dev-server.js` wraps Vite with Express (uses ESM imports)
 - Blog header includes animated marquee of recent posts
 - Rate limiting and retry logic in GitHub API integration
 - Type generation runs automatically during builds
+- Configuration files organized in `config/` directory for cleaner root
 
 ## Git Workflow Guidelines
 
