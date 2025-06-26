@@ -32,7 +32,7 @@ Planning → AI Discussion → Implementation → Human Review → Integration
 
 #### Git Strategy
 
-- **Main Branch**: `master` (stable, production-ready)
+- **Main Branch**: `main` (stable, production-ready)
 - **Branch Naming**: Organized by type and correlated with GitHub issues
 - **Pull Requests**: Required for all changes with AI assistance documented
 
@@ -117,7 +117,7 @@ jobs:
 branch=$(git rev-parse --abbrev-ref HEAD)
 valid_pattern="^(feature|fix|docs|chore|enhancement|refactor|test|ci|security|perf|hotfix)/.+"
 
-if [[ ! $branch =~ $valid_pattern ]] && [[ $branch != "master" ]]; then
+if [[ ! $branch =~ $valid_pattern ]] && [[ $branch != "main" ]]; then
     echo "Error: Branch name '$branch' does not follow naming convention"
     echo "Use: <type>/<description> where type is one of:"
     echo "  feature, fix, docs, chore, enhancement, refactor, test, ci, security, perf, hotfix"
@@ -147,7 +147,7 @@ fi
 **GitHub Actions Pipeline** (ADR 12):
 
 - **Multi-stage validation**: Lint → TypeScript → Build
-- **Automatic builds**: Every push to master and PR creation
+- **Automatic builds**: Every push to main and PR creation
 - **Quality gates**: Must pass all stages before merge
 - **Environment testing**: Build validation with test configuration
 - **Performance optimized**: 10-minute timeouts, npm caching, concurrency

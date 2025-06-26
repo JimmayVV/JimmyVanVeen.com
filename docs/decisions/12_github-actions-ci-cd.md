@@ -31,8 +31,8 @@ following components:
 
 A multi-stage pipeline (`ci.yml`) that runs on:
 
-- Every push to `master` branch
-- Every pull request against `master` branch
+- Every push to `main` branch
+- Every pull request against `main` branch
 
 **Pipeline Stages:**
 

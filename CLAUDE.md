@@ -42,13 +42,13 @@ npm run ui:diff <component-name>
 
 **GitHub Actions** automatically validates all code changes:
 
-- **Triggers**: Every push to `master` and all pull requests
+- **Triggers**: Every push to `main` and all pull requests
 - **Pipeline**: ESLint → Prettier → TypeScript → Build
 - **Environment**: Node.js v20 with test configuration
 - **Dependabot**: Weekly dependency updates with auto-merge for patch/minor
   versions
 
-**Quality Gates**: All CI checks must pass before merging to master.
+**Quality Gates**: All CI checks must pass before merging to main.
 
 ## Architecture
 
