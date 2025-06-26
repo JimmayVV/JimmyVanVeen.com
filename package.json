@@ -13,7 +13,10 @@
     "lint:fix": "eslint . -c ./config/eslint.config.js --fix",
     "prepare": "husky",
     "format": "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write .",
-    "format:check": "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --check ."
+    "format:check": "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --check .",
+    "ui:add": "npx shadcn@latest add -c ./config",
+    "ui:init": "npx shadcn@latest init -c ./config",
+    "ui:diff": "npx shadcn@latest diff -c ./config"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [

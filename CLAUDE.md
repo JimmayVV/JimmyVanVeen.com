@@ -22,6 +22,15 @@ npm run typecheck
 
 # Start local Netlify server
 npm start
+
+# Add shadcn/ui components
+npm run ui:add <component-name>
+
+# Initialize shadcn/ui (already done)
+npm run ui:init
+
+# Check for shadcn/ui updates
+npm run ui:diff <component-name>
 ```
 
 ## Architecture
@@ -42,7 +51,7 @@ npm start
 - `app/utils/` - API integrations (Contentful, GitHub, email)
 - `app/components/ui/` - shadcn/ui component library
 - `server/app.ts` - Netlify Functions entry point
-- `config/` - Configuration files (eslint, prettier)
+- `config/` - Configuration files (eslint, prettier, components.json)
 
 ### Data Flow
 
@@ -68,6 +77,8 @@ Prefix custom environment variables with `JVV_`:
 - Responsive sidebar layout with mobile collapse
 - CSS Grid for project displays
 - Path alias `~/*` maps to `app/` directory
+- shadcn/ui configuration in `config/components.json`
+- Use `npm run ui:add <component>` to add new shadcn components
 
 ### Content Management
 
