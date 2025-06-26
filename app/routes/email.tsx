@@ -9,7 +9,7 @@ export function loader() {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  if (import.meta.env.ALLOW_EMAILS !== "true") {
+  if (import.meta.env.JVV_ALLOW_EMAILS !== "true") {
     return {
       success: false,
       error: "Contact me not enabled at this time",
@@ -26,7 +26,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   // Ping the google recaptcha verify API to verify the captcha code you received
   const response = await fetch(
-    `https://www.google.com/recaptcha/api/siteverify?secret=${String(import.meta.env.RECAPTCHA_SECRET_KEY)}&response=${String(captcha ?? "")}`,
+    `https://www.google.com/recaptcha/api/siteverify?secret=${String(process.env.RECAPTCHA_SECRET_KEY)}&response=${String(captcha ?? "")}`,
 
     {
       headers: {

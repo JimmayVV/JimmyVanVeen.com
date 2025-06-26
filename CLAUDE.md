@@ -51,7 +51,7 @@ npm run ui:diff <component-name>
 - `app/utils/` - API integrations (Contentful, GitHub, email)
 - `app/components/ui/` - shadcn/ui component library
 - `server/app.ts` - Netlify Functions entry point
-- `config/` - Configuration files (eslint, prettier, components.json)
+- `config/` - Configuration files (eslint, prettier, components.json, env)
 
 ### Data Flow
 
@@ -62,12 +62,28 @@ npm run ui:diff <component-name>
 
 ## Environment Variables
 
-Prefix custom environment variables with `JVV_`:
+Environment files are located in `config/env/` directory.
+
+### Server-side Variables (Node.js)
+
+Available via `process.env.*` in server code only - **NOT** exposed to client:
 
 - `CONTENTFUL_SPACE_ID` - Contentful space
 - `CONTENTFUL_ACCESS_TOKEN` - Contentful API token
 - `GITHUB_TOKEN` - GitHub API token
-- Email service configuration
+- `EMAIL_SERVICE` - Email service provider
+- `EMAIL_ADDRESS` - Contact email address
+- `EMAIL_APP_PASSWORD` - Email service app password (secret)
+- `RECAPTCHA_SECRET_KEY` - ReCaptcha secret key (secret)
+
+### Client-side Variables (Browser)
+
+Must be prefixed with `JVV_` and accessed via `import.meta.env.*` - **EXPOSED** to client:
+
+- `JVV_ALLOW_EMAILS` - Enable/disable contact form
+- `JVV_RECAPTCHA_SITE_KEY` - ReCaptcha public key
+
+All environment variables are properly typed in `app/vite-env.d.ts` for TypeScript safety.
 
 ## Key Patterns
 

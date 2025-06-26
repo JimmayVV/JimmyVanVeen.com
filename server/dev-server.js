@@ -3,8 +3,8 @@ import { config } from "dotenv";
 import express from "express";
 import { createServer } from "vite";
 
-// Load environment variables from .env file
-config();
+// Load environment variables from config/env directory
+config({ path: "../config/env/.env" });
 
 const PORT = Number.parseInt(process.env.PORT || "3000");
 

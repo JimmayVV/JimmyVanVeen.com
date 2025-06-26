@@ -27,4 +27,5 @@ export default defineConfig({
     netlifyPlugin(),
   ],
   envPrefix: "JVV",
+  envDir: "./config/env",
 });
