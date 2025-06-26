@@ -51,7 +51,7 @@ npm run ui:diff <component-name>
 - `app/utils/` - API integrations (Contentful, GitHub, email)
 - `app/components/ui/` - shadcn/ui component library
 - `server/app.ts` - Netlify Functions entry point
-- `config/` - Configuration files (eslint, prettier, components.json, env)
+- `config/` - Configuration files (eslint, prettier, components.json, env, build scripts)
 
 ### Data Flow
 
@@ -104,7 +104,7 @@ All environment variables are properly typed in `app/vite-env.d.ts` for TypeScri
 
 ### Deployment
 
-- Netlify hosting with custom preparation script
+- Netlify hosting with custom build preparation script
 - SSR via Netlify Functions
 - Build process includes React Router typegen
 
