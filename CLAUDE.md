@@ -109,6 +109,7 @@ Prefix custom environment variables with `JVV_`:
 ### Commit Messages
 
 - NEVER add Claude signatures or co-author lines to git commit messages
+- NEVER add Claude Code signatures to PR descriptions or any other content
 - Keep commit messages concise and descriptive
 
 ### Branch Naming
