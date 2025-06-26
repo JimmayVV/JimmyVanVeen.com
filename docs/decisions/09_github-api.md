@@ -84,11 +84,11 @@ const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
   throttle: {
     onRateLimit: (retryAfter, options) => {
-      console.warn(`Rate limit hit, retrying after ${retryAfter}s`)
-      return true
+      console.warn(`Rate limit hit, retrying after ${retryAfter}s`);
+      return true;
     },
   },
-})
+});
 ```
 
 ### Data Fetching Strategy

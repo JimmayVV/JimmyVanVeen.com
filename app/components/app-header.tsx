@@ -1,23 +1,24 @@
-"use client"
+"use client";
 
-import { SidebarIcon } from "lucide-react"
-import { href, Link } from "react-router"
+import { Link, href } from "react-router";
 
-import { Button } from "~/components/ui/button"
-import { Separator } from "~/components/ui/separator"
-import { useSidebar } from "~/components/ui/sidebar"
+import { SidebarIcon } from "lucide-react";
+
+import { Button } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
+import { useSidebar } from "~/components/ui/sidebar";
 
 export interface BlogTopics {
   /** The title of the blog to display */
-  title: string
+  title: string;
   /** A textual representation of the date the blog was posted */
-  date: string
+  date: string;
   /** The URL to the blog post */
-  link: string
+  link: string;
 }
 
 export function AppHeader({ blogs = [] }: { blogs?: BlogTopics[] }) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar } = useSidebar();
 
   return (
     <header className="sticky top-0 z-50 w-full items-center border-b bg-(--color-brand-hsl)">
@@ -36,7 +37,7 @@ export function AppHeader({ blogs = [] }: { blogs?: BlogTopics[] }) {
             <div className="animate-marquee whitespace-nowrap gap-5 flex">
               <span className="font-black underline">Recent Blogs:</span>
 
-              {blogs.map(blog => (
+              {blogs.map((blog) => (
                 <span key={blog.title}>
                   <Link
                     to={href("/blog/:slug", { slug: blog.link })}
@@ -52,5 +53,5 @@ export function AppHeader({ blogs = [] }: { blogs?: BlogTopics[] }) {
         ) : null}
       </div>
     </header>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-import * as React from "react"
+import * as React from "react";
 
-import { type HexColor } from "~/utils/layout-utils"
+import { type HexColor } from "~/utils/layout-utils";
 
 export default function Slice({
   children,
@@ -8,13 +8,13 @@ export default function Slice({
   flip = false,
   isLastChild = false,
 }: {
-  children: React.ReactNode
-  color?: HexColor
-  flip?: boolean
+  children: React.ReactNode;
+  color?: HexColor;
+  flip?: boolean;
   /**
    * Only render the bottom slice effect if this is the last child.
    */
-  isLastChild?: boolean
+  isLastChild?: boolean;
 }) {
   return (
     <div className="relative -mt-8 md:-mt-16 lg:-mt-[7.1rem]">
@@ -40,5 +40,5 @@ export default function Slice({
         />
       )}
     </div>
-  )
+  );
 }

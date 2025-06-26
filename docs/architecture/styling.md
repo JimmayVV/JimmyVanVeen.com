@@ -62,7 +62,7 @@ const buttonVariants = cva("base-classes", {
       sm: "size-classes",
     },
   },
-})
+});
 ```
 
 ### Customization Approach

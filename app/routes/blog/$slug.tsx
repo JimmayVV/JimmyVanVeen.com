@@ -1,31 +1,30 @@
 // Libs
-import { redirect } from "react-router"
-import rehypeExternalLinks from "rehype-external-links"
-import { format } from "date-fns"
+import ReactMarkdown from "react-markdown";
+import { redirect } from "react-router";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
-import type { Route } from "./+types/$slug"
+import { format } from "date-fns";
+import rehypeExternalLinks from "rehype-external-links";
 
 // Components
-import Banner from "~/components/banner"
-import Slices from "~/components/slices"
-import SliceContent from "~/components/slice-content"
-
+import Banner from "~/components/banner";
+import SliceContent from "~/components/slice-content";
+import Slices from "~/components/slices";
 // Utils
-import { getBlogPostBySlug } from "~/utils/contentful"
+import { getBlogPostBySlug } from "~/utils/contentful";
 
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
-import ReactMarkdown from "react-markdown"
+import type { Route } from "./+types/$slug";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const slug: string = params.slug
-  const blog = await getBlogPostBySlug(slug)
+  const slug: string = params.slug;
+  const blog = await getBlogPostBySlug(slug);
 
   if (!blog) {
-    return redirect("/blog", { status: 302 })
+    return redirect("/blog", { status: 302 });
   }
 
-  return blog
+  return blog;
 }
 
 export default function Index({ loaderData: blog }: Route.ComponentProps) {
@@ -43,7 +42,7 @@ export default function Index({ loaderData: blog }: Route.ComponentProps) {
             <ReactMarkdown
               components={{
                 code({ node: _node, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className ?? "")
+                  const match = /language-(\w+)/.exec(className ?? "");
                   return match ? (
                     <SyntaxHighlighter
                       showLineNumbers
@@ -57,7 +56,7 @@ export default function Index({ loaderData: blog }: Route.ComponentProps) {
                     <code className={className} {...props}>
                       {children}
                     </code>
-                  )
+                  );
                 },
               }}
               rehypePlugins={[[rehypeExternalLinks, { target: "_blank" }]]}
@@ -73,5 +72,5 @@ export default function Index({ loaderData: blog }: Route.ComponentProps) {
         </SliceContent>
       </Slices>
     </div>
-  )
+  );
 }
