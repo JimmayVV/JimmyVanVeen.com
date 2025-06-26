@@ -1,27 +1,27 @@
-import * as React from "react"
+import * as React from "react";
 
 export interface SliceContentProps {
   /**
    * An image to display with the content. Will fallback to a default value
    * if not provided.
    */
-  image?: string
+  image?: string;
   /**
    * The title of the content block.
    */
-  title?: string | React.ReactNode
+  title?: string | React.ReactNode;
   /**
    * The content of the content block.
    */
-  children: React.ReactNode | React.ReactNode[]
+  children: React.ReactNode | React.ReactNode[];
   /**
    * The footer of the content block (ideally a link)
    */
-  footer?: React.ReactNode
+  footer?: React.ReactNode;
   /**
    * Determines if the content should be to the right of the image instead of the left.
    */
-  flip?: boolean
+  flip?: boolean;
 }
 
 export default function SliceContent({
@@ -74,5 +74,5 @@ export default function SliceContent({
         </div>
       ) : null}
     </div>
-  )
+  );
 }

@@ -1,10 +1,10 @@
 import {
   type RouteConfig,
-  route,
-  layout,
   index,
+  layout,
   prefix,
-} from "@react-router/dev/routes"
+  route,
+} from "@react-router/dev/routes";
 
 export default [
   index("routes/index.tsx"),
@@ -16,4 +16,4 @@ export default [
   ]),
   route("email", "routes/email.tsx"),
   route("*", "routes/404.tsx"),
-] satisfies RouteConfig
+] satisfies RouteConfig;

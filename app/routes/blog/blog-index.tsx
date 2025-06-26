@@ -1,20 +1,19 @@
 // Libs
-import { Link, useLoaderData } from "react-router"
+import { Link, useLoaderData } from "react-router";
 
 // Components
-import Banner from "~/components/banner"
-import Slices from "~/components/slices"
-import SliceContent from "~/components/slice-content"
-
+import Banner from "~/components/banner";
+import SliceContent from "~/components/slice-content";
+import Slices from "~/components/slices";
 // Utils
-import { getAllBlogPosts } from "~/utils/contentful"
+import { getAllBlogPosts } from "~/utils/contentful";
 
 export async function loader() {
-  return await getAllBlogPosts()
+  return await getAllBlogPosts();
 }
 
 export default function BlogIndex() {
-  const data = useLoaderData<typeof loader>()
+  const data = useLoaderData<typeof loader>();
 
   return (
     <div>
@@ -33,14 +32,14 @@ export default function BlogIndex() {
       </Banner>
       <Slices colors={["#333", "#222"]} staticAlignment>
         {data?.length > 0 ? (
-          data.map(blog => {
+          data.map((blog) => {
             const title = `${blog.fields.title} (${new Date(
               blog.fields.publishDate,
             ).toLocaleDateString("en-us", {
               month: "long",
               day: "numeric",
               year: "numeric",
-            })})`
+            })})`;
 
             return (
               <SliceContent
@@ -53,7 +52,7 @@ export default function BlogIndex() {
               >
                 {blog.fields.description}
               </SliceContent>
-            )
+            );
           })
         ) : (
           <SliceContent title="No Blog Posts">
@@ -62,5 +61,5 @@ export default function BlogIndex() {
         )}
       </Slices>
     </div>
-  )
+  );
 }

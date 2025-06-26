@@ -5,23 +5,23 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "react-router build && node netlify/prepare.js",
+    "build": "react-router build --config ./config/vite.config.ts && node netlify/prepare.js",
     "dev": "cross-env NODE_ENV=development node ./dev-server.js",
     "start": "netlify serve",
     "typecheck": "react-router typegen && tsc",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint . -c ./config/eslint.config.js",
+    "lint:fix": "eslint . -c ./config/eslint.config.js --fix",
     "prepare": "husky",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write .",
+    "format:check": "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --check ."
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
-      "eslint --fix",
-      "prettier --write"
+      "eslint -c ./config/eslint.config.js --fix",
+      "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write"
     ],
     "*.{json,md,mdx,css,yml,yaml}": [
-      "prettier --write"
+      "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write"
     ]
   },
   "dependencies": {

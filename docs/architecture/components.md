@@ -60,7 +60,7 @@ export function ProjectCard({ project }: Props) {
         <ProjectStats {...project} />
       </CardContent>
     </Card>
-  )
+  );
 }
 ```
 
@@ -75,7 +75,7 @@ const variants = cva("base-classes", {
       md: "size-md-classes",
     },
   },
-})
+});
 ```
 
 ### Compound Components
@@ -102,12 +102,12 @@ const variants = cva("base-classes", {
 
 ```tsx
 // Sidebar state management
-const SidebarContext = createContext<SidebarContextType>()
+const SidebarContext = createContext<SidebarContextType>();
 
 export function useSidebar() {
-  const context = useContext(SidebarContext)
-  if (!context) throw new Error("...")
-  return context
+  const context = useContext(SidebarContext);
+  if (!context) throw new Error("...");
+  return context;
 }
 ```
 
@@ -126,7 +126,7 @@ export function useSidebar() {
 interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+  asChild?: boolean;
 }
 
 // Component definition
@@ -134,7 +134,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {
     // Implementation
   },
-)
+);
 ```
 
 ### Accessibility
@@ -150,10 +150,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 // Memoization where beneficial
 const ExpensiveComponent = React.memo(({ data }) => {
   // Render logic
-})
+});
 
 // Lazy loading for code splitting
-const HeavyComponent = React.lazy(() => import("./HeavyComponent"))
+const HeavyComponent = React.lazy(() => import("./HeavyComponent"));
 ```
 
 ## Component Examples
@@ -170,7 +170,7 @@ export default function Root() {
         <Outlet />
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
 ```
 
@@ -180,16 +180,16 @@ export default function Root() {
 // Blog post list with loading states
 export function BlogPostList({ posts }: Props) {
   if (!posts.length) {
-    return <EmptyState />
+    return <EmptyState />;
   }
 
   return (
     <div className="grid gap-4">
-      {posts.map(post => (
+      {posts.map((post) => (
         <BlogPostCard key={post.id} post={post} />
       ))}
     </div>
-  )
+  );
 }
 ```
 
@@ -198,7 +198,7 @@ export function BlogPostList({ posts }: Props) {
 ```tsx
 // Contact form with validation
 export function ContactForm() {
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState({});
 
   return (
     <Form method="post">
@@ -211,7 +211,7 @@ export function ContactForm() {
       {errors.email && <ErrorMessage />}
       <Button type="submit">Send</Button>
     </Form>
-  )
+  );
 }
 ```
 

@@ -66,11 +66,11 @@ build/
 
 ```typescript
 // server/app.ts
-import { createRequestHandler } from "@react-router/netlify"
+import { createRequestHandler } from "@react-router/netlify";
 
 export default createRequestHandler({
   build: await import("./build/server/index.js"),
-})
+});
 ```
 
 ### Request Flow
@@ -134,16 +134,16 @@ export default createRequestHandler({
 ```typescript
 // Function wrapper for monitoring
 export default async (req, context) => {
-  const start = Date.now()
+  const start = Date.now();
   try {
-    const response = await handler(req, context)
+    const response = await handler(req, context);
     // Log success metrics
-    return response
+    return response;
   } catch (error) {
     // Log error metrics
-    throw error
+    throw error;
   }
-}
+};
 ```
 
 ## Security

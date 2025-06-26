@@ -1,14 +1,15 @@
-import { reactRouter } from "@react-router/dev/vite"
-import { defineConfig } from "vite"
-import tsconfigPaths from "vite-tsconfig-paths"
-import netlifyPlugin from "@netlify/vite-plugin-react-router"
-import { reactRouterDevTools } from "react-router-devtools"
-import tailwindcss from "@tailwindcss/vite"
-import babel from "vite-plugin-babel"
+import { reactRouterDevTools } from "react-router-devtools";
+
+import netlifyPlugin from "@netlify/vite-plugin-react-router";
+import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+import babel from "vite-plugin-babel";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 const ReactCompilerConfig = {
   target: "19",
-}
+};
 
 export default defineConfig({
   plugins: [
@@ -26,4 +27,4 @@ export default defineConfig({
     netlifyPlugin(),
   ],
   envPrefix: "JVV",
-})
+});

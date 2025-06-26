@@ -1,28 +1,26 @@
-import * as React from "react"
+import * as React from "react";
 import {
-  isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "react-router"
+  isRouteErrorResponse,
+} from "react-router";
 
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar"
-import { AppSidebar } from "~/components/app-sidebar/app-sidebar"
-import { type BlogTopics, AppHeader } from "~/components/app-header"
+import { AppHeader, type BlogTopics } from "~/components/app-header";
+import { AppSidebar } from "~/components/app-sidebar/app-sidebar";
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { getAllBlogPosts } from "~/utils/contentful";
 
-import styles from "./app.css?url"
-
-import { getAllBlogPosts } from "~/utils/contentful"
-
-import type { Route } from "./+types/root"
+import type { Route } from "./+types/root";
+import styles from "./app.css?url";
 
 export const meta: Route.MetaFunction = () => [
   {
     title: "Jimmy Van Veen",
   },
-]
+];
 
 export const links: Route.LinksFunction = () => {
   return [
@@ -37,13 +35,13 @@ export const links: Route.LinksFunction = () => {
       href: "https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap",
     },
     { rel: "stylesheet", href: styles },
-  ]
-}
+  ];
+};
 
 export async function loader() {
-  const blogPosts = await getAllBlogPosts()
+  const blogPosts = await getAllBlogPosts();
 
-  return blogPosts.map(blog => ({
+  return blogPosts.map((blog) => ({
     title: blog.fields.title,
     date: new Date(blog.fields.publishDate)
       .toLocaleDateString("en-us", {
@@ -53,7 +51,7 @@ export async function loader() {
       })
       .toString(),
     link: blog.fields.slug,
-  }))
+  }));
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -71,7 +69,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
@@ -79,23 +77,23 @@ export default function App({ loaderData }: Route.ComponentProps) {
     <Template blogPosts={loaderData}>
       <Outlet />
     </Template>
-  )
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!"
-  let details = "An unexpected error occurred."
-  let stack: string | undefined
+  let message = "Oops!";
+  let details = "An unexpected error occurred.";
+  let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error"
+    message = error.status === 404 ? "404" : "Error";
     details =
       error.status === 404
         ? "The requested page could not be found."
-        : error.statusText || details
+        : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message
-    stack = error.stack
+    details = error.message;
+    stack = error.stack;
   }
 
   return (
@@ -110,15 +108,15 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         )}
       </main>
     </Template>
-  )
+  );
 }
 
 function Template({
   children,
   blogPosts,
 }: {
-  children: React.ReactNode
-  blogPosts?: BlogTopics[]
+  children: React.ReactNode;
+  blogPosts?: BlogTopics[];
 }) {
   return (
     <SidebarProvider className="flex flex-col">
@@ -128,5 +126,5 @@ function Template({
         <SidebarInset className="bg-black">{children}</SidebarInset>
       </div>
     </SidebarProvider>
-  )
+  );
 }

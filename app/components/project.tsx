@@ -1,4 +1,4 @@
-import MainLink from "~/components/main-link"
+import MainLink from "~/components/main-link";
 
 export function Project({
   title,
@@ -7,11 +7,11 @@ export function Project({
   screenshotUrl,
   repoUrl,
 }: {
-  title: string
-  description: string | null
-  url: string | null
-  screenshotUrl?: string
-  repoUrl: string
+  title: string;
+  description: string | null;
+  url: string | null;
+  screenshotUrl?: string;
+  repoUrl: string;
 }) {
   return (
     <div className="rounded-sm shadow-lg bg-[#3b3b3b]">
@@ -33,7 +33,7 @@ export function Project({
         ) : null}
       </div>
     </div>
-  )
+  );
 }
 
-export default Project
+export default Project;

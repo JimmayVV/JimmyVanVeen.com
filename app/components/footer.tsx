@@ -10,5 +10,5 @@ export default function Footer() {
         Thanks for visiting my site.
       </div>
     </div>
-  )
+  );
 }

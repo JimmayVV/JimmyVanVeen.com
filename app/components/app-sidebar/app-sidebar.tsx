@@ -1,3 +1,9 @@
+import * as React from "react";
+import { Link, href } from "react-router";
+
+import logo from "~/components/app-sidebar/jimmyvanveen.svg?url";
+import Bluesky from "~/components/icons/bluesky";
+import Github from "~/components/icons/github";
 import {
   Sidebar,
   SidebarContent,
@@ -7,23 +13,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "~/components/ui/sidebar"
-
-import * as React from "react"
-import Bluesky from "~/components/icons/bluesky"
-import Github from "~/components/icons/github"
-
-import logo from "~/components/app-sidebar/jimmyvanveen.svg?url"
-import { href, Link } from "react-router"
+} from "~/components/ui/sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { setOpenMobile, isMobile } = useSidebar()
+  const { setOpenMobile, isMobile } = useSidebar();
 
   const handleLinkClick = () => {
     if (isMobile) {
-      setOpenMobile(false)
+      setOpenMobile(false);
     }
-  }
+  };
 
   return (
     <Sidebar
@@ -82,5 +81,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

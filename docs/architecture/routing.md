@@ -15,7 +15,7 @@ implemented as individual route modules.
 Routes are configured in `app/routes.ts`:
 
 ```typescript
-import { type RouteConfig } from "@react-router/dev/routes"
+import { type RouteConfig } from "@react-router/dev/routes";
 
 export default [
   index("routes/index.tsx"),
@@ -25,7 +25,7 @@ export default [
     index("routes/blog/blog-index.tsx"),
     route(":slug", "routes/blog/$slug.tsx"),
   ]),
-] satisfies RouteConfig
+] satisfies RouteConfig;
 ```
 
 ### Route Module Structure
