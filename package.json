@@ -6,7 +6,7 @@
   },
   "scripts": {
     "build": "react-router build && node netlify/prepare.js",
-    "dev": "cross-env NODE_ENV=development node ./dev-server.js",
+    "dev": "cross-env NODE_ENV=development node ./server/dev-server.js",
     "start": "netlify serve",
     "typecheck": "react-router typegen && tsc",
     "lint": "eslint . -c ./config/eslint.config.js",

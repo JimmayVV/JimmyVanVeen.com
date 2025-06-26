@@ -94,7 +94,7 @@ Prefix custom environment variables with `JVV_`:
 
 ## Notable Implementation Details
 
-- Custom dev server at `dev-server.js` wraps Vite with Express (uses ESM imports)
+- Custom dev server at `server/dev-server.js` wraps Vite with Express (uses ESM imports)
 - Blog header includes animated marquee of recent posts
 - Rate limiting and retry logic in GitHub API integration
 - Type generation runs automatically during builds
