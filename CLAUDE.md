@@ -138,7 +138,14 @@ All environment variables are properly typed in `app/vite-env.d.ts` for TypeScri
 ### Commit Messages
 
 - NEVER add Claude signatures or co-author lines to git commit messages
+- NEVER add Claude Code signatures to PR descriptions or any other content
 - Keep commit messages concise and descriptive
+
+### Communication Style
+
+- Use singular first person ("I") when writing on behalf of the user
+- This is a solo project, not a team effort
+- Avoid using "we" or "our" in issues, PRs, or documentation
 
 ### Branch Naming
 
