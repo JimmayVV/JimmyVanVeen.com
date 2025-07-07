@@ -46,7 +46,7 @@
     "embla-carousel-react": "^8.5.2",
     "isbot": "^5.1.23",
     "lucide-react": "^0.525.0",
-    "nodemailer": "^7.0.3",
+    "nodemailer": "^7.0.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.0.1",
