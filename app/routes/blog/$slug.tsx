@@ -6,12 +6,11 @@ import { format } from "date-fns"
 import type { Route } from "./+types/$slug"
 
 // Components
-import Banner from "~/components/banner"
-import Slices from "~/components/slices"
-import SliceContent from "~/components/slice-content"
+import GradientBanner from "~/components/gradient-banner"
+import ContentCards, { ContentCard } from "~/components/content-cards"
 
 // Utils
-import { getBlogPostBySlug } from "~/utils/contentful"
+import { getCachedBlogPostBySlug } from "~/utils/contentful-cache"
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
@@ -19,27 +18,28 @@ import ReactMarkdown from "react-markdown"
 
 export async function loader({ params }: Route.LoaderArgs) {
   const slug: string = params.slug
-  const blog = await getBlogPostBySlug(slug)
 
-  if (!blog) {
+  try {
+    return await getCachedBlogPostBySlug(slug)
+  } catch (_error) {
+    // If blog post not found, redirect to blog index
     return redirect("/blog", { status: 302 })
   }
-
-  return blog
 }
 
 export default function Index({ loaderData: blog }: Route.ComponentProps) {
   return (
-    <div>
-      <Banner>
+    <div className="min-h-screen bg-black">
+      <GradientBanner>
         <h2 className="border-b-2 border-b-zinc-500/50 text-4xl mb-6 pb-4 leading-[60px] font-bold tracking-widest">
           {blog.fields.title}
         </h2>
         <p className="leading-8 tracking-widest">{blog.fields.description}</p>
-      </Banner>
-      <Slices colors={["#333"]} staticAlignment>
-        <SliceContent>
-          <div id="blogContent">
+      </GradientBanner>
+
+      <ContentCards spacing="space-y-8 -mt-40 relative z-10">
+        <ContentCard>
+          <div id="blogContent" className="prose prose-invert max-w-none">
             <ReactMarkdown
               components={{
                 code({ node: _node, className, children, ...props }) {
@@ -66,12 +66,12 @@ export default function Index({ loaderData: blog }: Route.ComponentProps) {
             </ReactMarkdown>
           </div>
 
-          <h3 className="mb-6 mt-10 pt-9 font-sans font-bold italic underline text-lg border-t-2">
+          <h3 className="mb-6 mt-10 pt-9 font-sans font-bold italic underline text-lg border-t-2 border-zinc-700">
             Posted on{" "}
             {format(new Date(blog.fields.publishDate), "MMMM dd, yyyy")}
           </h3>
-        </SliceContent>
-      </Slices>
+        </ContentCard>
+      </ContentCards>
     </div>
   )
 }

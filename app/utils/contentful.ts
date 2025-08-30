@@ -27,20 +27,33 @@ export type ProjectFieldsSkeleton = Contentful.EntrySkeletonType<
   "project"
 >
 
-const client = Contentful.createClient({
-  space: process.env.CONTENTFUL_SPACE_ID ?? "",
-  accessToken: process.env.CONTENTFUL_ACCESS_TOKEN ?? "",
-})
+const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID ?? ""
+const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN ?? ""
+
+const hasContentfulEnv =
+  CONTENTFUL_SPACE_ID.length > 0 && CONTENTFUL_ACCESS_TOKEN.length > 0
+
+const client = hasContentfulEnv
+  ? Contentful.createClient({
+      space: CONTENTFUL_SPACE_ID,
+      accessToken: CONTENTFUL_ACCESS_TOKEN,
+    })
+  : null
+
+/**
+ * Check if Contentful is configured
+ */
+export const isContentfulConfigured = () => hasContentfulEnv
 
 /**
  * Get all of the projects I have added to Contentful
  */
 export const getProjects = async () => {
+  if (!client) return []
   const { items } =
     await client.withoutUnresolvableLinks.getEntries<ProjectFieldsSkeleton>({
       content_type: "project",
     })
-
   return items
 }
 
@@ -48,11 +61,11 @@ export const getProjects = async () => {
  * Get all of the blog posts I have added to Contentful
  */
 export const getAllBlogPosts = async () => {
+  if (!client) return []
   const { items } =
     await client.withoutUnresolvableLinks.getEntries<BlogPostSkeleton>({
       content_type: "blogPost",
     })
-
   return items
 }
 
@@ -65,6 +78,7 @@ export const getAllBlogPosts = async () => {
  * @throws {Error} If no blog post is found with the given slug
  */
 export const getBlogPostBySlug = async (slug: string) => {
+  if (!client) throw new Error("Contentful environment not configured")
   const { items } =
     await client.withoutUnresolvableLinks.getEntries<BlogPostSkeleton>({
       content_type: "blogPost",

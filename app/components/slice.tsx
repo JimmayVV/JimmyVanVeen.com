@@ -17,7 +17,9 @@ export default function Slice({
   isLastChild?: boolean
 }) {
   return (
-    <div className="relative -mt-8 md:-mt-16 lg:-mt-[7.1rem]">
+    <div
+      className={`relative -mt-8 md:-mt-16 lg:-mt-[7.1rem] ${isLastChild ? "flex-1 flex flex-col" : ""}`}
+    >
       <div
         className={`h-8 md:h-16 lg:h-28 w-full bg-no-repeat left-0 ${
           flip ? "clip-triangle-flip" : "clip-triangle"
@@ -28,7 +30,7 @@ export default function Slice({
         }}
       />
       <div
-        className={`px-12 ${isLastChild ? "pt-4 pb-20" : "py-4"}`}
+        className={`px-12 py-4 ${isLastChild ? "flex-1" : ""}`}
         style={{ backgroundColor: color }}
       >
         {children}

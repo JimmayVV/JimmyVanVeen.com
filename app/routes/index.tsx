@@ -3,14 +3,13 @@ import * as React from "react"
 import { Await } from "react-router"
 
 // Components
-import Banner from "~/components/banner"
-import Slices from "~/components/slices"
-import SliceContent from "~/components/slice-content"
+import GradientBanner from "~/components/gradient-banner"
+import ContentCards, { ContentCard } from "~/components/content-cards"
 import Project from "~/components/project"
 
 // Utils
 import { getRepositoriesByNodeId } from "~/utils/github"
-import { getProjects } from "~/utils/contentful"
+import { getCachedProjects } from "~/utils/contentful-cache"
 
 import type { Route } from "./+types/index"
 
@@ -31,7 +30,7 @@ interface Repository {
 
 export async function loader() {
   async function getData() {
-    const projects = await getProjects()
+    const projects = await getCachedProjects()
     const repos = await getRepositoriesByNodeId(
       projects
         .sort((a, b) => Number(a.fields.priority) - Number(b.fields.priority))
@@ -46,7 +45,9 @@ export async function loader() {
         description: repo.description,
         url: repo.html_url,
         screenshotUrl:
-          project?.fields.screenshot?.fields.file?.url ?? undefined,
+          project?.fields.screenshot && "fields" in project.fields.screenshot
+            ? project.fields.screenshot.fields.file?.url
+            : undefined,
       } satisfies Repository
     })
     return repositories
@@ -57,8 +58,8 @@ export async function loader() {
 
 export default function Index({ loaderData: repos }: Route.ComponentProps) {
   return (
-    <>
-      <Banner noBg>
+    <div className="min-h-screen bg-black">
+      <GradientBanner>
         <h2 className="text-2xl font-mono mb-4 text-white">
           Mission Statement
         </h2>
@@ -69,10 +70,10 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
           always aiming to deliver solutions that not only meet but exceed user
           expectations.
         </p>
-      </Banner>
+      </GradientBanner>
 
-      <Slices colors={["#333"]}>
-        <SliceContent title="Projects">
+      <ContentCards spacing="space-y-8 -mt-40 relative z-10">
+        <ContentCard title="Projects">
           <React.Suspense fallback={"Loading projects..."}>
             <Await resolve={repos} errorElement={"Could not load projects"}>
               {resolvedRepos => {
@@ -95,94 +96,96 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
               }}
             </Await>
           </React.Suspense>
-        </SliceContent>
-      </Slices>
-      {/* <Slices colors={["#21d", "#1e0ed0", "#1b0cc4", "#333"]}>
-        <SliceContent
-          title="Watch out for me in Sim!"
-          image="/images/jimmy_car.png"
-          footer={
-            <MainLink
-              to="https://members.iracing.com/membersite/member/CareerStats.do?custid=106684"
-              external
-            >
-              Visit my member profile (Membership Required)
-            </MainLink>
-          }
-        >
-          You can find me in the sim racing a Beta UI (BUI) paint scheme, or if
-          you're lucky, you'll find me as one of your AI opponents if you happen
-          to let the BUI create a roster for you. Be gentle with me when you
-          find me, and be sure to let me win!
-        </SliceContent>
-        <SliceContent
-          title="My Blog"
-          footer={<MainLink to="/blog">Learn More</MainLink>}
-          image="/images/blog_vscode.jpg"
-        >
-          My blog, documenting basically whatever I feel like. I am intending on
-          using this space to document some tricky, non-proprietary patterns I
-          needed to discover/develop for my work at iRacing. Some of these
-          patterns are very time sensitive, meaning the value may very well be
-          outdated in some not so distant future. Even knowing that this I will
-          endeavor to keep the most pertinent blog posts up to date if any minor
-          changes occur that would otherwise prevent the topic from keeping
-          fresh.
-        </SliceContent>
-        <SliceContent
-          title="Our Tech Stack"
-          footer={
-            <MainLink
-              to="https://www.iracing.com/category/all-news/blog/"
-              external
-            >
-              Learn More
-            </MainLink>
-          }
-          image="/images/pic03.jpg"
-        >
-          Our current tech stack consists of consuming dozens of microservice
-          API's across a persistent and secure socket.io websocket tunnel. The
-          core BetaUI application is a complex React & Redux architecture,
-          running inside a custom Electron application container in constant
-          communication with a locally installed microservice application
-          serving as the portal between the iRacing simulation executable, and
-          this web application.
-        </SliceContent>
-        <SliceContent title="My Projects" flip={false}>
-          <p className="mb-4">
-            Here is a small collection of personal projects I have worked on.
-            While many of these projects are quite old at this point, some may
-            be more recent. Feel free to take any inspiration you wish from
-            these codebases.
-          </p>
-          <section className="md:grid md:gap-8 pb-10 md:grid-cols-2">
-            {repos.map(repo => {
-              return (
-                <Project
-                  key={repo.id}
-                  title={repo.name}
-                  description={repo.description}
-                  repoUrl={repo.url}
-                  url={repo.homepageUrl}
-                  screenshotUrl={repo.screenshotUrl}
-                />
-              )
-            })}
-          </section>
-          <a
-            href="https://github.com/JimmayVV?tab=repositories"
-            className="uppercase font-raleway font-bold text-sm tracking-widest rounded-sm border-2 border-white/30 px-10 py-4 hover:bg-white/10"
-            target="_blank"
-          >
-            Browse All
-          </a>
-        </SliceContent>
-      </Slices> */}
-    </>
+        </ContentCard>
+      </ContentCards>
+    </div>
   )
 }
 
-export function ErrorBoundary() {
-  return "Whoops"
+export function ErrorBoundary({ error }: { error: Error }) {
+  // Check if this is a GitHub API authentication error
+  // These errors typically have "Requires authentication" in the message
+  // and come with a 401 status
+  const isGitHubAuthError =
+    error?.message?.includes("Requires authentication") ||
+    error?.message?.includes("401") ||
+    error?.message?.includes("Bad credentials") ||
+    error?.message?.includes("Unauthorized")
+
+  // For GitHub auth errors, render the normal page layout with an error message
+  if (isGitHubAuthError) {
+    return (
+      <div className="min-h-screen bg-black">
+        <GradientBanner>
+          <h2 className="text-2xl font-mono mb-4 text-white">
+            Mission Statement
+          </h2>
+          <p className="text-[#B0B0B0] text-lg leading-relaxed pb-20">
+            My mission is to create innovative and user-centric digital
+            experiences that seamlessly blend aesthetics with functionality. I
+            strive to push the boundaries of web design and game development,
+            always aiming to deliver solutions that not only meet but exceed
+            user expectations.
+          </p>
+        </GradientBanner>
+
+        <ContentCards spacing="space-y-8 -mt-40 relative z-10">
+          <ContentCard title="Projects">
+            <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 p-6 rounded-lg mb-6">
+              <div className="flex items-start gap-4">
+                <svg
+                  className="w-8 h-8 text-yellow-600 dark:text-yellow-500 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-yellow-900 dark:text-yellow-100 mb-2">
+                    GitHub API Configuration Required
+                  </h3>
+                  <p className="text-base font-medium text-yellow-800 dark:text-yellow-200 mb-4">
+                    Projects cannot be loaded without GitHub API access. The
+                    portfolio data is temporarily unavailable.
+                  </p>
+                  <a
+                    href="https://github.com/JimmayVV?tab=repositories"
+                    className="inline-flex items-center text-base font-semibold text-yellow-700 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-300"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View projects on GitHub
+                  </a>
+                </div>
+              </div>
+            </div>
+          </ContentCard>
+        </ContentCards>
+      </div>
+    )
+  }
+
+  // For other errors, show a more generic error boundary
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="max-w-md text-center">
+        <h1 className="text-4xl font-bold mb-4">Something went wrong</h1>
+        <p className="text-gray-400 mb-6">
+          An unexpected error occurred. Please try refreshing the page.
+        </p>
+        <a
+          href="/"
+          className="inline-block px-6 py-3 bg-white text-black font-medium rounded hover:bg-gray-200 transition"
+        >
+          Go Home
+        </a>
+      </div>
+    </div>
+  )
 }

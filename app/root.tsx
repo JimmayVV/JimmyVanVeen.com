@@ -14,7 +14,7 @@ import { type BlogTopics, AppHeader } from "~/components/app-header"
 
 import styles from "./app.css?url"
 
-import { getAllBlogPosts } from "~/utils/contentful"
+import { getCachedBlogPosts } from "~/utils/contentful-cache"
 
 import type { Route } from "./+types/root"
 
@@ -41,7 +41,7 @@ export const links: Route.LinksFunction = () => {
 }
 
 export async function loader() {
-  const blogPosts = await getAllBlogPosts()
+  const blogPosts = await getCachedBlogPosts()
 
   return blogPosts.map(blog => ({
     title: blog.fields.title,
