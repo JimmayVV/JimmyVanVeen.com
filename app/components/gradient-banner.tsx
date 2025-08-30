@@ -1,7 +1,7 @@
-import * as React from "react"
+import * as React from "react";
 
 interface GradientBannerProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export default function GradientBanner({ children }: GradientBannerProps) {
@@ -28,5 +28,5 @@ export default function GradientBanner({ children }: GradientBannerProps) {
         <div className="mx-8 lg:mx-auto my-0 lg:w-[55em]">{children}</div>
       </section>
     </div>
-  )
+  );
 }

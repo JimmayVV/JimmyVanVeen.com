@@ -1,14 +1,14 @@
-import * as React from "react"
+import * as React from "react";
 
 interface GradientSectionProps {
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Optional banner image URL */
-  bannerImage?: string
+  bannerImage?: string;
   /** Optional custom gradient colors */
-  gradientFrom?: string
-  gradientTo?: string
+  gradientFrom?: string;
+  gradientTo?: string;
   /** Optional custom height for the banner */
-  bannerHeight?: string
+  bannerHeight?: string;
 }
 
 export default function GradientSection({
@@ -51,5 +51,5 @@ export default function GradientSection({
         }}
       />
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-import * as React from "react"
+import * as React from "react";
 
 interface CardLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Optional background gradient or color */
-  backgroundStyle?: React.CSSProperties
+  backgroundStyle?: React.CSSProperties;
 }
 
 export default function CardLayout({
@@ -28,7 +28,7 @@ export default function CardLayout({
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 export function CardSection({
@@ -37,10 +37,10 @@ export function CardSection({
   footer,
   image,
 }: {
-  title?: React.ReactNode
-  children: React.ReactNode
-  footer?: React.ReactNode
-  image?: string
+  title?: React.ReactNode;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+  image?: string;
 }) {
   return (
     <div className="text-white">
@@ -63,5 +63,5 @@ export function CardSection({
         <div className="mt-6 pt-4 border-t border-zinc-700">{footer}</div>
       )}
     </div>
-  )
+  );
 }

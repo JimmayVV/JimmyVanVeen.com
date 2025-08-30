@@ -1,9 +1,9 @@
-import * as React from "react"
+import * as React from "react";
 
 interface ContentCardsProps {
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Optional custom spacing between cards */
-  spacing?: string
+  spacing?: string;
 }
 
 export default function ContentCards({
@@ -14,7 +14,7 @@ export default function ContentCards({
     <div className={`py-12 px-8 lg:px-0`}>
       <div className={`lg:w-[55em] lg:mx-auto ${spacing}`}>{children}</div>
     </div>
-  )
+  );
 }
 
 export function ContentCard({
@@ -24,11 +24,11 @@ export function ContentCard({
   image,
   flip = false,
 }: {
-  title?: React.ReactNode
-  children: React.ReactNode
-  footer?: React.ReactNode
-  image?: string
-  flip?: boolean
+  title?: React.ReactNode;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+  image?: string;
+  flip?: boolean;
 }) {
   return (
     <div className="bg-zinc-900/80 backdrop-blur-sm rounded-lg overflow-hidden border border-zinc-800 shadow-2xl hover:bg-zinc-900/90 transition-colors">
@@ -64,5 +64,5 @@ export function ContentCard({
         </div>
       </div>
     </div>
-  )
+  );
 }

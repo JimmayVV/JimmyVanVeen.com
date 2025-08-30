@@ -1,4 +1,4 @@
-import Banner from "./banner"
+import Banner from "./banner";
 
 export default function Mission() {
   return (
@@ -11,5 +11,5 @@ export default function Mission() {
         deliver solutions that not only meet but exceed user expectations.
       </p>
     </Banner>
-  )
+  );
 }
