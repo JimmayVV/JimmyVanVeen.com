@@ -31,45 +31,15 @@ jobs:
             echo "manual_review=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Add manual review label
+      - name: Check if manual review required
         if: steps.check_review.outputs.manual_review == 'true'
         run: |
-          gh pr edit "$PR_URL" --add-label "manual-review-required"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "::warning title=Manual Review Required::This PR requires manual review - ${{ steps.check_review.outputs.reason }}"
+          echo "PR URL: ${{ github.event.pull_request.html_url }}"
+          echo "Reason: ${{ steps.check_review.outputs.reason }}"
+          echo ""
+          echo "This PR will NOT auto-merge and requires your approval."
+          echo "Review the changelog and breaking changes before merging."
 
-      - name: Comment on PR requiring manual review
-        if: steps.check_review.outputs.manual_review == 'true'
-        run: |
-          gh pr comment "$PR_URL" --body "$(cat <<'EOF'
-          🔍 **Manual Review Required**
-
-          This Dependabot PR requires manual review because:
-          - ${{ steps.check_review.outputs.reason }}
-
-          **Next Steps:**
-          1. Review the changelog and breaking changes
-          2. Test the update locally if needed
-          3. Merge manually if safe, or close if incompatible
-
-          This PR will **not** auto-merge and requires your approval.
-          EOF
-          )"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set PR status check
-        if: steps.check_review.outputs.manual_review == 'true'
-        run: |
-          gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
-            -f state='pending' \
-            -f target_url='${{ github.event.pull_request.html_url }}' \
-            -f description='Manual review required for major version update' \
-            -f context='dependabot/manual-review'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Exit with error to prevent auto-merge
+          exit 1
