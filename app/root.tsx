@@ -11,7 +11,7 @@ import {
 import { AppHeader, type BlogTopics } from "~/components/app-header";
 import { AppSidebar } from "~/components/app-sidebar/app-sidebar";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
-import { getAllBlogPosts } from "~/utils/contentful";
+import { getCachedBlogPosts } from "~/utils/contentful-cache";
 
 import type { Route } from "./+types/root";
 import styles from "./app.css?url";
@@ -39,7 +39,7 @@ export const links: Route.LinksFunction = () => {
 };
 
 export async function loader() {
-  const blogPosts = await getAllBlogPosts();
+  const blogPosts = await getCachedBlogPosts();
 
   return blogPosts.map((blog) => ({
     title: blog.fields.title,

@@ -5,6 +5,7 @@ import prettierPlugin from "eslint-plugin-prettier";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
+import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -48,6 +49,7 @@ export default tseslint.config(
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       prettier: prettierPlugin,
+      "unused-imports": unusedImports,
     },
     rules: {
       // React Hooks
@@ -71,12 +73,21 @@ export default tseslint.config(
         },
       ],
 
-      // Essential overrides only
-      "@typescript-eslint/no-unused-vars": [
+      // Unused imports detection
+      "no-unused-vars": "off", // Turned off in favor of unused-imports plugin
+      "@typescript-eslint/no-unused-vars": "off", // Turned off in favor of unused-imports plugin
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": [
         "error",
         {
+          args: "all",
           argsIgnorePattern: "^_",
+          vars: "all",
           varsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          ignoreRestSiblings: true,
         },
       ],
       "@typescript-eslint/only-throw-error": "off", // Allow React Router responses

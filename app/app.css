@@ -15,19 +15,40 @@
   --font-sans: "Source Sans 3", helvetica, sans-serif;
   --font-raleway: Raleway, helvetica, sans-serif;
 
-  --animate-marquee: marquee 40s linear infinite;
+  --animate-marquee: marquee 30s linear infinite;
+  --animate-marquee-slow: marquee 60s linear infinite;
 
   --background-image-hero-pattern:
     linear-gradient(0deg, rgba(51, 51, 51, 0.8), rgba(51, 51, 51, 0.8)),
     url("/images/talladega_glory.jpg");
 
-  /* Start at transform 0, then at 100% move to -100% then immedately end the keyframe at positive 100% */
+  /* Smooth continuous marquee animation */
   @keyframes marquee {
     0% {
-      transform: translateX(100%);
+      transform: translateX(0%);
     }
     100% {
-      transform: translateX(-150%);
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Alternative fade in/out animation */
+  @keyframes fade-slide {
+    0% {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-20px);
     }
   }
 }
@@ -144,9 +165,37 @@
   --color-sidebar: var(--sidebar);
 }
 
+/* External link indicator - using CSS icon instead of image for color matching */
 a[target="_blank"]:not(#sidebar-footer a):after {
-  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAIpJREFUeNqEkIEJwCAMBGPpEs7hHK6hY+gauoZr6Bo6RtqEWkxb6EMQnuM/USEirIoxSmOKwDkhBEwp4VPkb4801Xun9xW4e+9FldYarLUvkBPPOp4JGWOgtSaSt6VWQKUU9nPOEiSIgAmNMdadFTjn7utqrXwh6fLvH9nXhamW5ksMnpfDnw4BBgBfunO056MmqAAAAABJRU5ErkJggg==);
-  padding-left: 0.25rem;
+  content: "↗";
+  display: inline-block;
+  margin-left: 0.2em;
+  font-size: 0.85em;
+  font-weight: bold;
+  vertical-align: super;
+  line-height: 0;
+  opacity: 0.8;
+}
+
+/* Make sure external link icon inherits the link color */
+#blogContent a[target="_blank"]:after,
+.prose a[target="_blank"]:after {
+  color: inherit;
+}
+
+/* Alternative SVG icon approach for better control */
+a[target="_blank"]:not(#sidebar-footer a)::after {
+  content: "";
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  margin-left: 0.25em;
+  background-color: currentColor;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'%3E%3C/path%3E%3Cpolyline points='15 3 21 3 21 9'%3E%3C/polyline%3E%3Cline x1='10' y1='14' x2='21' y2='3'%3E%3C/line%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  vertical-align: middle;
 }
 
 @layer base {
@@ -169,12 +218,36 @@ a[target="_blank"]:not(#sidebar-footer a):after {
     @apply border-l-4 border-brand pl-4 pt-2 pb-1 mb-2 italic;
   }
 
-  #blogContent a {
-    @apply font-semibold border-dashed border-b border-primary;
+  /* Blog content links - using brand red */
+  #blogContent a,
+  .prose a {
+    @apply font-semibold text-red-500 no-underline relative transition-all;
+    background-image: linear-gradient(to right, currentColor, currentColor);
+    background-size: 0% 2px;
+    background-position: left bottom;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
   }
 
-  #blogContent a:hover {
-    @apply border-solid bg-white/10;
+  #blogContent a:hover,
+  .prose a:hover {
+    @apply text-red-400;
+    background-size: 100% 2px;
+  }
+
+  /* Alternative: Blue accent for better readability on dark background */
+  .prose-blue a {
+    @apply font-semibold text-blue-400 no-underline relative transition-all;
+    background-image: linear-gradient(to right, currentColor, currentColor);
+    background-size: 0% 2px;
+    background-position: left bottom;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
+  }
+
+  .prose-blue a:hover {
+    @apply text-blue-300;
+    background-size: 100% 2px;
   }
 
   #blogContent pre div {

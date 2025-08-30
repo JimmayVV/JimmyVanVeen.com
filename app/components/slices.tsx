@@ -24,7 +24,7 @@ export default function Slices({
   staticAlignment = false,
 }: SlicesProps) {
   return (
-    <>
+    <div className="flex-1 flex flex-col">
       {React.Children.map(children, (child, index) => {
         const flipDisplay = index % 2 !== 0;
         const isLastChild = index === React.Children.count(children) - 1;
@@ -55,6 +55,6 @@ export default function Slices({
           </Slice>
         );
       })}
-    </>
+    </div>
   );
 }

@@ -2,6 +2,10 @@
 command = "npm run build"
 publish = "build/client"
 
+[build.environment]
+# Pin Node to match engines and local dev
+NODE_VERSION = "20"
+
 [dev]
 command = "npm run dev"
 framework = "vite"
