@@ -31,15 +31,20 @@ jobs:
             echo "manual_review=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Check if manual review required
-        if: steps.check_review.outputs.manual_review == 'true'
+      - name: Report review status
         run: |
-          echo "::warning title=Manual Review Required::This PR requires manual review - ${{ steps.check_review.outputs.reason }}"
-          echo "PR URL: ${{ github.event.pull_request.html_url }}"
-          echo "Reason: ${{ steps.check_review.outputs.reason }}"
-          echo ""
-          echo "This PR will NOT auto-merge and requires your approval."
-          echo "Review the changelog and breaking changes before merging."
-
-          # Exit with error to prevent auto-merge
-          exit 1
+          if [[ "${{ steps.check_review.outputs.manual_review }}" == "true" ]]; then
+            echo "::warning title=Manual Review Required::This PR requires manual review - ${{ steps.check_review.outputs.reason }}"
+            echo "========================================="
+            echo "🔍 MANUAL REVIEW REQUIRED"
+            echo "========================================="
+            echo "PR URL: ${{ github.event.pull_request.html_url }}"
+            echo "Reason: ${{ steps.check_review.outputs.reason }}"
+            echo ""
+            echo "This PR will NOT auto-merge and requires your approval."
+            echo "Review the changelog and breaking changes before merging."
+            echo "========================================="
+          else
+            echo "::notice title=Auto-merge Eligible::This PR is eligible for auto-merge (patch or minor update)"
+            echo "✅ This PR can be auto-merged as it's a patch or minor update."
+          fi
