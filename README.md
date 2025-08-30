@@ -4,7 +4,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fwww.jimmyvanveen.com&style=flat)](https://www.jimmyvanveen.com)
 [![GitHub Issues](https://img.shields.io/github/issues/JimmayVV/JimmyVanVeen.com?style=flat)](https://github.com/JimmayVV/JimmyVanVeen.com/issues)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/JimmayVV/JimmyVanVeen.com?style=flat)](https://github.com/JimmayVV/JimmyVanVeen.com/commits/master)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/JimmayVV/JimmyVanVeen.com?style=flat)](https://github.com/JimmayVV/JimmyVanVeen.com/commits/main)
 
 # Jimmy Van Veen's Portfolio
 

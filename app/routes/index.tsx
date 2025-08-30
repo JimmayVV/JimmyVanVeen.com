@@ -1,43 +1,42 @@
 // Libs
-import * as React from "react"
-import { Await } from "react-router"
+import * as React from "react";
+import { Await } from "react-router";
 
+import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
-import GradientBanner from "~/components/gradient-banner"
-import ContentCards, { ContentCard } from "~/components/content-cards"
-import Project from "~/components/project"
-
+import GradientBanner from "~/components/gradient-banner";
+import Project from "~/components/project";
+import { getCachedProjects } from "~/utils/contentful-cache";
 // Utils
-import { getRepositoriesByNodeId } from "~/utils/github"
-import { getCachedProjects } from "~/utils/contentful-cache"
+import { getRepositoriesByNodeId } from "~/utils/github";
 
-import type { Route } from "./+types/index"
+import type { Route } from "./+types/index";
 
 interface Repository {
   /** The name of the repository */
-  name: string
+  name: string;
   /** The ID of the repository */
-  id: number
+  id: number;
   /** The URL for the repository on GitHub */
-  homepageUrl: string | null
+  homepageUrl: string | null;
   /** The description of the repository */
-  description: string | null
+  description: string | null;
   /** The URL for the repository on GitHub */
-  url: string
+  url: string;
   /** The URL for the screenshot */
-  screenshotUrl?: string
+  screenshotUrl?: string;
 }
 
 export async function loader() {
   async function getData() {
-    const projects = await getCachedProjects()
+    const projects = await getCachedProjects();
     const repos = await getRepositoriesByNodeId(
       projects
         .sort((a, b) => Number(a.fields.priority) - Number(b.fields.priority))
-        .map(p => p.fields.ghId),
-    )
-    const repositories: Repository[] = repos.map(repo => {
-      const project = projects.find(p => p.fields.ghId === repo.node_id)
+        .map((p) => p.fields.ghId),
+    );
+    const repositories: Repository[] = repos.map((repo) => {
+      const project = projects.find((p) => p.fields.ghId === repo.node_id);
       return {
         name: repo.name,
         id: repo.id,
@@ -48,12 +47,12 @@ export async function loader() {
           project?.fields.screenshot && "fields" in project.fields.screenshot
             ? project.fields.screenshot.fields.file?.url
             : undefined,
-      } satisfies Repository
-    })
-    return repositories
+      } satisfies Repository;
+    });
+    return repositories;
   }
 
-  return getData()
+  return getData();
 }
 
 export default function Index({ loaderData: repos }: Route.ComponentProps) {
@@ -76,10 +75,10 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
         <ContentCard title="Projects">
           <React.Suspense fallback={"Loading projects..."}>
             <Await resolve={repos} errorElement={"Could not load projects"}>
-              {resolvedRepos => {
+              {(resolvedRepos) => {
                 return (
                   <section className="md:grid md:gap-8 pb-10 md:grid-cols-2">
-                    {resolvedRepos.map(repo => {
+                    {resolvedRepos.map((repo) => {
                       return (
                         <Project
                           key={repo.id}
@@ -89,17 +88,17 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
                           url={repo.homepageUrl}
                           screenshotUrl={repo.screenshotUrl}
                         />
-                      )
+                      );
                     })}
                   </section>
-                )
+                );
               }}
             </Await>
           </React.Suspense>
         </ContentCard>
       </ContentCards>
     </div>
-  )
+  );
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
@@ -110,7 +109,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
     error?.message?.includes("Requires authentication") ||
     error?.message?.includes("401") ||
     error?.message?.includes("Bad credentials") ||
-    error?.message?.includes("Unauthorized")
+    error?.message?.includes("Unauthorized");
 
   // For GitHub auth errors, render the normal page layout with an error message
   if (isGitHubAuthError) {
@@ -168,7 +167,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
           </ContentCard>
         </ContentCards>
       </div>
-    )
+    );
   }
 
   // For other errors, show a more generic error boundary
@@ -187,5 +186,5 @@ export function ErrorBoundary({ error }: { error: Error }) {
         </a>
       </div>
     </div>
-  )
+  );
 }

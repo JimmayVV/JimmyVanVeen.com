@@ -1,29 +1,28 @@
 // Libs
-import { redirect } from "react-router"
-import rehypeExternalLinks from "rehype-external-links"
-import { format } from "date-fns"
+import ReactMarkdown from "react-markdown";
+import { redirect } from "react-router";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
-import type { Route } from "./+types/$slug"
+import { format } from "date-fns";
+import rehypeExternalLinks from "rehype-external-links";
 
+import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
-import GradientBanner from "~/components/gradient-banner"
-import ContentCards, { ContentCard } from "~/components/content-cards"
-
+import GradientBanner from "~/components/gradient-banner";
 // Utils
-import { getCachedBlogPostBySlug } from "~/utils/contentful-cache"
+import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
 
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
-import ReactMarkdown from "react-markdown"
+import type { Route } from "./+types/$slug";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const slug: string = params.slug
+  const slug: string = params.slug;
 
   try {
-    return await getCachedBlogPostBySlug(slug)
+    return await getCachedBlogPostBySlug(slug);
   } catch (_error) {
     // If blog post not found, redirect to blog index
-    return redirect("/blog", { status: 302 })
+    return redirect("/blog", { status: 302 });
   }
 }
 
@@ -43,7 +42,7 @@ export default function Index({ loaderData: blog }: Route.ComponentProps) {
             <ReactMarkdown
               components={{
                 code({ node: _node, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className ?? "")
+                  const match = /language-(\w+)/.exec(className ?? "");
                   return match ? (
                     <SyntaxHighlighter
                       showLineNumbers
@@ -57,7 +56,7 @@ export default function Index({ loaderData: blog }: Route.ComponentProps) {
                     <code className={className} {...props}>
                       {children}
                     </code>
-                  )
+                  );
                 },
               }}
               rehypePlugins={[[rehypeExternalLinks, { target: "_blank" }]]}
@@ -73,5 +72,5 @@ export default function Index({ loaderData: blog }: Route.ComponentProps) {
         </ContentCard>
       </ContentCards>
     </div>
-  )
+  );
 }

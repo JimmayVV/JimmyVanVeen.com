@@ -1,12 +1,12 @@
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-  service: import.meta.env.EMAIL_SERVICE as string,
+  service: process.env.EMAIL_SERVICE as string,
   auth: {
-    user: import.meta.env.EMAIL_ADDRESS as string,
-    pass: import.meta.env.EMAIL_APP_PASSWORD as string,
+    user: process.env.EMAIL_ADDRESS as string,
+    pass: process.env.EMAIL_APP_PASSWORD as string,
   },
-})
+});
 
 export async function sendMail({
   name,
@@ -14,14 +14,14 @@ export async function sendMail({
   phone,
   message,
 }: {
-  name: string
-  email: string
-  phone: string
-  message: string
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
 }) {
   const mailOptions = {
     from: "contact@jimmyvanveen.com",
-    to: import.meta.env.EMAIL_ADDRESS as string,
+    to: process.env.EMAIL_ADDRESS as string,
     subject: "New Message from JimmyVanVeen.com",
     text: `
 			Name: ${name}
@@ -31,7 +31,7 @@ export async function sendMail({
 			--------------------
 			Message: ${message}
 		`,
-  }
+  };
 
-  return await transporter.sendMail(mailOptions)
+  return await transporter.sendMail(mailOptions);
 }

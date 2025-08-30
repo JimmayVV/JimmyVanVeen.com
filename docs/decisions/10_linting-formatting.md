@@ -94,7 +94,7 @@ export default tseslint.config(
       // Custom rules...
     },
   },
-)
+);
 ```
 
 ### Prettier Configuration
@@ -108,7 +108,7 @@ export default {
     /* ... */
   ],
   plugins: ["@trivago/prettier-plugin-sort-imports"],
-}
+};
 ```
 
 ### Pre-commit Integration

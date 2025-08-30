@@ -1,0 +1,75 @@
+name: Dependabot Manual Review Notifier
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  notify-manual-review:
+    name: Notify Manual Review Required
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Check if manual review required
+        id: check_review
+        run: |
+          echo "Update type: ${{ steps.metadata.outputs.update-type }}"
+          echo "Dependency names: ${{ steps.metadata.outputs.dependency-names }}"
+
+          # Check if this is a major version update (requires manual review)
+          if [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-major" ]]; then
+            echo "manual_review=true" >> $GITHUB_OUTPUT
+            echo "reason=Major version update requires manual review" >> $GITHUB_OUTPUT
+          else
+            echo "manual_review=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add manual review label
+        if: steps.check_review.outputs.manual_review == 'true'
+        run: |
+          gh pr edit "$PR_URL" --add-label "manual-review-required"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on PR requiring manual review
+        if: steps.check_review.outputs.manual_review == 'true'
+        run: |
+          gh pr comment "$PR_URL" --body "$(cat <<'EOF'
+          🔍 **Manual Review Required**
+
+          This Dependabot PR requires manual review because:
+          - ${{ steps.check_review.outputs.reason }}
+
+          **Next Steps:**
+          1. Review the changelog and breaking changes
+          2. Test the update locally if needed
+          3. Merge manually if safe, or close if incompatible
+
+          This PR will **not** auto-merge and requires your approval.
+          EOF
+          )"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set PR status check
+        if: steps.check_review.outputs.manual_review == 'true'
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
+            -f state='pending' \
+            -f target_url='${{ github.event.pull_request.html_url }}' \
+            -f description='Manual review required for major version update' \
+            -f context='dependabot/manual-review'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

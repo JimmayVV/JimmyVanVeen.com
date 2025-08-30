@@ -1,12 +1,13 @@
-import * as React from "react"
-import { clsx } from "clsx"
+import * as React from "react";
+
+import { clsx } from "clsx";
 
 export default function Banner({
   children,
   noBg = false,
 }: {
-  children: React.ReactNode
-  noBg?: boolean
+  children: React.ReactNode;
+  noBg?: boolean;
 }) {
   return (
     <section
@@ -17,5 +18,5 @@ export default function Banner({
     >
       <div className="mx-8 lg:mx-auto my-0 lg:w-[55em]">{children}</div>
     </section>
-  )
+  );
 }

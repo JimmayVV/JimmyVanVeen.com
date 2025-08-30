@@ -1,11 +1,11 @@
-import { Link, type LinkProps } from "react-router"
+import { Link, type LinkProps } from "react-router";
 
 interface MainLinkProps extends LinkProps {
-  external?: boolean
+  external?: boolean;
 }
 
 const classNames =
-  "flex mt-5 uppercase font-raleway font-bold text-sm tracking-widest items-center main-link group"
+  "flex mt-5 uppercase font-raleway font-bold text-sm tracking-widest items-center main-link group";
 
 export default function MainLink({
   children,
@@ -29,7 +29,7 @@ export default function MainLink({
       </div>
       <div className="-mt-2">{children}</div>
     </>
-  )
+  );
 
   return external ? (
     <a
@@ -45,5 +45,5 @@ export default function MainLink({
     <Link to={to} className={classNames} {...props}>
       {content}
     </Link>
-  )
+  );
 }

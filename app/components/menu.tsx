@@ -1,29 +1,29 @@
-import * as React from "react"
-import { NavLink, useNavigation } from "react-router"
+import * as React from "react";
+import { NavLink, useNavigation } from "react-router";
 
 const baseClassName =
-  "block text-center text-white uppercase font-raleway py-2 rounded-sm"
-const activeClassName = `${baseClassName} bg-black/10`
-const inactiveClassName = `${baseClassName} hover:bg-black/10`
+  "block text-center text-white uppercase font-raleway py-2 rounded-sm";
+const activeClassName = `${baseClassName} bg-black/10`;
+const inactiveClassName = `${baseClassName} hover:bg-black/10`;
 
-let timeoutRef: NodeJS.Timeout
+let timeoutRef: NodeJS.Timeout;
 
 export function Menu() {
-  const [openMenu, setOpenMenu] = React.useState(false)
+  const [openMenu, setOpenMenu] = React.useState(false);
 
-  const transition = useNavigation()
+  const transition = useNavigation();
 
-  const isLoading = transition.state === "loading"
+  const isLoading = transition.state === "loading";
 
   const closeMenu = () => {
-    clearTimeout(timeoutRef)
-    timeoutRef = setTimeout(() => setOpenMenu(false), 100)
-  }
+    clearTimeout(timeoutRef);
+    timeoutRef = setTimeout(() => setOpenMenu(false), 100);
+  };
 
   return (
     <>
       <button
-        onClick={() => setOpenMenu(open => !open)}
+        onClick={() => setOpenMenu((open) => !open)}
         className={`fixed z-20 top-2 right-3 text-white font-raleway uppercase
                     font-bold border-2 px-6 py-2 border-white/20 rounded
                     text-sm tracking-widest hover:cursor-pointer bg-transparent
@@ -83,7 +83,7 @@ export function Menu() {
         </div>
       </div>
     </>
-  )
+  );
 }
 
-export default Menu
+export default Menu;

@@ -1,49 +1,50 @@
-"use client"
+"use client";
 
-import { SidebarIcon } from "lucide-react"
-import { href, Link } from "react-router"
-import * as React from "react"
+import * as React from "react";
+import { Link, href } from "react-router";
 
-import { Button } from "~/components/ui/button"
-import { Separator } from "~/components/ui/separator"
-import { useSidebar } from "~/components/ui/sidebar"
+import { SidebarIcon } from "lucide-react";
+
+import { Button } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
+import { useSidebar } from "~/components/ui/sidebar";
 
 export interface BlogTopics {
   /** The title of the blog to display */
-  title: string
+  title: string;
   /** A textual representation of the date the blog was posted */
-  date: string
+  date: string;
   /** The URL to the blog post */
-  link: string
+  link: string;
 }
 
 export function AppHeader({
   blogs = [],
   mode = "ticker",
 }: {
-  blogs?: BlogTopics[]
-  mode?: "marquee" | "latest" | "stats" | "ticker"
+  blogs?: BlogTopics[];
+  mode?: "marquee" | "latest" | "stats" | "ticker";
 }) {
-  const { toggleSidebar } = useSidebar()
-  const [currentIndex, setCurrentIndex] = React.useState(0)
+  const { toggleSidebar } = useSidebar();
+  const [currentIndex, setCurrentIndex] = React.useState(0);
 
   // For ticker mode, cycle through posts
   React.useEffect(() => {
     if (mode === "ticker" && blogs.length > 0) {
       const interval = setInterval(() => {
-        setCurrentIndex(prev => (prev + 1) % blogs.length)
-      }, 7000) // Change every 7 seconds
+        setCurrentIndex((prev) => (prev + 1) % blogs.length);
+      }, 7000); // Change every 7 seconds
 
-      return () => clearInterval(interval)
+      return () => clearInterval(interval);
     }
-  }, [mode, blogs.length])
+  }, [mode, blogs.length]);
 
   // For true marquee, duplicate content for seamless loop
   const displayBlogs =
-    mode === "marquee" && blogs.length > 0 ? [...blogs, ...blogs] : blogs
+    mode === "marquee" && blogs.length > 0 ? [...blogs, ...blogs] : blogs;
 
   const renderContent = () => {
-    if (blogs.length === 0) return null
+    if (blogs.length === 0) return null;
 
     switch (mode) {
       case "ticker": {
@@ -80,7 +81,7 @@ export function AppHeader({
               ))}
             </div>
           </div>
-        )
+        );
       }
 
       case "marquee": {
@@ -107,11 +108,11 @@ export function AppHeader({
               ))}
             </div>
           </div>
-        )
+        );
       }
 
       case "latest": {
-        const latestBlog = blogs[0]
+        const latestBlog = blogs[0];
         return (
           <div className="flex items-center gap-3">
             <span className="bg-yellow-500 text-black px-2 py-0.5 rounded text-xs font-bold animate-pulse">
@@ -125,7 +126,7 @@ export function AppHeader({
             </Link>
             <span className="text-sm text-white/70">— {latestBlog.date}</span>
           </div>
-        )
+        );
       }
 
       case "stats": {
@@ -146,13 +147,13 @@ export function AppHeader({
               View all →
             </Link>
           </div>
-        )
+        );
       }
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full items-center border-b bg-(--color-brand-hsl)">
@@ -169,5 +170,5 @@ export function AppHeader({
         {renderContent()}
       </div>
     </header>
-  )
+  );
 }

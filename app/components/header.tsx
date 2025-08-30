@@ -1,4 +1,4 @@
-import { Link } from "react-router"
+import { Link } from "react-router";
 
 export function Header() {
   return (
@@ -9,7 +9,7 @@ export function Header() {
         </Link>
       </h1>
     </header>
-  )
+  );
 }
 
-export default Header
+export default Header;

@@ -35,7 +35,7 @@ route loaders, ensuring data is available before components render.
 const client = createClient({
   space: process.env.CONTENTFUL_SPACE_ID!,
   accessToken: process.env.CONTENTFUL_ACCESS_TOKEN!,
-})
+});
 ```
 
 Key functions:
@@ -77,9 +77,9 @@ export async function loader() {
   const posts = await contentfulClient.getEntries({
     content_type: "blogPost",
     order: ["-fields.publishDate"],
-  })
+  });
 
-  return json({ posts })
+  return json({ posts });
 }
 ```
 
@@ -88,10 +88,10 @@ export async function loader() {
 ```typescript
 export async function loader() {
   try {
-    const data = await fetchData()
-    return json({ data })
+    const data = await fetchData();
+    return json({ data });
   } catch (error) {
-    throw new Response("Not Found", { status: 404 })
+    throw new Response("Not Found", { status: 404 });
   }
 }
 ```
@@ -103,9 +103,9 @@ export async function loader() {
   const [posts, repos] = await Promise.all([
     contentfulClient.getEntries(),
     githubClient.getRepositories(),
-  ])
+  ]);
 
-  return json({ posts, repos })
+  return json({ posts, repos });
 }
 ```
 
@@ -122,7 +122,7 @@ export async function loader() {
 ```typescript
 // Automatic type inference in components
 export default function Route() {
-  const { posts } = useLoaderData<typeof loader>()
+  const { posts } = useLoaderData<typeof loader>();
   // posts is fully typed
 }
 ```

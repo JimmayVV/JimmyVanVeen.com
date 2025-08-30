@@ -1,24 +1,23 @@
 // Libs
-import { Link, useLoaderData } from "react-router"
+import { Link, useLoaderData } from "react-router";
 
+import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
-import GradientBanner from "~/components/gradient-banner"
-import ContentCards, { ContentCard } from "~/components/content-cards"
-
+import GradientBanner from "~/components/gradient-banner";
+import { isContentfulConfigured } from "~/utils/contentful";
 // Utils
-import { getCachedBlogPosts } from "~/utils/contentful-cache"
-import { isContentfulConfigured } from "~/utils/contentful"
+import { getCachedBlogPosts } from "~/utils/contentful-cache";
 
 export async function loader() {
-  const posts = await getCachedBlogPosts()
+  const posts = await getCachedBlogPosts();
   return {
     posts,
     isConfigured: isContentfulConfigured(),
-  }
+  };
 }
 
 export default function BlogIndex() {
-  const { posts, isConfigured } = useLoaderData<typeof loader>()
+  const { posts, isConfigured } = useLoaderData<typeof loader>();
 
   return (
     <div className="min-h-screen bg-black">
@@ -38,14 +37,14 @@ export default function BlogIndex() {
 
       <ContentCards spacing="space-y-8 -mt-40 relative z-10">
         {posts?.length > 0 ? (
-          posts.map(blog => {
+          posts.map((blog) => {
             const title = `${blog.fields.title} (${new Date(
               blog.fields.publishDate,
             ).toLocaleDateString("en-us", {
               month: "long",
               day: "numeric",
               year: "numeric",
-            })})`
+            })})`;
 
             return (
               <ContentCard
@@ -62,7 +61,7 @@ export default function BlogIndex() {
               >
                 {blog.fields.description}
               </ContentCard>
-            )
+            );
           })
         ) : (
           <ContentCard title="Blog Posts">
@@ -131,5 +130,5 @@ export default function BlogIndex() {
         )}
       </ContentCards>
     </div>
-  )
+  );
 }
