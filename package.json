@@ -86,7 +86,7 @@
     "eslint-plugin-unused-imports": "^4.2.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
+    "lint-staged": "^16.1.6",
     "netlify-cli": "^23.5.0",
     "prettier": "^3.5.3",
     "react-router-devtools": "^5.1.3",
