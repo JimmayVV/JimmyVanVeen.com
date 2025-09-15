@@ -29,7 +29,7 @@
     ]
   },
   "dependencies": {
-    "@netlify/blobs": "^10.0.9",
+    "@netlify/blobs": "^10.0.10",
     "@netlify/functions": "^4.1.10",
     "@octokit/plugin-throttling": "^11.0.1",
     "@octokit/rest": "^22.0.0",
