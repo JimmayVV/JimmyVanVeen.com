@@ -34,7 +34,7 @@
     "@octokit/plugin-throttling": "^11.0.1",
     "@octokit/rest": "^22.0.0",
     "@radix-ui/react-dialog": "^1.1.15",
-    "@radix-ui/react-menubar": "^1.1.6",
+    "@radix-ui/react-menubar": "^1.1.16",
     "@radix-ui/react-navigation-menu": "^1.2.5",
     "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.2",
