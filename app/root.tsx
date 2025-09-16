@@ -54,6 +54,21 @@ export async function loader() {
   }));
 }
 
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  // Get server data first
+  const serverData = await serverLoader();
+
+  // Import analytics dynamically to avoid SSR issues
+  const { analytics } = await import("~/utils/analytics.client");
+
+  // Track page view
+  await analytics.page().catch((error) => {
+    console.error("Failed to track page view:", error);
+  });
+
+  return serverData;
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={"box-border"}>

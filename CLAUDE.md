@@ -19,11 +19,16 @@ npm run build
 
 # Linting and formatting
 npm run lint
+npm run lint:fix  # Fix auto-fixable issues
 npm run format
 npm run format:check
 
 # Type generation and checking
 npm run typecheck
+
+# IMPORTANT: Always run lint:fix before committing
+# The pre-commit hook will run these automatically, but run them manually
+# during development to catch issues early
 
 # Start local Netlify server
 npm start

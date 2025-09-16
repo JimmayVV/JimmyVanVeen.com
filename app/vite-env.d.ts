@@ -11,6 +11,7 @@ interface ImportMetaEnv {
   // Application environment variables (JVV_ prefixed - safe for client)
   readonly JVV_ALLOW_EMAILS: string;
   readonly JVV_RECAPTCHA_SITE_KEY: string;
+  readonly JVV_ANALYTICS_ENABLED: string;
 }
 
 interface ImportMeta {
@@ -30,5 +31,7 @@ declare namespace NodeJS {
     readonly EMAIL_ADDRESS?: string;
     readonly EMAIL_APP_PASSWORD?: string;
     readonly RECAPTCHA_SECRET_KEY?: string;
+    readonly GA4_MEASUREMENT_ID?: string;
+    readonly GA4_API_SECRET?: string;
   }
 }

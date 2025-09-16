@@ -79,6 +79,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <Github />
           </a>
         </div>
+        <div className="text-center">
+          <Link
+            to={href("/privacy")}
+            onClick={handleLinkClick}
+            className="text-sm text-muted-foreground hover:text-foreground underline"
+          >
+            Privacy Policy
+          </Link>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

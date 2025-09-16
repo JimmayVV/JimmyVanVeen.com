@@ -15,5 +15,8 @@ export default [
     ]),
   ]),
   route("email", "routes/email.tsx"),
+  route("privacy", "routes/privacy.tsx"),
+  route("sitemap.xml", "routes/sitemap[.]xml.tsx"),
+  route("api/events", "routes/api.events.tsx"),
   route("*", "routes/404.tsx"),
 ] satisfies RouteConfig;
