@@ -1,6 +1,44 @@
 import { type ActionFunctionArgs } from "react-router";
 
+// Validate environment variables on first load
+let hasValidated = false;
+function validateEnvironment() {
+  if (hasValidated) return;
+  hasValidated = true;
+
+  const measurementId = process.env.GA4_MEASUREMENT_ID;
+  const apiSecret = process.env.GA4_API_SECRET;
+
+  if (!measurementId && !apiSecret) {
+    console.log(
+      "GA4 environment variables not configured - analytics will be disabled",
+    );
+    return;
+  }
+
+  if (measurementId && !/^G-[A-Z0-9]{10}$/.test(measurementId)) {
+    console.error("Invalid GA4_MEASUREMENT_ID format - should be G-XXXXXXXXXX");
+  }
+
+  if (apiSecret && !/^[A-Za-z0-9_-]{20,}$/.test(apiSecret)) {
+    console.error(
+      "Invalid GA4_API_SECRET format - should be a valid API secret",
+    );
+  }
+
+  if (measurementId && apiSecret) {
+    console.log("GA4 analytics configured and ready");
+  } else {
+    console.warn(
+      "Partial GA4 configuration - both GA4_MEASUREMENT_ID and GA4_API_SECRET are required",
+    );
+  }
+}
+
 export async function action({ request }: ActionFunctionArgs) {
+  // Validate environment on first request
+  validateEnvironment();
+
   if (request.method !== "POST") {
     return Response.json({ error: "Method not allowed" }, { status: 405 });
   }
@@ -63,10 +101,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Get client info from headers
     const userAgent = request.headers.get("user-agent") || "";
-    const clientIP =
-      request.headers.get("x-forwarded-for") ||
-      request.headers.get("x-real-ip") ||
-      "unknown";
+    const clientIP = getClientIP(request);
     const referer = request.headers.get("referer") || "";
 
     // Basic rate limiting check
@@ -125,6 +160,18 @@ async function sendToGA4(event: string, properties: Record<string, unknown>) {
       "GA4 credentials not configured, skipping analytics event:",
       event,
     );
+    return;
+  }
+
+  // Validate GA4 measurement ID format (G-XXXXXXXXXX)
+  if (!/^G-[A-Z0-9]{10}$/.test(measurementId)) {
+    console.error("Invalid GA4_MEASUREMENT_ID format:", measurementId);
+    return;
+  }
+
+  // Validate API secret format (base64-like string)
+  if (!/^[A-Za-z0-9_-]{20,}$/.test(apiSecret)) {
+    console.error("Invalid GA4_API_SECRET format");
     return;
   }
 
@@ -219,6 +266,19 @@ async function isRateLimited(clientIP: string): Promise<boolean> {
   // Increment count
   clientData.count++;
   return false;
+}
+
+function getClientIP(request: Request): string {
+  const xForwardedFor = request.headers.get("x-forwarded-for");
+
+  if (xForwardedFor) {
+    // Parse x-forwarded-for header which may contain comma-separated IPs
+    // Format: client, proxy1, proxy2
+    const ips = xForwardedFor.split(",").map((ip) => ip.trim());
+    return ips[0] || "unknown"; // Return first (original client) IP
+  }
+
+  return request.headers.get("x-real-ip") || "unknown";
 }
 
 function generateClientId(): string {

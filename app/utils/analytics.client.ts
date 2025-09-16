@@ -1,4 +1,9 @@
 // Client-side analytics service with vendor-agnostic interface
+import {
+  getStorageItem,
+  removeStorageItem,
+  setStorageItem,
+} from "./storage.client";
 
 export interface AnalyticsEvent {
   event: string;
@@ -87,37 +92,17 @@ class ClientAnalytics implements AnalyticsService {
 
   private getOrCreateClientId(): string {
     const key = "analytics_client_id";
-    let clientId: string | null = null;
-
-    // Try localStorage first
-    try {
-      clientId = localStorage.getItem(key);
-    } catch (_error) {
-      console.warn("localStorage not available, trying sessionStorage");
-
-      // Fallback to sessionStorage
-      try {
-        clientId = sessionStorage.getItem(key);
-      } catch (_sessionError) {
-        console.warn("sessionStorage not available, using in-memory client ID");
-      }
-    }
+    let clientId = getStorageItem(key);
 
     if (!clientId) {
       clientId = `${Date.now()}.${Math.random().toString(36).substring(2)}`;
 
       // Try to store the new client ID
-      try {
-        localStorage.setItem(key, clientId);
-      } catch (_error) {
-        try {
-          sessionStorage.setItem(key, clientId);
-        } catch (_sessionError) {
-          // Both storage methods failed, continue with in-memory only
-          console.warn(
-            "Unable to persist client ID, using session-only tracking",
-          );
-        }
+      const success = setStorageItem(key, clientId);
+      if (!success) {
+        console.warn(
+          "Unable to persist client ID, using session-only tracking",
+        );
       }
     }
 
@@ -131,18 +116,8 @@ class ClientAnalytics implements AnalyticsService {
     }
 
     // Check for local opt-out
-    try {
-      if (localStorage.getItem("analytics_opt_out") === "true") {
-        return false;
-      }
-    } catch (_error) {
-      try {
-        if (sessionStorage.getItem("analytics_opt_out") === "true") {
-          return false;
-        }
-      } catch (_sessionError) {
-        // Storage not available, continue with other checks
-      }
+    if (getStorageItem("analytics_opt_out") === "true") {
+      return false;
     }
 
     // Check environment
@@ -189,41 +164,23 @@ class ClientAnalytics implements AnalyticsService {
 
   // Privacy methods
   optOut(): void {
-    try {
-      localStorage.setItem("analytics_opt_out", "true");
-    } catch (_error) {
-      try {
-        sessionStorage.setItem("analytics_opt_out", "true");
-      } catch (_sessionError) {
-        console.warn("Unable to persist opt-out preference");
-      }
+    const success = setStorageItem("analytics_opt_out", "true");
+    if (!success) {
+      console.warn("Unable to persist opt-out preference");
     }
     console.log("Analytics opt-out enabled");
   }
 
   optIn(): void {
-    try {
-      localStorage.removeItem("analytics_opt_out");
-    } catch (_error) {
-      try {
-        sessionStorage.removeItem("analytics_opt_out");
-      } catch (_sessionError) {
-        console.warn("Unable to persist opt-in preference");
-      }
+    const success = removeStorageItem("analytics_opt_out");
+    if (!success) {
+      console.warn("Unable to persist opt-in preference");
     }
     console.log("Analytics opt-out disabled");
   }
 
   isOptedOut(): boolean {
-    try {
-      return localStorage.getItem("analytics_opt_out") === "true";
-    } catch (_error) {
-      try {
-        return sessionStorage.getItem("analytics_opt_out") === "true";
-      } catch (_sessionError) {
-        return false; // Default to enabled if storage not available
-      }
-    }
+    return getStorageItem("analytics_opt_out") === "true";
   }
 }
 
