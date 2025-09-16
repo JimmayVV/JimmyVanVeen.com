@@ -9,6 +9,9 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   return data;
 }
 
+// Enable clientLoader during initial hydration
+clientLoader.hydrate = true;
+
 export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">

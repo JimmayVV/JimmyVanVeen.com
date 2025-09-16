@@ -34,6 +34,9 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   return data;
 }
 
+// Enable clientLoader during initial hydration
+clientLoader.hydrate = true;
+
 export default function Index({ loaderData: blog }: Route.ComponentProps) {
   return (
     <div className="min-h-screen bg-black">

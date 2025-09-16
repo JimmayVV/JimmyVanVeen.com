@@ -20,6 +20,9 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   return data;
 }
 
+// Enable clientLoader during initial hydration
+clientLoader.hydrate = true;
+
 export default function Privacy() {
   return (
     <main className="container mx-auto px-4 py-8 max-w-4xl">

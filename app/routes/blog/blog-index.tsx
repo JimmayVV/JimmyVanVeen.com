@@ -26,6 +26,9 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   return data;
 }
 
+// Enable clientLoader during initial hydration
+clientLoader.hydrate = true;
+
 export default function BlogIndex() {
   const { posts, isConfigured } = useLoaderData<typeof loader>();
 
