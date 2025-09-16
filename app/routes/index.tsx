@@ -10,8 +10,12 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 // Utils
 import { getRepositoriesByNodeId } from "~/utils/github";
+import { getLogger } from "~/utils/logger";
 
 import type { Route } from "./+types/index";
+
+// Create route-specific logger
+const indexRouteLogger = getLogger("index-route");
 
 interface Repository {
   /** The name of the repository */
@@ -58,8 +62,14 @@ export async function loader() {
 
 // Add analytics tracking to this route
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  indexRouteLogger.debug("clientLoader started");
+
   const data = await serverLoader();
+  indexRouteLogger.debug({ hasData: !!data }, "serverLoader completed");
+
   await trackPageView();
+  indexRouteLogger.debug("trackPageView completed");
+
   return data;
 }
 

@@ -13,8 +13,12 @@ import GradientBanner from "~/components/gradient-banner";
 import { trackPageView } from "~/utils/analytics-loader";
 // Utils
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
+import { getLogger } from "~/utils/logger";
 
 import type { Route } from "./+types/$slug";
+
+// Create route-specific logger
+const blogSlugLogger = getLogger("blog-slug-route");
 
 export async function loader({ params }: Route.LoaderArgs) {
   const slug: string = params.slug;
@@ -29,8 +33,14 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 // Add analytics tracking to this route
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  blogSlugLogger.debug("clientLoader started");
+
   const data = await serverLoader();
+  blogSlugLogger.debug({ hasData: !!data }, "serverLoader completed");
+
   await trackPageView();
+  blogSlugLogger.debug("trackPageView completed");
+
   return data;
 }
 

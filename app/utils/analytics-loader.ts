@@ -1,55 +1,62 @@
 // Shared analytics tracking utility for clientLoaders
+import { getLogger } from "./logger";
+
 // Cache analytics module to avoid re-imports on navigation
 let analyticsModule: typeof import("~/utils/analytics.client") | null = null;
+
+// Create logger for route tracking
+const routeLogger = getLogger("route-analytics");
 
 /**
  * Shared analytics tracking function for use in route clientLoaders
  * Call this at the end of your clientLoader to automatically track page views
  */
 export async function trackPageView(): Promise<void> {
-  console.log("🔥 [DEBUG] trackPageView started - URL:", window.location.href);
-  console.log("🔥 [DEBUG] trackPageView timestamp:", new Date().toISOString());
+  const startTime = new Date().toISOString();
+  const url = window.location.href;
+
+  routeLogger.debug({ url, timestamp: startTime }, "trackPageView started");
 
   // Import analytics dynamically with memoization to avoid SSR issues
   if (!analyticsModule) {
-    console.log("🔥 [DEBUG] Analytics module not cached, importing...");
+    routeLogger.debug("Analytics module not cached, importing...");
     try {
       analyticsModule = await import("~/utils/analytics.client");
-      console.log(
-        "🔥 [DEBUG] Analytics module imported successfully:",
-        !!analyticsModule,
-      );
-      console.log(
-        "🔥 [DEBUG] Analytics instance available:",
-        !!analyticsModule?.analytics,
+      routeLogger.debug(
+        {
+          moduleImported: !!analyticsModule,
+          instanceAvailable: !!analyticsModule?.analytics,
+        },
+        "Analytics module imported successfully",
       );
     } catch (error) {
-      console.error("🔥 [DEBUG] Failed to import analytics module:", error);
+      routeLogger.error({ error }, "Failed to import analytics module");
       return; // Exit early if module can't be loaded
     }
   } else {
-    console.log("🔥 [DEBUG] Using cached analytics module");
+    routeLogger.debug("Using cached analytics module");
   }
 
   // Check analytics state before calling
   try {
-    console.log("🔥 [DEBUG] About to call analytics.page()...");
+    routeLogger.debug("About to call analytics.page()...");
 
     // Debug analytics internal state
-    console.log("🔥 [DEBUG] Analytics debug info:", {
+    const debugInfo = {
       isOptedOut: analyticsModule.analytics.isOptedOut(),
       DNT: navigator.doNotTrack,
       envVar: import.meta.env?.JVV_ANALYTICS_ENABLED,
       userAgent: navigator.userAgent.substring(0, 100), // First 100 chars
-    });
+    };
+    routeLogger.debug({ debugInfo }, "Analytics debug info");
 
     await analyticsModule.analytics.page();
-    console.log("🔥 [DEBUG] analytics.page() completed successfully");
+    routeLogger.debug("analytics.page() completed successfully");
   } catch (error) {
-    console.error("🔥 [DEBUG] Failed to track page view:", error);
+    routeLogger.error({ error }, "Failed to track page view");
   }
 
-  console.log("🔥 [DEBUG] trackPageView completed");
+  routeLogger.debug("trackPageView completed");
 }
 
 // Type for React Router clientLoader args
