@@ -58,24 +58,53 @@ export async function loader() {
 let analyticsModule: typeof import("~/utils/analytics.client") | null = null;
 
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
-  console.log("🔥 clientLoader executing!"); // Debug: check if this runs
+  console.log("🔥 [DEBUG] clientLoader started - URL:", window.location.href);
+  console.log("🔥 [DEBUG] clientLoader timestamp:", new Date().toISOString());
 
   // Get server data first
   const serverData = await serverLoader();
+  console.log("🔥 [DEBUG] serverLoader completed, got data:", !!serverData);
 
   // Import analytics dynamically with memoization to avoid SSR issues
   if (!analyticsModule) {
-    console.log("🔥 Loading analytics module..."); // Debug: check if this runs
-    analyticsModule = await import("~/utils/analytics.client");
-    console.log("🔥 Analytics module loaded:", analyticsModule); // Debug: check what we get
+    console.log("🔥 [DEBUG] Analytics module not cached, importing...");
+    try {
+      analyticsModule = await import("~/utils/analytics.client");
+      console.log(
+        "🔥 [DEBUG] Analytics module imported successfully:",
+        !!analyticsModule,
+      );
+      console.log(
+        "🔥 [DEBUG] Analytics instance available:",
+        !!analyticsModule?.analytics,
+      );
+    } catch (error) {
+      console.error("🔥 [DEBUG] Failed to import analytics module:", error);
+      return serverData; // Exit early if module can't be loaded
+    }
+  } else {
+    console.log("🔥 [DEBUG] Using cached analytics module");
   }
 
-  // Track page view
-  console.log("🔥 Calling analytics.page()"); // Debug: check if this runs
-  await analyticsModule.analytics.page().catch((error) => {
-    console.error("Failed to track page view:", error);
-  });
+  // Check analytics state before calling
+  try {
+    console.log("🔥 [DEBUG] About to call analytics.page()...");
 
+    // Debug analytics internal state
+    console.log("🔥 [DEBUG] Analytics debug info:", {
+      isOptedOut: analyticsModule.analytics.isOptedOut(),
+      DNT: navigator.doNotTrack,
+      envVar: import.meta.env?.JVV_ANALYTICS_ENABLED,
+      userAgent: navigator.userAgent.substring(0, 100), // First 100 chars
+    });
+
+    await analyticsModule.analytics.page();
+    console.log("🔥 [DEBUG] analytics.page() completed successfully");
+  } catch (error) {
+    console.error("🔥 [DEBUG] Failed to track page view:", error);
+  }
+
+  console.log("🔥 [DEBUG] clientLoader completed");
   return serverData;
 }
 

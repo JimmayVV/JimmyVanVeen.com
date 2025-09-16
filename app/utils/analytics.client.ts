@@ -47,8 +47,17 @@ class ClientAnalytics implements AnalyticsService {
     event: string,
     properties: Record<string, unknown> = {},
   ): Promise<void> {
+    console.log("🔥 [ANALYTICS] track() called with event:", event);
+    console.log("🔥 [ANALYTICS] isEnabled:", this.isEnabled);
+    console.log("🔥 [ANALYTICS] clientId:", this.clientId);
+
     if (!this.isEnabled) {
-      console.log("Analytics disabled, skipping event:", event);
+      console.log("🔥 [ANALYTICS] Analytics disabled, skipping event:", event);
+      console.log("🔥 [ANALYTICS] Disabled reasons:", {
+        DNT: navigator.doNotTrack,
+        optOut: this.isOptedOut(),
+        envDisabled: import.meta.env.JVV_ANALYTICS_ENABLED === "false",
+      });
       return;
     }
 
@@ -65,9 +74,11 @@ class ClientAnalytics implements AnalyticsService {
         },
       };
 
+      console.log("🔥 [ANALYTICS] Sending payload to server:", payload);
       await this.sendToServer(payload);
+      console.log("🔥 [ANALYTICS] Successfully sent to server");
     } catch (_error) {
-      console.error("Analytics tracking error:", _error);
+      console.error("🔥 [ANALYTICS] Analytics tracking error:", _error);
     }
   }
 
@@ -95,6 +106,8 @@ class ClientAnalytics implements AnalyticsService {
   }
 
   private async sendToServer(payload: AnalyticsEvent): Promise<void> {
+    console.log("🔥 [ANALYTICS] Making POST request to /api/events");
+
     const response = await fetch("/api/events", {
       method: "POST",
       headers: {
@@ -102,6 +115,8 @@ class ClientAnalytics implements AnalyticsService {
       },
       body: JSON.stringify(payload),
     });
+
+    console.log("🔥 [ANALYTICS] Server response status:", response.status);
 
     if (!response.ok) {
       throw new Error(`Analytics API error: ${response.status}`);
@@ -138,7 +153,7 @@ class ClientAnalytics implements AnalyticsService {
       return false;
     }
 
-    // Check environment
+    // Check environment - only disable if explicitly set to false
     if (import.meta.env.JVV_ANALYTICS_ENABLED === "false") {
       return false;
     }
