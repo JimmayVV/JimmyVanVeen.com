@@ -19,7 +19,7 @@ export default function Privacy() {
       <div className="prose prose-invert max-w-none space-y-8">
         <section>
           <p className="text-lg text-gray-300 mb-6">
-            <strong>Last updated:</strong> {new Date().toLocaleDateString()}
+            <strong>Last updated:</strong> September 16, 2025
           </p>
 
           <p className="text-gray-300">

@@ -1,5 +1,7 @@
 import { type ActionFunctionArgs } from "react-router";
 
+import { generateClientId as sharedGenerateClientId } from "~/utils/client-id";
+
 // Validate environment variables on first load
 let hasValidated = false;
 function validateEnvironment() {
@@ -282,8 +284,8 @@ function getClientIP(request: Request): string {
 }
 
 function generateClientId(): string {
-  // Generate a unique client ID for server-side events
-  return `${Date.now()}.${Math.random().toString(36).substring(2)}`;
+  // Use shared client ID generation with enhanced entropy
+  return sharedGenerateClientId();
 }
 
 function sanitizeProperties(

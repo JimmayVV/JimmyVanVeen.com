@@ -1,5 +1,17 @@
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
 
+/**
+ * Escapes XML special characters to prevent XML injection
+ */
+function escapeXml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // Cache blog post failures to avoid repeated API calls
 let lastBlogPostsFailure: number | null = null;
 const FAILURE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -75,16 +87,16 @@ export async function loader() {
     // Combine all pages
     const allPages = [...staticPages, ...blogPages];
 
-    // Generate XML sitemap
+    // Generate XML sitemap with proper escaping
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${allPages
   .map(
     (page) => `  <url>
-    <loc>${page.url}</loc>
-    <lastmod>${page.lastmod}</lastmod>
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
+    <loc>${escapeXml(page.url)}</loc>
+    <lastmod>${escapeXml(page.lastmod)}</lastmod>
+    <changefreq>${escapeXml(page.changefreq)}</changefreq>
+    <priority>${escapeXml(page.priority)}</priority>
   </url>`,
   )
   .join("\n")}
@@ -100,23 +112,24 @@ ${allPages
     console.error("Error generating sitemap:", error);
 
     // Return a minimal sitemap with just static pages
+    const currentDate = escapeXml(new Date().toISOString());
     const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.jimmyvanveen.com</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
+    <lastmod>${currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.jimmyvanveen.com/blog</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
+    <lastmod>${currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.jimmyvanveen.com/privacy</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
+    <lastmod>${currentDate}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
