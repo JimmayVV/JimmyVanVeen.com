@@ -99,6 +99,7 @@ Available via `process.env.*` in server code only - **NOT** exposed to client:
 - `RECAPTCHA_SECRET_KEY` - ReCaptcha secret key (secret)
 - `GA4_MEASUREMENT_ID` - Google Analytics 4 Measurement ID
 - `GA4_API_SECRET` - GA4 Measurement Protocol API Secret
+- `GA4_DEBUG` - Enable detailed GA4 payload logging (set to "true" for debugging)
 
 ### Client-side Variables (Browser)
 
