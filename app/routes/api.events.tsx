@@ -180,23 +180,53 @@ async function sendToGA4(event: string, properties: Record<string, unknown>) {
   // Generate or use client_id from properties
   const clientId = properties.client_id || generateClientId();
 
+  // GA4 parameter constraints
+  const GA4_MAX_PARAM_LENGTH = 40;
+  const GA4_MAX_STRING_VALUE_LENGTH = 500;
+  const INTERNAL_PROPERTIES = new Set([
+    "client_ip",
+    "server_side",
+    "client_id",
+  ]);
+
   // Clean up properties for GA4 compatibility
   const cleanParams: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(properties)) {
     // Skip internal properties
-    if (key === "client_ip" || key === "server_side" || key === "client_id") {
+    if (INTERNAL_PROPERTIES.has(key)) {
       continue;
     }
-    // GA4 parameter names must be <= 40 characters, alphanumeric + underscore
-    const cleanKey = key.replace(/[^a-zA-Z0-9_]/g, "_").substring(0, 40);
-    cleanParams[cleanKey] = value;
+
+    // Clean parameter name: alphanumeric + underscore, max 40 chars
+    const cleanKey = key
+      .replace(/[^a-zA-Z0-9_]/g, "_")
+      .substring(0, GA4_MAX_PARAM_LENGTH);
+
+    // Clean parameter value if it's a string
+    let cleanValue = value;
+    if (
+      typeof value === "string" &&
+      value.length > GA4_MAX_STRING_VALUE_LENGTH
+    ) {
+      cleanValue = value.substring(0, GA4_MAX_STRING_VALUE_LENGTH);
+    }
+
+    cleanParams[cleanKey] = cleanValue;
   }
+
+  // Map custom events to GA4 standard events when applicable
+  const GA4_EVENT_MAPPING: Record<string, string> = {
+    page_view: "page_view",
+    click: "click",
+    error: "exception",
+    timing: "timing_complete",
+  };
 
   const payload = {
     client_id: clientId,
     events: [
       {
-        name: event === "page_view" ? "page_view" : event, // Use GA4 standard event name
+        name: GA4_EVENT_MAPPING[event] || event,
         params: cleanParams,
       },
     ],
@@ -204,8 +234,12 @@ async function sendToGA4(event: string, properties: Record<string, unknown>) {
 
   const url = `https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`;
 
+  const isDebugMode = process.env.GA4_DEBUG === "true";
+
   try {
-    console.log("Sending to GA4:", JSON.stringify(payload, null, 2));
+    if (isDebugMode) {
+      console.log("Sending to GA4:", JSON.stringify(payload, null, 2));
+    }
 
     const response = await fetch(url, {
       method: "POST",
@@ -221,7 +255,9 @@ async function sendToGA4(event: string, properties: Record<string, unknown>) {
       throw new Error(`GA4 API error: ${response.status}`);
     }
 
-    console.log("Successfully sent to GA4");
+    if (isDebugMode) {
+      console.log("Successfully sent to GA4");
+    }
   } catch (error) {
     console.error("Failed to send to GA4:", error);
     // Don't throw - just log and continue gracefully
