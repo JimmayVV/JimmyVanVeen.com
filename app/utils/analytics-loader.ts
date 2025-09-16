@@ -1,5 +1,5 @@
 // Shared analytics tracking utility for clientLoaders
-import { getLogger } from "./logger";
+import { getLogger } from "./logger.client";
 
 // Cache analytics module to avoid re-imports on navigation
 let analyticsModule: typeof import("~/utils/analytics.client") | null = null;
@@ -46,7 +46,16 @@ export async function trackPageView(): Promise<void> {
       isOptedOut: analyticsModule.analytics.isOptedOut(),
       DNT: navigator.doNotTrack,
       envVar: import.meta.env?.JVV_ANALYTICS_ENABLED,
-      userAgent: navigator.userAgent.substring(0, 100), // First 100 chars
+      // Only log browser type in production, not full user agent
+      browserInfo: import.meta.env.PROD
+        ? navigator.userAgent.includes("Chrome")
+          ? "Chrome-based"
+          : navigator.userAgent.includes("Firefox")
+            ? "Firefox"
+            : navigator.userAgent.includes("Safari")
+              ? "Safari"
+              : "Other"
+        : navigator.userAgent.substring(0, 100),
     };
     routeLogger.debug({ debugInfo }, "Analytics debug info");
 

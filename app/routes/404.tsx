@@ -1,22 +1,17 @@
 import { trackPageView } from "~/utils/analytics-loader";
-import { getLogger } from "~/utils/logger";
-
-import type { Route } from "./+types/404";
+import { getLogger } from "~/utils/logger.client";
 
 // Create route-specific logger
 const notFoundLogger = getLogger("404-route");
 
 // Add analytics tracking to this route
-export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+export async function clientLoader() {
   notFoundLogger.debug("clientLoader started");
-
-  const data = await serverLoader();
-  notFoundLogger.debug({ hasData: !!data }, "serverLoader completed");
 
   await trackPageView();
   notFoundLogger.debug("trackPageView completed");
 
-  return data;
+  return null; // No server data for this route
 }
 
 // Enable clientLoader during initial hydration

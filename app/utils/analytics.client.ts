@@ -1,6 +1,6 @@
 // Client-side analytics service with vendor-agnostic interface
 import { generateClientId } from "./client-id";
-import { analyticsLogger } from "./logger";
+import { analyticsLogger } from "./logger.client";
 import {
   getStorageItem,
   removeStorageItem,
@@ -49,7 +49,11 @@ class ClientAnalytics implements AnalyticsService {
     properties: Record<string, unknown> = {},
   ): Promise<void> {
     analyticsLogger.debug(
-      { event, isEnabled: this.isEnabled, clientId: this.clientId },
+      {
+        event,
+        isEnabled: this.isEnabled,
+        clientId: this.clientId?.substring(0, 8) + "...", // Only show first 8 chars
+      },
       "track() called",
     );
 
@@ -79,7 +83,17 @@ class ClientAnalytics implements AnalyticsService {
         },
       };
 
-      analyticsLogger.debug({ payload }, "Sending payload to server");
+      analyticsLogger.debug(
+        {
+          event: payload.event,
+          propertiesCount: Object.keys(payload.properties || {}).length,
+          // Don't log full payload in production for privacy
+          hasClientId: !!(
+            payload.properties && "client_id" in payload.properties
+          ),
+        },
+        "Sending payload to server",
+      );
       await this.sendToServer(payload);
       analyticsLogger.debug({ event }, "Successfully sent to server");
     } catch (error) {

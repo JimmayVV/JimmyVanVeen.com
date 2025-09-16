@@ -10,7 +10,7 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 // Utils
 import { getRepositoriesByNodeId } from "~/utils/github";
-import { getLogger } from "~/utils/logger";
+import { getLogger } from "~/utils/logger.client";
 
 import type { Route } from "./+types/index";
 
@@ -77,6 +77,18 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 clientLoader.hydrate = true;
 
 export default function Index({ loaderData: repos }: Route.ComponentProps) {
+  // Test if client-side code is running at all
+  console.log(
+    "🟢 Index component rendering - client side:",
+    typeof window !== "undefined",
+  );
+
+  // Test our logger directly
+  if (typeof window !== "undefined") {
+    indexRouteLogger.debug("🔥 Testing logger from component");
+    console.log("🟢 Direct console.log from component");
+  }
+
   return (
     <div className="min-h-screen bg-black">
       <GradientBanner>
