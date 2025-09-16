@@ -1,3 +1,8 @@
+import { withAnalytics } from "~/utils/analytics-loader";
+
+// Add analytics tracking to this route
+export const clientLoader = withAnalytics();
+
 export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">

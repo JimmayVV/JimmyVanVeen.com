@@ -54,60 +54,6 @@ export async function loader() {
   }));
 }
 
-// Cache analytics module to avoid re-imports on navigation
-let analyticsModule: typeof import("~/utils/analytics.client") | null = null;
-
-export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
-  console.log("🔥 [DEBUG] clientLoader started - URL:", window.location.href);
-  console.log("🔥 [DEBUG] clientLoader timestamp:", new Date().toISOString());
-
-  // Get server data first
-  const serverData = await serverLoader();
-  console.log("🔥 [DEBUG] serverLoader completed, got data:", !!serverData);
-
-  // Import analytics dynamically with memoization to avoid SSR issues
-  if (!analyticsModule) {
-    console.log("🔥 [DEBUG] Analytics module not cached, importing...");
-    try {
-      analyticsModule = await import("~/utils/analytics.client");
-      console.log(
-        "🔥 [DEBUG] Analytics module imported successfully:",
-        !!analyticsModule,
-      );
-      console.log(
-        "🔥 [DEBUG] Analytics instance available:",
-        !!analyticsModule?.analytics,
-      );
-    } catch (error) {
-      console.error("🔥 [DEBUG] Failed to import analytics module:", error);
-      return serverData; // Exit early if module can't be loaded
-    }
-  } else {
-    console.log("🔥 [DEBUG] Using cached analytics module");
-  }
-
-  // Check analytics state before calling
-  try {
-    console.log("🔥 [DEBUG] About to call analytics.page()...");
-
-    // Debug analytics internal state
-    console.log("🔥 [DEBUG] Analytics debug info:", {
-      isOptedOut: analyticsModule.analytics.isOptedOut(),
-      DNT: navigator.doNotTrack,
-      envVar: import.meta.env?.JVV_ANALYTICS_ENABLED,
-      userAgent: navigator.userAgent.substring(0, 100), // First 100 chars
-    });
-
-    await analyticsModule.analytics.page();
-    console.log("🔥 [DEBUG] analytics.page() completed successfully");
-  } catch (error) {
-    console.error("🔥 [DEBUG] Failed to track page view:", error);
-  }
-
-  console.log("🔥 [DEBUG] clientLoader completed");
-  return serverData;
-}
-
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={"box-border"}>

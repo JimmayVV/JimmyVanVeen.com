@@ -1,3 +1,5 @@
+import { withAnalytics } from "~/utils/analytics-loader";
+
 import type { Route } from "./+types/privacy";
 
 export const meta: Route.MetaFunction = () => [
@@ -10,6 +12,9 @@ export const meta: Route.MetaFunction = () => [
       "Privacy policy for jimmyvanveen.com - Learn how we collect, use, and protect your data.",
   },
 ];
+
+// Add analytics tracking to this route
+export const clientLoader = withAnalytics();
 
 export default function Privacy() {
   return (

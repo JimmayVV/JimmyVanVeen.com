@@ -6,6 +6,7 @@ import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
 import GradientBanner from "~/components/gradient-banner";
 import Project from "~/components/project";
+import { withAnalytics } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 // Utils
 import { getRepositoriesByNodeId } from "~/utils/github";
@@ -54,6 +55,9 @@ export async function loader() {
 
   return getData();
 }
+
+// Add analytics tracking to this route
+export const clientLoader = withAnalytics();
 
 export default function Index({ loaderData: repos }: Route.ComponentProps) {
   return (

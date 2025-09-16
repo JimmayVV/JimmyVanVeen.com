@@ -10,6 +10,7 @@ import rehypeExternalLinks from "rehype-external-links";
 import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
 import GradientBanner from "~/components/gradient-banner";
+import { withAnalytics } from "~/utils/analytics-loader";
 // Utils
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
 
@@ -25,6 +26,9 @@ export async function loader({ params }: Route.LoaderArgs) {
     return redirect("/blog", { status: 302 });
   }
 }
+
+// Add analytics tracking to this route
+export const clientLoader = withAnalytics();
 
 export default function Index({ loaderData: blog }: Route.ComponentProps) {
   return (

@@ -4,6 +4,7 @@ import { Link, useLoaderData } from "react-router";
 import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
 import GradientBanner from "~/components/gradient-banner";
+import { withAnalytics } from "~/utils/analytics-loader";
 import { isContentfulConfigured } from "~/utils/contentful";
 // Utils
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
@@ -15,6 +16,9 @@ export async function loader() {
     isConfigured: isContentfulConfigured(),
   };
 }
+
+// Add analytics tracking to this route
+export const clientLoader = withAnalytics();
 
 export default function BlogIndex() {
   const { posts, isConfigured } = useLoaderData<typeof loader>();
