@@ -54,15 +54,20 @@ export async function loader() {
   }));
 }
 
+// Cache analytics module to avoid re-imports on navigation
+let analyticsModule: typeof import("~/utils/analytics.client") | null = null;
+
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   // Get server data first
   const serverData = await serverLoader();
 
-  // Import analytics dynamically to avoid SSR issues
-  const { analytics } = await import("~/utils/analytics.client");
+  // Import analytics dynamically with memoization to avoid SSR issues
+  if (!analyticsModule) {
+    analyticsModule = await import("~/utils/analytics.client");
+  }
 
   // Track page view
-  await analytics.page().catch((error) => {
+  await analyticsModule.analytics.page().catch((error) => {
     console.error("Failed to track page view:", error);
   });
 

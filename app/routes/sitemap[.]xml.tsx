@@ -1,9 +1,28 @@
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
 
+// Cache blog post failures to avoid repeated API calls
+let lastBlogPostsFailure: number | null = null;
+const FAILURE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export async function loader() {
   try {
-    // Use cached blog posts to avoid hitting Contentful rate limits
-    const blogPosts = await getCachedBlogPosts();
+    // Skip blog posts if recently failed to avoid repeated API calls
+    let blogPosts = null;
+    if (
+      !lastBlogPostsFailure ||
+      Date.now() - lastBlogPostsFailure > FAILURE_CACHE_DURATION
+    ) {
+      try {
+        // Use cached blog posts to avoid hitting Contentful rate limits
+        blogPosts = await getCachedBlogPosts();
+        // Reset failure cache on success
+        lastBlogPostsFailure = null;
+      } catch (blogError) {
+        console.error("Failed to fetch blog posts for sitemap:", blogError);
+        lastBlogPostsFailure = Date.now();
+        // Continue with static pages only
+      }
+    }
 
     const baseUrl = "https://www.jimmyvanveen.com";
 

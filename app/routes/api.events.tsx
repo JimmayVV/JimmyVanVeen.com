@@ -182,6 +182,16 @@ async function isRateLimited(clientIP: string): Promise<boolean> {
     }
   }
 
+  // Prevent memory exhaustion in high-traffic scenarios
+  if (rateLimitMap.size > 1000) {
+    // Keep only recent entries
+    const sortedEntries = Array.from(rateLimitMap.entries())
+      .sort((a, b) => b[1].resetTime - a[1].resetTime)
+      .slice(0, 500);
+    rateLimitMap.clear();
+    sortedEntries.forEach(([k, v]) => rateLimitMap.set(k, v));
+  }
+
   const clientData = rateLimitMap.get(clientIP);
 
   if (!clientData) {

@@ -97,6 +97,8 @@ Available via `process.env.*` in server code only - **NOT** exposed to client:
 - `EMAIL_ADDRESS` - Contact email address
 - `EMAIL_APP_PASSWORD` - Email service app password (secret)
 - `RECAPTCHA_SECRET_KEY` - ReCaptcha secret key (secret)
+- `GA4_MEASUREMENT_ID` - Google Analytics 4 Measurement ID
+- `GA4_API_SECRET` - GA4 Measurement Protocol API Secret
 
 ### Client-side Variables (Browser)
 
