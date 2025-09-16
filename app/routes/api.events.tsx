@@ -180,46 +180,113 @@ async function sendToGA4(event: string, properties: Record<string, unknown>) {
   // Generate or use client_id from properties
   const clientId = properties.client_id || generateClientId();
 
-  // GA4 parameter constraints
-  const GA4_MAX_PARAM_LENGTH = 40;
-  const GA4_MAX_STRING_VALUE_LENGTH = 500;
+  // GA4 Measurement Protocol constraints and configuration
+  const GA4_CONSTRAINTS = {
+    MAX_PARAM_LENGTH: 40, // GA4 parameter names cannot exceed 40 characters
+    MAX_STRING_VALUE_LENGTH: 500, // GA4 custom parameter values limited to 500 chars
+    MAX_ARRAY_ITEMS: 100, // GA4 array parameters limited to 100 items
+  } as const;
+
   const INTERNAL_PROPERTIES = new Set([
     "client_ip",
     "server_side",
     "client_id",
   ]);
 
-  // Clean up properties for GA4 compatibility
-  const cleanParams: Record<string, unknown> = {};
+  // Pre-compile regex for better performance in high-traffic scenarios
+  const PARAM_NAME_SANITIZER = /[^a-zA-Z0-9_]/g;
+
+  // Clean up properties for GA4 Measurement Protocol compatibility
+  const cleanParams: Record<
+    string,
+    string | number | boolean | (string | number | boolean)[]
+  > = {};
+
   for (const [key, value] of Object.entries(properties)) {
-    // Skip internal properties
+    // Skip internal server-side properties that shouldn't go to GA4
     if (INTERNAL_PROPERTIES.has(key)) {
       continue;
     }
 
-    // Clean parameter name: alphanumeric + underscore, max 40 chars
+    // Sanitize parameter name: alphanumeric + underscore only, max 40 chars
+    // GA4 requires parameter names to follow strict naming conventions
     const cleanKey = key
-      .replace(/[^a-zA-Z0-9_]/g, "_")
-      .substring(0, GA4_MAX_PARAM_LENGTH);
+      .replace(PARAM_NAME_SANITIZER, "_")
+      .substring(0, GA4_CONSTRAINTS.MAX_PARAM_LENGTH);
 
-    // Clean parameter value if it's a string
-    let cleanValue = value;
-    if (
-      typeof value === "string" &&
-      value.length > GA4_MAX_STRING_VALUE_LENGTH
-    ) {
-      cleanValue = value.substring(0, GA4_MAX_STRING_VALUE_LENGTH);
+    // Skip empty keys after sanitization
+    if (!cleanKey) continue;
+
+    // Sanitize parameter value based on type
+    let cleanValue: string | number | boolean | (string | number | boolean)[];
+
+    if (typeof value === "string") {
+      // GA4 custom parameters limited to 500 characters
+      cleanValue =
+        value.length > GA4_CONSTRAINTS.MAX_STRING_VALUE_LENGTH
+          ? value.substring(0, GA4_CONSTRAINTS.MAX_STRING_VALUE_LENGTH)
+          : value;
+    } else if (typeof value === "number" || typeof value === "boolean") {
+      // Numbers and booleans are supported directly
+      cleanValue = value;
+    } else if (Array.isArray(value)) {
+      // GA4 arrays limited to 100 items, ensure all items are primitive types
+      cleanValue = value
+        .slice(0, GA4_CONSTRAINTS.MAX_ARRAY_ITEMS)
+        .filter(
+          (item) =>
+            typeof item === "string" ||
+            typeof item === "number" ||
+            typeof item === "boolean",
+        );
+    } else if (typeof value === "object" && value !== null) {
+      // GA4 doesn't support nested objects, convert to string representation
+      cleanValue = JSON.stringify(value).substring(
+        0,
+        GA4_CONSTRAINTS.MAX_STRING_VALUE_LENGTH,
+      );
+    } else {
+      // Fallback for other types - convert to string
+      cleanValue = String(value).substring(
+        0,
+        GA4_CONSTRAINTS.MAX_STRING_VALUE_LENGTH,
+      );
     }
 
     cleanParams[cleanKey] = cleanValue;
   }
 
-  // Map custom events to GA4 standard events when applicable
+  // Map custom analytics events to GA4 standard events for better reporting
+  // Reference: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
   const GA4_EVENT_MAPPING: Record<string, string> = {
+    // Core events
     page_view: "page_view",
+
+    // User interaction events
     click: "click",
+    scroll: "scroll",
+    search: "search",
+
+    // Error and performance events
     error: "exception",
     timing: "timing_complete",
+
+    // Content engagement events
+    file_download: "file_download",
+    video_start: "video_start",
+    video_progress: "video_progress",
+    video_complete: "video_complete",
+
+    // Form events
+    form_start: "form_start",
+    form_submit: "form_submit",
+
+    // E-commerce events (future-proofing)
+    purchase: "purchase",
+    add_to_cart: "add_to_cart",
+
+    // Custom user events
+    user_identify: "user_engagement",
   };
 
   const payload = {
@@ -260,7 +327,8 @@ async function sendToGA4(event: string, properties: Record<string, unknown>) {
     }
   } catch (error) {
     console.error("Failed to send to GA4:", error);
-    // Don't throw - just log and continue gracefully
+    // Graceful degradation: Analytics failures should never impact user experience
+    // We log the error for monitoring but don't throw to avoid breaking the main request
     return;
   }
 }

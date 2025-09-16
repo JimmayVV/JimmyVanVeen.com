@@ -1,2 +1,0 @@
-# Redirect naked domain to www
-https://jimmyvanveen.com/* https://www.jimmyvanveen.com/:splat 301!
