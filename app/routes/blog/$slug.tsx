@@ -10,7 +10,7 @@ import rehypeExternalLinks from "rehype-external-links";
 import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
 import GradientBanner from "~/components/gradient-banner";
-import { withAnalytics } from "~/utils/analytics-loader";
+import { trackPageView } from "~/utils/analytics-loader";
 // Utils
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
 
@@ -28,7 +28,11 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 // Add analytics tracking to this route
-export const clientLoader = withAnalytics();
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const data = await serverLoader();
+  await trackPageView();
+  return data;
+}
 
 export default function Index({ loaderData: blog }: Route.ComponentProps) {
   return (

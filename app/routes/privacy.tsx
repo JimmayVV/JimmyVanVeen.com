@@ -1,4 +1,4 @@
-import { withAnalytics } from "~/utils/analytics-loader";
+import { trackPageView } from "~/utils/analytics-loader";
 
 import type { Route } from "./+types/privacy";
 
@@ -14,7 +14,11 @@ export const meta: Route.MetaFunction = () => [
 ];
 
 // Add analytics tracking to this route
-export const clientLoader = withAnalytics();
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const data = await serverLoader();
+  await trackPageView();
+  return data;
+}
 
 export default function Privacy() {
   return (

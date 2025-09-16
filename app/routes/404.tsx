@@ -1,7 +1,13 @@
-import { withAnalytics } from "~/utils/analytics-loader";
+import { trackPageView } from "~/utils/analytics-loader";
+
+import type { Route } from "./+types/404";
 
 // Add analytics tracking to this route
-export const clientLoader = withAnalytics();
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const data = await serverLoader();
+  await trackPageView();
+  return data;
+}
 
 export default function NotFound() {
   return (

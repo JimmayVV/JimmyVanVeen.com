@@ -61,10 +61,14 @@ interface ClientLoaderArgs {
 
 /**
  * Higher-order function to wrap a clientLoader with analytics tracking
- * @param loader - The original clientLoader function
- * @returns A new clientLoader that calls the original and tracks analytics
+ * When no loader is provided, it calls serverLoader and returns unknown type
+ * When a loader is provided, it preserves the exact return type
  */
-export function withAnalytics<T = unknown>(
+export function withAnalytics(): (args: ClientLoaderArgs) => Promise<unknown>;
+export function withAnalytics<T>(
+  loader: (args: ClientLoaderArgs) => Promise<T>,
+): (args: ClientLoaderArgs) => Promise<T>;
+export function withAnalytics<T>(
   loader?: (args: ClientLoaderArgs) => Promise<T>,
 ): (args: ClientLoaderArgs) => Promise<T | unknown> {
   return async (args: ClientLoaderArgs) => {

@@ -4,10 +4,12 @@ import { Link, useLoaderData } from "react-router";
 import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
 import GradientBanner from "~/components/gradient-banner";
-import { withAnalytics } from "~/utils/analytics-loader";
+import { trackPageView } from "~/utils/analytics-loader";
 import { isContentfulConfigured } from "~/utils/contentful";
 // Utils
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
+
+import type { Route } from "./+types/blog-index";
 
 export async function loader() {
   const posts = await getCachedBlogPosts();
@@ -18,7 +20,11 @@ export async function loader() {
 }
 
 // Add analytics tracking to this route
-export const clientLoader = withAnalytics();
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const data = await serverLoader();
+  await trackPageView();
+  return data;
+}
 
 export default function BlogIndex() {
   const { posts, isConfigured } = useLoaderData<typeof loader>();
