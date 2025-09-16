@@ -13,7 +13,7 @@ import GradientBanner from "~/components/gradient-banner";
 import { trackPageView } from "~/utils/analytics-loader";
 // Utils
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
-import { getLogger } from "~/utils/logger";
+import { getLogger } from "~/utils/logger.client";
 
 import type { Route } from "./+types/$slug";
 

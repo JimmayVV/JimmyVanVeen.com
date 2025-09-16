@@ -8,7 +8,7 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { isContentfulConfigured } from "~/utils/contentful";
 // Utils
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
-import { getLogger } from "~/utils/logger";
+import { getLogger } from "~/utils/logger.client";
 
 import type { Route } from "./+types/blog-index";
 
