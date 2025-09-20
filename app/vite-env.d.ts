@@ -12,6 +12,7 @@ interface ImportMetaEnv {
   readonly JVV_ALLOW_EMAILS: string;
   readonly JVV_RECAPTCHA_SITE_KEY: string;
   readonly JVV_ANALYTICS_ENABLED: string;
+  readonly JVV_ANALYTICS_DEBUG?: string;
 }
 
 interface ImportMeta {

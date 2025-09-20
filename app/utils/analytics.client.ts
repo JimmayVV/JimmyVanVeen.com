@@ -1,5 +1,6 @@
 // Client-side analytics service with vendor-agnostic interface
 import { generateClientId } from "./client-id";
+import { analyticsLogger } from "./logger.client";
 import {
   getStorageItem,
   removeStorageItem,
@@ -47,8 +48,25 @@ class ClientAnalytics implements AnalyticsService {
     event: string,
     properties: Record<string, unknown> = {},
   ): Promise<void> {
+    analyticsLogger.debug(
+      {
+        event,
+        isEnabled: this.isEnabled,
+        clientId: this.clientId?.substring(0, 8) + "...", // Only show first 8 chars
+      },
+      "track() called",
+    );
+
     if (!this.isEnabled) {
-      console.log("Analytics disabled, skipping event:", event);
+      const disabledReasons = {
+        DNT: navigator.doNotTrack,
+        optOut: this.isOptedOut(),
+        envDisabled: import.meta.env.JVV_ANALYTICS_ENABLED === "false",
+      };
+      analyticsLogger.debug(
+        { event, disabledReasons },
+        "Analytics disabled, skipping event",
+      );
       return;
     }
 
@@ -65,9 +83,21 @@ class ClientAnalytics implements AnalyticsService {
         },
       };
 
+      analyticsLogger.debug(
+        {
+          event: payload.event,
+          propertiesCount: Object.keys(payload.properties || {}).length,
+          // Don't log full payload in production for privacy
+          hasClientId: !!(
+            payload.properties && "client_id" in payload.properties
+          ),
+        },
+        "Sending payload to server",
+      );
       await this.sendToServer(payload);
-    } catch (_error) {
-      console.error("Analytics tracking error:", _error);
+      analyticsLogger.debug({ event }, "Successfully sent to server");
+    } catch (error) {
+      analyticsLogger.error({ event, error }, "Analytics tracking error");
     }
   }
 
@@ -95,6 +125,8 @@ class ClientAnalytics implements AnalyticsService {
   }
 
   private async sendToServer(payload: AnalyticsEvent): Promise<void> {
+    analyticsLogger.debug("Making POST request to /api/events");
+
     const response = await fetch("/api/events", {
       method: "POST",
       headers: {
@@ -102,6 +134,11 @@ class ClientAnalytics implements AnalyticsService {
       },
       body: JSON.stringify(payload),
     });
+
+    analyticsLogger.debug(
+      { status: response.status },
+      "Server response received",
+    );
 
     if (!response.ok) {
       throw new Error(`Analytics API error: ${response.status}`);
@@ -118,7 +155,7 @@ class ClientAnalytics implements AnalyticsService {
       // Try to store the new client ID
       const success = setStorageItem(key, clientId);
       if (!success) {
-        console.warn(
+        analyticsLogger.warn(
           "Unable to persist client ID, using session-only tracking",
         );
       }
@@ -138,7 +175,7 @@ class ClientAnalytics implements AnalyticsService {
       return false;
     }
 
-    // Check environment
+    // Check environment - only disable if explicitly set to false
     if (import.meta.env.JVV_ANALYTICS_ENABLED === "false") {
       return false;
     }
@@ -204,9 +241,9 @@ class ClientAnalytics implements AnalyticsService {
   optOut(): void {
     const success = setStorageItem("analytics_opt_out", "true");
     if (!success) {
-      console.warn("Unable to persist opt-out preference");
+      analyticsLogger.warn("Unable to persist opt-out preference");
     }
-    console.log("Analytics opt-out enabled");
+    analyticsLogger.debug("Analytics opt-out enabled");
   }
 
   /**
@@ -216,9 +253,9 @@ class ClientAnalytics implements AnalyticsService {
   optIn(): void {
     const success = removeStorageItem("analytics_opt_out");
     if (!success) {
-      console.warn("Unable to persist opt-in preference");
+      analyticsLogger.warn("Unable to persist opt-in preference");
     }
-    console.log("Analytics opt-out disabled");
+    analyticsLogger.debug("Analytics opt-out disabled");
   }
 
   /**
