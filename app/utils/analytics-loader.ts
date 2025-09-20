@@ -1,4 +1,7 @@
 // Shared analytics tracking utility for clientLoaders
+// Import the proper React Router types
+import type { ClientLoaderFunctionArgs } from "react-router";
+
 import { getLogger } from "./logger.client";
 
 // Cache analytics module to avoid re-imports on navigation
@@ -46,16 +49,10 @@ export async function trackPageView(): Promise<void> {
       isOptedOut: analyticsModule.analytics.isOptedOut(),
       DNT: navigator.doNotTrack,
       envVar: import.meta.env?.JVV_ANALYTICS_ENABLED,
-      // Only log browser type in production, not full user agent
+      // Only log browser type in production, not full user agent for privacy
       browserInfo: import.meta.env.PROD
-        ? navigator.userAgent.includes("Chrome")
-          ? "Chrome-based"
-          : navigator.userAgent.includes("Firefox")
-            ? "Firefox"
-            : navigator.userAgent.includes("Safari")
-              ? "Safari"
-              : "Other"
-        : navigator.userAgent.substring(0, 100),
+        ? "browser-detected"
+        : navigator.userAgent.substring(0, 50),
     };
     routeLogger.debug({ debugInfo }, "Analytics debug info");
 
@@ -68,32 +65,45 @@ export async function trackPageView(): Promise<void> {
   routeLogger.debug("trackPageView completed");
 }
 
-// Type for React Router clientLoader args
-interface ClientLoaderArgs {
-  serverLoader: () => Promise<unknown>;
-  request: Request;
-  params: Record<string, string>;
+/**
+ * Helper function to track analytics and call server loader
+ * This preserves type inference by not wrapping the entire function
+ */
+export async function withServerLoaderAnalytics(
+  args: ClientLoaderFunctionArgs,
+) {
+  const result = await args.serverLoader();
+
+  // Track page view in background to not block the loader
+  trackPageView().catch((error) => {
+    console.warn("Analytics tracking failed:", error);
+  });
+
+  return result;
 }
 
 /**
- * Higher-order function to wrap a clientLoader with analytics tracking
- * When no loader is provided, it calls serverLoader and returns unknown type
- * When a loader is provided, it preserves the exact return type
+ * Helper function to track analytics for custom loader data
+ * This preserves type inference by not wrapping the entire function
  */
-export function withAnalytics(): (args: ClientLoaderArgs) => Promise<unknown>;
-export function withAnalytics<T>(
-  loader: (args: ClientLoaderArgs) => Promise<T>,
-): (args: ClientLoaderArgs) => Promise<T>;
-export function withAnalytics<T>(
-  loader?: (args: ClientLoaderArgs) => Promise<T>,
-): (args: ClientLoaderArgs) => Promise<T | unknown> {
-  return async (args: ClientLoaderArgs) => {
-    // Call the original loader first (if provided)
-    const result = loader ? await loader(args) : await args.serverLoader();
+export async function withCustomLoaderAnalytics<T>(data: T): Promise<T> {
+  // Track page view in background to not block the loader
+  trackPageView().catch((error) => {
+    console.warn("Analytics tracking failed:", error);
+  });
 
-    // Track the page view
-    await trackPageView();
+  return data;
+}
 
-    return result;
+/**
+ * Legacy wrapper function for backwards compatibility
+ * @deprecated Use withServerLoaderAnalytics or withCustomLoaderAnalytics instead
+ */
+export function withAnalytics() {
+  const clientLoader = async (args: ClientLoaderFunctionArgs) => {
+    return withServerLoaderAnalytics(args);
   };
+
+  clientLoader.hydrate = true;
+  return clientLoader;
 }

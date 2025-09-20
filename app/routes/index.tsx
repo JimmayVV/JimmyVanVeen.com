@@ -10,12 +10,8 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 // Utils
 import { getRepositoriesByNodeId } from "~/utils/github";
-import { getLogger } from "~/utils/logger.client";
 
 import type { Route } from "./+types/index";
-
-// Create route-specific logger
-const indexRouteLogger = getLogger("index-route");
 
 interface Repository {
   /** The name of the repository */
@@ -62,33 +58,18 @@ export async function loader() {
 
 // Add analytics tracking to this route
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
-  indexRouteLogger.debug("clientLoader started");
+  const result = await serverLoader();
 
-  const data = await serverLoader();
-  indexRouteLogger.debug({ hasData: !!data }, "serverLoader completed");
+  // Track page view in background
+  trackPageView().catch((error) => {
+    console.warn("Analytics tracking failed:", error);
+  });
 
-  await trackPageView();
-  indexRouteLogger.debug("trackPageView completed");
-
-  return data;
+  return result;
 }
-
-// Enable clientLoader during initial hydration
 clientLoader.hydrate = true;
 
 export default function Index({ loaderData: repos }: Route.ComponentProps) {
-  // Test if client-side code is running at all
-  console.log(
-    "🟢 Index component rendering - client side:",
-    typeof window !== "undefined",
-  );
-
-  // Test our logger directly
-  if (typeof window !== "undefined") {
-    indexRouteLogger.debug("🔥 Testing logger from component");
-    console.log("🟢 Direct console.log from component");
-  }
-
   return (
     <div className="min-h-screen bg-black">
       <GradientBanner>
@@ -111,7 +92,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
               {(resolvedRepos) => {
                 return (
                   <section className="md:grid md:gap-8 pb-10 md:grid-cols-2">
-                    {resolvedRepos.map((repo) => {
+                    {resolvedRepos.map((repo: Repository) => {
                       return (
                         <Project
                           key={repo.id}

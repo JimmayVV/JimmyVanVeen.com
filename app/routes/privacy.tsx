@@ -1,10 +1,6 @@
 import { trackPageView } from "~/utils/analytics-loader";
-import { getLogger } from "~/utils/logger.client";
 
 import type { Route } from "./+types/privacy";
-
-// Create route-specific logger
-const privacyLogger = getLogger("privacy-route");
 
 export const meta: Route.MetaFunction = () => [
   {
@@ -19,15 +15,13 @@ export const meta: Route.MetaFunction = () => [
 
 // Add analytics tracking to this route
 export async function clientLoader() {
-  privacyLogger.debug("clientLoader started");
+  // Track page view for privacy page
+  trackPageView().catch((error) => {
+    console.warn("Analytics tracking failed:", error);
+  });
 
-  await trackPageView();
-  privacyLogger.debug("trackPageView completed");
-
-  return null; // No server data for this route
+  return null;
 }
-
-// Enable clientLoader during initial hydration
 clientLoader.hydrate = true;
 
 export default function Privacy() {

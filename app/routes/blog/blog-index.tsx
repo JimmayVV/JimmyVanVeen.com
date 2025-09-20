@@ -8,12 +8,8 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { isContentfulConfigured } from "~/utils/contentful";
 // Utils
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
-import { getLogger } from "~/utils/logger.client";
 
 import type { Route } from "./+types/blog-index";
-
-// Create route-specific logger
-const blogIndexLogger = getLogger("blog-index-route");
 
 export async function loader() {
   const posts = await getCachedBlogPosts();
@@ -25,18 +21,15 @@ export async function loader() {
 
 // Add analytics tracking to this route
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
-  blogIndexLogger.debug("clientLoader started");
+  const result = await serverLoader();
 
-  const data = await serverLoader();
-  blogIndexLogger.debug({ hasData: !!data }, "serverLoader completed");
+  // Track page view in background
+  trackPageView().catch((error) => {
+    console.warn("Analytics tracking failed:", error);
+  });
 
-  await trackPageView();
-  blogIndexLogger.debug("trackPageView completed");
-
-  return data;
+  return result;
 }
-
-// Enable clientLoader during initial hydration
 clientLoader.hydrate = true;
 
 export default function BlogIndex() {
