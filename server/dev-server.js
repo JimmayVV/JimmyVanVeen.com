@@ -20,7 +20,7 @@ app.use(viteDevServer.middlewares);
 app.use(async (req, res, next) => {
   try {
     return await createRequestListener(async (request) => {
-      const source = await viteDevServer.ssrLoadModule("./app.ts");
+      const source = await viteDevServer.ssrLoadModule("./server/app.ts");
       return await source.default(request, {
         // TODO: Mock any required netlify functions context
       });
