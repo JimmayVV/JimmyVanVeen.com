@@ -31,7 +31,7 @@
   "dependencies": {
     "@netlify/blobs": "^10.0.11",
     "@netlify/functions": "^4.1.10",
-    "@octokit/plugin-throttling": "^11.0.1",
+    "@octokit/plugin-throttling": "^11.0.2",
     "@octokit/rest": "^22.0.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-menubar": "^1.1.16",
