@@ -75,7 +75,7 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "babel-plugin-react-compiler": "^19.1.0-rc.3",
     "cross-env": "^7.0.3",
-    "dotenv": "^17.2.2",
+    "dotenv": "^17.2.3",
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsx-a11y": "^6.10.2",
