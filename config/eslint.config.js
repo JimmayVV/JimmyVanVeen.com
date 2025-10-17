@@ -62,7 +62,11 @@ export default tseslint.config(
           allowConstantExport: true,
           allowExportNames: [
             "loader",
+            "clientLoader",
+            "serverLoader",
             "action",
+            "clientAction",
+            "serverAction",
             "meta",
             "headers",
             "links",

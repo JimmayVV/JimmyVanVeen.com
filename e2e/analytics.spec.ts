@@ -78,19 +78,14 @@ test.describe("Analytics E2E Tests", () => {
   });
 
   test("should include proper page metadata in events", async ({ page }) => {
-    let capturedEvent:
-      | {
-          event: string;
-          properties: Record<string, unknown>;
-        }
-      | undefined = undefined;
+    let capturedEvent: Record<string, unknown> | null = null;
 
     await page.route("**/api/events", async (route) => {
       const request = route.request();
       const postData = request.postDataJSON();
 
       if (postData && postData.event === "page_view") {
-        capturedEvent = postData;
+        capturedEvent = postData as Record<string, unknown>;
       }
 
       await route.fulfill({
@@ -104,7 +99,8 @@ test.describe("Analytics E2E Tests", () => {
     await page.waitForTimeout(1000);
 
     expect(capturedEvent).toBeDefined();
-    expect(capturedEvent?.properties).toMatchObject({
+    expect(capturedEvent).toHaveProperty("properties");
+    expect(capturedEvent!.properties).toMatchObject({
       page_url: expect.stringContaining("/"),
       page_title: expect.any(String),
       timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
