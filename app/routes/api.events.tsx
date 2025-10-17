@@ -54,8 +54,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     // Validate content length to prevent memory exhaustion
     const contentLength = request.headers.get("content-length");
-    if (contentLength && parseInt(contentLength) > 10000) {
-      // 10KB limit
+    if (contentLength && parseInt(contentLength) > MAX_CONTENT_LENGTH) {
       return Response.json({ error: "Request too large" }, { status: 413 });
     }
 
@@ -202,27 +201,44 @@ async function sendToAnalyticsProviders(
   });
 }
 
+// Rate limiting constants
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
+const RATE_LIMIT_MAX_REQUESTS = 60; // 60 requests per minute
+const RATE_LIMIT_CLEANUP_INTERVAL = 60000; // Clean up expired entries every minute
+const RATE_LIMIT_MAX_ENTRIES = 1000; // Prevent memory exhaustion
+const RATE_LIMIT_TRIM_TO = 500; // Trim to this many entries when limit exceeded
+
+// Content size limits
+const MAX_CONTENT_LENGTH = 10000; // 10KB limit for request body
+
+// Property sanitization limits
+const MAX_PROPERTIES = 20;
+const MAX_STRING_LENGTH = 500;
+const MAX_PROPERTY_DEPTH = 3;
+
 // Simple in-memory rate limiter for serverless environment
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+let lastCleanup = 0;
 
 async function isRateLimited(clientIP: string): Promise<boolean> {
   const now = Date.now();
-  const windowMs = 60 * 1000; // 1 minute window
-  const maxRequests = 60; // 60 requests per minute
 
-  // Clean up expired entries
-  for (const [ip, data] of rateLimitMap.entries()) {
-    if (now > data.resetTime) {
-      rateLimitMap.delete(ip);
+  // Only cleanup expired entries every minute to reduce iteration overhead
+  if (now - lastCleanup > RATE_LIMIT_CLEANUP_INTERVAL) {
+    for (const [ip, data] of rateLimitMap.entries()) {
+      if (now > data.resetTime) {
+        rateLimitMap.delete(ip);
+      }
     }
+    lastCleanup = now;
   }
 
   // Prevent memory exhaustion in high-traffic scenarios
-  if (rateLimitMap.size > 1000) {
+  if (rateLimitMap.size > RATE_LIMIT_MAX_ENTRIES) {
     // Keep only recent entries
     const sortedEntries = Array.from(rateLimitMap.entries())
       .sort((a, b) => b[1].resetTime - a[1].resetTime)
-      .slice(0, 500);
+      .slice(0, RATE_LIMIT_TRIM_TO);
     rateLimitMap.clear();
     sortedEntries.forEach(([k, v]) => rateLimitMap.set(k, v));
   }
@@ -233,7 +249,7 @@ async function isRateLimited(clientIP: string): Promise<boolean> {
     // First request from this IP
     rateLimitMap.set(clientIP, {
       count: 1,
-      resetTime: now + windowMs,
+      resetTime: now + RATE_LIMIT_WINDOW_MS,
     });
     return false;
   }
@@ -242,12 +258,12 @@ async function isRateLimited(clientIP: string): Promise<boolean> {
     // Reset window
     rateLimitMap.set(clientIP, {
       count: 1,
-      resetTime: now + windowMs,
+      resetTime: now + RATE_LIMIT_WINDOW_MS,
     });
     return false;
   }
 
-  if (clientData.count >= maxRequests) {
+  if (clientData.count >= RATE_LIMIT_MAX_REQUESTS) {
     return true; // Rate limited
   }
 
@@ -276,12 +292,8 @@ function sanitizeProperties(
     return {};
   }
 
-  const maxProperties = 20;
-  const maxStringLength = 500;
-  const maxDepth = 3;
-
   function sanitizeValue(value: unknown, depth: number): unknown {
-    if (depth >= maxDepth) {
+    if (depth >= MAX_PROPERTY_DEPTH) {
       return "[Object too deep]";
     }
 
@@ -290,8 +302,8 @@ function sanitizeProperties(
     }
 
     if (typeof value === "string") {
-      return value.length > maxStringLength
-        ? value.substring(0, maxStringLength) + "..."
+      return value.length > MAX_STRING_LENGTH
+        ? value.substring(0, MAX_STRING_LENGTH) + "..."
         : value;
     }
 
@@ -310,7 +322,7 @@ function sanitizeProperties(
       for (const [key, val] of Object.entries(
         value as Record<string, unknown>,
       )) {
-        if (count >= maxProperties) break;
+        if (count >= MAX_PROPERTIES) break;
 
         // Sanitize key names
         const sanitizedKey = key
