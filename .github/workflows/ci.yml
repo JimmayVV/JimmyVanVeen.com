@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# Limit GITHUB_TOKEN permissions to read-only by default (security best practice)
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
