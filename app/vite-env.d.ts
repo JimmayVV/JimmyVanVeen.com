@@ -34,5 +34,6 @@ declare namespace NodeJS {
     readonly RECAPTCHA_SECRET_KEY?: string;
     readonly GA4_MEASUREMENT_ID?: string;
     readonly GA4_API_SECRET?: string;
+    readonly GA4_DEBUG?: string;
   }
 }

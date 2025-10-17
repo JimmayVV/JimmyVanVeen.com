@@ -57,7 +57,8 @@ class ClientAnalytics implements AnalyticsService {
       "track() called",
     );
 
-    if (!this.isEnabled) {
+    // Check if tracking is currently enabled (re-check opt-out status on each call)
+    if (!this.checkIfEnabled()) {
       const disabledReasons = {
         DNT: navigator.doNotTrack,
         optOut: this.isOptedOut(),
@@ -68,6 +69,12 @@ class ClientAnalytics implements AnalyticsService {
         "Analytics disabled, skipping event",
       );
       return;
+    }
+
+    // Ensure client ID is persisted (handles cases where localStorage was cleared)
+    const storedClientId = getStorageItem("analytics_client_id");
+    if (!storedClientId) {
+      setStorageItem("analytics_client_id", this.clientId);
     }
 
     try {
