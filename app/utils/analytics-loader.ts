@@ -2,13 +2,21 @@
 // Import the proper React Router types
 import type { ClientLoaderFunctionArgs } from "react-router";
 
-import { getLogger } from "./logger.client";
-
 // Cache analytics module to avoid re-imports on navigation
 let analyticsModule: typeof import("~/utils/analytics.client") | null = null;
 
-// Create logger for route tracking
-const routeLogger = getLogger("route-analytics");
+// Lazy-load logger to avoid SSR issues
+let routeLogger: ReturnType<
+  typeof import("~/utils/logger.client").getLogger
+> | null = null;
+
+async function getRouteLogger() {
+  if (!routeLogger) {
+    const { getLogger } = await import("./logger.client");
+    routeLogger = getLogger("route-analytics");
+  }
+  return routeLogger;
+}
 
 /**
  * Shared analytics tracking function for use in route clientLoaders
@@ -18,14 +26,15 @@ export async function trackPageView(): Promise<void> {
   const startTime = new Date().toISOString();
   const url = window.location.href;
 
-  routeLogger.debug({ url, timestamp: startTime }, "trackPageView started");
+  const logger = await getRouteLogger();
+  logger.debug({ url, timestamp: startTime }, "trackPageView started");
 
   // Import analytics dynamically with memoization to avoid SSR issues
   if (!analyticsModule) {
-    routeLogger.debug("Analytics module not cached, importing...");
+    logger.debug("Analytics module not cached, importing...");
     try {
       analyticsModule = await import("~/utils/analytics.client");
-      routeLogger.debug(
+      logger.debug(
         {
           moduleImported: !!analyticsModule,
           instanceAvailable: !!analyticsModule?.analytics,
@@ -33,16 +42,16 @@ export async function trackPageView(): Promise<void> {
         "Analytics module imported successfully",
       );
     } catch (error) {
-      routeLogger.error({ error }, "Failed to import analytics module");
+      logger.error({ error }, "Failed to import analytics module");
       return; // Exit early if module can't be loaded
     }
   } else {
-    routeLogger.debug("Using cached analytics module");
+    logger.debug("Using cached analytics module");
   }
 
   // Check analytics state before calling
   try {
-    routeLogger.debug("About to call analytics.page()...");
+    logger.debug("About to call analytics.page()...");
 
     // Debug analytics internal state
     const debugInfo = {
@@ -54,15 +63,15 @@ export async function trackPageView(): Promise<void> {
         ? "browser-detected"
         : navigator.userAgent.substring(0, 50),
     };
-    routeLogger.debug({ debugInfo }, "Analytics debug info");
+    logger.debug({ debugInfo }, "Analytics debug info");
 
     await analyticsModule.analytics.page();
-    routeLogger.debug("analytics.page() completed successfully");
+    logger.debug("analytics.page() completed successfully");
   } catch (error) {
-    routeLogger.error({ error }, "Failed to track page view");
+    logger.error({ error }, "Failed to track page view");
   }
 
-  routeLogger.debug("trackPageView completed");
+  logger.debug("trackPageView completed");
 }
 
 /**
