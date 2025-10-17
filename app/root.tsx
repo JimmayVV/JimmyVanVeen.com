@@ -54,31 +54,6 @@ export async function loader() {
   }));
 }
 
-// Cache analytics module to avoid re-imports on navigation
-let analyticsModule: typeof import("~/utils/analytics.client") | null = null;
-
-export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
-  console.log("🔥 clientLoader executing!"); // Debug: check if this runs
-
-  // Get server data first
-  const serverData = await serverLoader();
-
-  // Import analytics dynamically with memoization to avoid SSR issues
-  if (!analyticsModule) {
-    console.log("🔥 Loading analytics module..."); // Debug: check if this runs
-    analyticsModule = await import("~/utils/analytics.client");
-    console.log("🔥 Analytics module loaded:", analyticsModule); // Debug: check what we get
-  }
-
-  // Track page view
-  console.log("🔥 Calling analytics.page()"); // Debug: check if this runs
-  await analyticsModule.analytics.page().catch((error) => {
-    console.error("Failed to track page view:", error);
-  });
-
-  return serverData;
-}
-
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={"box-border"}>

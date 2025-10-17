@@ -1,5 +1,6 @@
 // Client-side analytics service with vendor-agnostic interface
 import { generateClientId } from "./client-id";
+import { analyticsLogger } from "./logger.client";
 import {
   getStorageItem,
   removeStorageItem,
@@ -13,25 +14,11 @@ export interface AnalyticsEvent {
 
 export interface AnalyticsService {
   /**
-   * Track a custom event with optional properties
-   * @param event - The event name to track
-   * @param properties - Optional event properties
-   */
-  track(event: string, properties?: Record<string, unknown>): Promise<void>;
-
-  /**
    * Track a page view
    * @param page - Optional page path (defaults to current URL)
    * @param properties - Optional page properties
    */
   page(page?: string, properties?: Record<string, unknown>): Promise<void>;
-
-  /**
-   * Identify a user with traits
-   * @param userId - The user identifier
-   * @param traits - Optional user traits
-   */
-  identify(userId: string, traits?: Record<string, unknown>): Promise<void>;
 }
 
 class ClientAnalytics implements AnalyticsService {
@@ -47,9 +34,33 @@ class ClientAnalytics implements AnalyticsService {
     event: string,
     properties: Record<string, unknown> = {},
   ): Promise<void> {
-    if (!this.isEnabled) {
-      console.log("Analytics disabled, skipping event:", event);
+    analyticsLogger.debug(
+      {
+        event,
+        isEnabled: this.isEnabled,
+        clientId: this.clientId?.substring(0, 8) + "...", // Only show first 8 chars
+      },
+      "track() called",
+    );
+
+    // Check if tracking is currently enabled (re-check opt-out status on each call)
+    if (!this.checkIfEnabled()) {
+      const disabledReasons = {
+        DNT: navigator.doNotTrack,
+        optOut: this.isOptedOut(),
+        envDisabled: import.meta.env.JVV_ANALYTICS_ENABLED === "false",
+      };
+      analyticsLogger.debug(
+        { event, disabledReasons },
+        "Analytics disabled, skipping event",
+      );
       return;
+    }
+
+    // Ensure client ID is persisted (handles cases where localStorage was cleared)
+    const storedClientId = getStorageItem("analytics_client_id");
+    if (!storedClientId) {
+      setStorageItem("analytics_client_id", this.clientId);
     }
 
     try {
@@ -65,9 +76,21 @@ class ClientAnalytics implements AnalyticsService {
         },
       };
 
+      analyticsLogger.debug(
+        {
+          event: payload.event,
+          propertiesCount: Object.keys(payload.properties || {}).length,
+          // Don't log full payload in production for privacy
+          hasClientId: !!(
+            payload.properties && "client_id" in payload.properties
+          ),
+        },
+        "Sending payload to server",
+      );
       await this.sendToServer(payload);
-    } catch (_error) {
-      console.error("Analytics tracking error:", _error);
+      analyticsLogger.debug({ event }, "Successfully sent to server");
+    } catch (error) {
+      analyticsLogger.error({ event, error }, "Analytics tracking error");
     }
   }
 
@@ -84,17 +107,9 @@ class ClientAnalytics implements AnalyticsService {
     });
   }
 
-  async identify(
-    userId: string,
-    traits: Record<string, unknown> = {},
-  ): Promise<void> {
-    await this.track("user_identify", {
-      user_id: userId,
-      ...traits,
-    });
-  }
-
   private async sendToServer(payload: AnalyticsEvent): Promise<void> {
+    analyticsLogger.debug("Making POST request to /api/events");
+
     const response = await fetch("/api/events", {
       method: "POST",
       headers: {
@@ -102,6 +117,11 @@ class ClientAnalytics implements AnalyticsService {
       },
       body: JSON.stringify(payload),
     });
+
+    analyticsLogger.debug(
+      { status: response.status },
+      "Server response received",
+    );
 
     if (!response.ok) {
       throw new Error(`Analytics API error: ${response.status}`);
@@ -118,7 +138,7 @@ class ClientAnalytics implements AnalyticsService {
       // Try to store the new client ID
       const success = setStorageItem(key, clientId);
       if (!success) {
-        console.warn(
+        analyticsLogger.warn(
           "Unable to persist client ID, using session-only tracking",
         );
       }
@@ -138,62 +158,12 @@ class ClientAnalytics implements AnalyticsService {
       return false;
     }
 
-    // Check environment
+    // Check environment - only disable if explicitly set to false
     if (import.meta.env.JVV_ANALYTICS_ENABLED === "false") {
       return false;
     }
 
     return true;
-  }
-
-  // Utility methods for common events
-  /**
-   * Track a click event on a specific element
-   * @param element - The element that was clicked
-   * @param properties - Additional click properties
-   */
-  async trackClick(
-    element: string,
-    properties: Record<string, unknown> = {},
-  ): Promise<void> {
-    await this.track("click", {
-      element,
-      ...properties,
-    });
-  }
-
-  /**
-   * Track an error event with context
-   * @param error - The error object
-   * @param context - Additional error context
-   */
-  async trackError(
-    error: Error,
-    context?: Record<string, unknown>,
-  ): Promise<void> {
-    await this.track("error", {
-      error_message: error.message,
-      error_stack: error.stack || "No stack trace available",
-      ...context,
-    });
-  }
-
-  /**
-   * Track a timing/performance event
-   * @param name - The timing event name
-   * @param duration - Duration in milliseconds
-   * @param properties - Additional timing properties
-   */
-  async trackTiming(
-    name: string,
-    duration: number,
-    properties: Record<string, unknown> = {},
-  ): Promise<void> {
-    await this.track("timing", {
-      timing_name: name,
-      timing_duration: duration,
-      ...properties,
-    });
   }
 
   // Privacy methods
@@ -204,9 +174,9 @@ class ClientAnalytics implements AnalyticsService {
   optOut(): void {
     const success = setStorageItem("analytics_opt_out", "true");
     if (!success) {
-      console.warn("Unable to persist opt-out preference");
+      analyticsLogger.warn("Unable to persist opt-out preference");
     }
-    console.log("Analytics opt-out enabled");
+    analyticsLogger.debug("Analytics opt-out enabled");
   }
 
   /**
@@ -216,9 +186,9 @@ class ClientAnalytics implements AnalyticsService {
   optIn(): void {
     const success = removeStorageItem("analytics_opt_out");
     if (!success) {
-      console.warn("Unable to persist opt-in preference");
+      analyticsLogger.warn("Unable to persist opt-in preference");
     }
-    console.log("Analytics opt-out disabled");
+    analyticsLogger.debug("Analytics opt-out disabled");
   }
 
   /**
@@ -240,12 +210,7 @@ export const analytics = new ClientAnalytics();
  */
 export function useAnalytics() {
   return {
-    track: analytics.track.bind(analytics),
     page: analytics.page.bind(analytics),
-    identify: analytics.identify.bind(analytics),
-    trackClick: analytics.trackClick.bind(analytics),
-    trackError: analytics.trackError.bind(analytics),
-    trackTiming: analytics.trackTiming.bind(analytics),
     optOut: analytics.optOut.bind(analytics),
     optIn: analytics.optIn.bind(analytics),
     isOptedOut: analytics.isOptedOut.bind(analytics),

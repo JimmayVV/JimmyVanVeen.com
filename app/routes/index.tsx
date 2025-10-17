@@ -6,6 +6,7 @@ import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
 import GradientBanner from "~/components/gradient-banner";
 import Project from "~/components/project";
+import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 // Utils
 import { getRepositoriesByNodeId } from "~/utils/github";
@@ -55,6 +56,19 @@ export async function loader() {
   return getData();
 }
 
+// Add analytics tracking to this route
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const result = await serverLoader();
+
+  // Track page view in background
+  trackPageView().catch((error) => {
+    console.warn("Analytics tracking failed:", error);
+  });
+
+  return result;
+}
+clientLoader.hydrate = true;
+
 export default function Index({ loaderData: repos }: Route.ComponentProps) {
   return (
     <div className="min-h-screen bg-black">
@@ -78,7 +92,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
               {(resolvedRepos) => {
                 return (
                   <section className="md:grid md:gap-8 pb-10 md:grid-cols-2">
-                    {resolvedRepos.map((repo) => {
+                    {resolvedRepos.map((repo: Repository) => {
                       return (
                         <Project
                           key={repo.id}

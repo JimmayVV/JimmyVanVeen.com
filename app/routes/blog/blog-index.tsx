@@ -4,9 +4,12 @@ import { Link, useLoaderData } from "react-router";
 import ContentCards, { ContentCard } from "~/components/content-cards";
 // Components
 import GradientBanner from "~/components/gradient-banner";
+import { trackPageView } from "~/utils/analytics-loader";
 import { isContentfulConfigured } from "~/utils/contentful";
 // Utils
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
+
+import type { Route } from "./+types/blog-index";
 
 export async function loader() {
   const posts = await getCachedBlogPosts();
@@ -15,6 +18,19 @@ export async function loader() {
     isConfigured: isContentfulConfigured(),
   };
 }
+
+// Add analytics tracking to this route
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const result = await serverLoader();
+
+  // Track page view in background
+  trackPageView().catch((error) => {
+    console.warn("Analytics tracking failed:", error);
+  });
+
+  return result;
+}
+clientLoader.hydrate = true;
 
 export default function BlogIndex() {
   const { posts, isConfigured } = useLoaderData<typeof loader>();
