@@ -78,10 +78,12 @@ test.describe("Analytics E2E Tests", () => {
   });
 
   test("should include proper page metadata in events", async ({ page }) => {
-    let capturedEvent: {
-      event: string;
-      properties: Record<string, unknown>;
-    } | null = null;
+    let capturedEvent:
+      | {
+          event: string;
+          properties: Record<string, unknown>;
+        }
+      | undefined = undefined;
 
     await page.route("**/api/events", async (route) => {
       const request = route.request();
