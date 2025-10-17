@@ -1,19 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { action } from "./api.events";
+import { __resetForTesting, action } from "./api.events";
 
 describe("Analytics API Route", () => {
-  const mockEnv = {
-    GA4_MEASUREMENT_ID: "G-TEST123456",
-    GA4_API_SECRET: "test_api_secret_key_123456",
-    GA4_DEBUG: "false",
-  };
-
   beforeEach(() => {
-    // Mock environment variables
-    process.env.GA4_MEASUREMENT_ID = mockEnv.GA4_MEASUREMENT_ID;
-    process.env.GA4_API_SECRET = mockEnv.GA4_API_SECRET;
-    process.env.GA4_DEBUG = mockEnv.GA4_DEBUG;
+    // Reset provider initialization state
+    __resetForTesting();
 
     // Reset fetch mock
     vi.clearAllMocks();
@@ -132,87 +124,16 @@ describe("Analytics API Route", () => {
     });
   });
 
-  describe("GA4 Integration", () => {
-    it("should send events to GA4 Measurement Protocol", async () => {
-      const request = createMockRequest("POST", {
-        event: "page_view",
-        properties: {
-          page_path: "/test",
-          client_id: "test-client-id",
-        },
-      });
-
-      await action({ request, params: {}, context: {} });
-
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `https://www.google-analytics.com/mp/collect?measurement_id=${mockEnv.GA4_MEASUREMENT_ID}&api_secret=${mockEnv.GA4_API_SECRET}`,
-        ),
-        expect.objectContaining({
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }),
-      );
-
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
-
-      expect(payload.client_id).toBe("test-client-id");
-      expect(payload.events).toHaveLength(1);
-      expect(payload.events[0].name).toBe("page_view");
-      expect(payload.events[0].params.page_path).toBe("/test");
-    });
-
-    it("should map custom events to GA4 standard events", async () => {
-      const request = createMockRequest("POST", {
-        event: "error",
-        properties: {
-          error_message: "Test error",
-        },
-      });
-
-      await action({ request, params: {}, context: {} });
-
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
-
-      // Should map "error" to "exception"
-      expect(payload.events[0].name).toBe("exception");
-    });
-
-    it("should sanitize property names for GA4 compatibility", async () => {
-      const request = createMockRequest("POST", {
-        event: "test_event",
-        properties: {
-          "invalid-property-name": "value",
-          property_with_over_forty_characters_in_name_too_long: "value",
-        },
-      });
-
-      await action({ request, params: {}, context: {} });
-
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
-
-      // Should convert hyphens to underscores
-      expect(payload.events[0].params).toHaveProperty("invalid_property_name");
-
-      // Should truncate long property names
-      const paramKeys = Object.keys(payload.events[0].params);
-      paramKeys.forEach((key) => {
-        expect(key.length).toBeLessThanOrEqual(40);
-      });
-    });
-
-    it("should handle GA4 API errors gracefully", async () => {
+  describe("Analytics API Errors", () => {
+    it("should handle API errors gracefully", async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 500,
-        text: async () => "GA4 Server Error",
+        text: async () => "Analytics Server Error",
       } as Response);
 
       const request = createMockRequest("POST", {
-        event: "test_event",
+        event: "page_view",
       });
 
       const response = await action({ request, params: {}, context: {} });
@@ -221,62 +142,6 @@ describe("Analytics API Route", () => {
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.success).toBe(true);
-    });
-
-    it("should skip GA4 when credentials are missing", async () => {
-      delete process.env.GA4_MEASUREMENT_ID;
-      delete process.env.GA4_API_SECRET;
-
-      const request = createMockRequest("POST", {
-        event: "test_event",
-      });
-
-      await action({ request, params: {}, context: {} });
-
-      // Should not call GA4 API
-      expect(fetch).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("Server-side Enrichment", () => {
-    it("should add server-side context to events", async () => {
-      const request = createMockRequest(
-        "POST",
-        {
-          event: "test_event",
-          properties: {
-            custom_prop: "value",
-          },
-        },
-        {
-          "x-forwarded-for": "192.168.1.1",
-          referer: "https://example.com",
-        },
-      );
-
-      await action({ request, params: {}, context: {} });
-
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
-
-      // Server-side properties should be filtered out of GA4 payload
-      // but should be used for enrichment
-      expect(payload.events[0].params).not.toHaveProperty("client_ip");
-      expect(payload.events[0].params).not.toHaveProperty("server_side");
-    });
-
-    it("should extract client IP from x-forwarded-for header", async () => {
-      const request = createMockRequest(
-        "POST",
-        { event: "test_event" },
-        { "x-forwarded-for": "192.168.1.1, 10.0.0.1" },
-      );
-
-      await action({ request, params: {}, context: {} });
-
-      // This test verifies the IP extraction logic works
-      // The actual IP is used internally but not sent to GA4
-      expect(fetch).toHaveBeenCalled();
     });
   });
 
@@ -327,7 +192,7 @@ describe("Analytics API Route", () => {
   describe("Property Sanitization", () => {
     it("should sanitize nested objects", async () => {
       const request = createMockRequest("POST", {
-        event: "test_event",
+        event: "page_view",
         properties: {
           nested: {
             deep: {
@@ -340,41 +205,6 @@ describe("Analytics API Route", () => {
       const response = await action({ request, params: {}, context: {} });
 
       expect(response.status).toBe(200);
-    });
-
-    it("should truncate long string values", async () => {
-      const request = createMockRequest("POST", {
-        event: "test_event",
-        properties: {
-          long_string: "x".repeat(1000),
-        },
-      });
-
-      await action({ request, params: {}, context: {} });
-
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
-
-      // GA4 limits string values to 500 characters
-      expect(payload.events[0].params.long_string.length).toBeLessThanOrEqual(
-        500,
-      );
-    });
-
-    it("should handle arrays in properties", async () => {
-      const request = createMockRequest("POST", {
-        event: "test_event",
-        properties: {
-          tags: ["tag1", "tag2", "tag3"],
-        },
-      });
-
-      await action({ request, params: {}, context: {} });
-
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
-
-      expect(Array.isArray(payload.events[0].params.tags)).toBe(true);
     });
   });
 });

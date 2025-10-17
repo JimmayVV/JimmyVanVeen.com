@@ -14,25 +14,11 @@ export interface AnalyticsEvent {
 
 export interface AnalyticsService {
   /**
-   * Track a custom event with optional properties
-   * @param event - The event name to track
-   * @param properties - Optional event properties
-   */
-  track(event: string, properties?: Record<string, unknown>): Promise<void>;
-
-  /**
    * Track a page view
    * @param page - Optional page path (defaults to current URL)
    * @param properties - Optional page properties
    */
   page(page?: string, properties?: Record<string, unknown>): Promise<void>;
-
-  /**
-   * Identify a user with traits
-   * @param userId - The user identifier
-   * @param traits - Optional user traits
-   */
-  identify(userId: string, traits?: Record<string, unknown>): Promise<void>;
 }
 
 class ClientAnalytics implements AnalyticsService {
@@ -121,16 +107,6 @@ class ClientAnalytics implements AnalyticsService {
     });
   }
 
-  async identify(
-    userId: string,
-    traits: Record<string, unknown> = {},
-  ): Promise<void> {
-    await this.track("user_identify", {
-      user_id: userId,
-      ...traits,
-    });
-  }
-
   private async sendToServer(payload: AnalyticsEvent): Promise<void> {
     analyticsLogger.debug("Making POST request to /api/events");
 
@@ -190,56 +166,6 @@ class ClientAnalytics implements AnalyticsService {
     return true;
   }
 
-  // Utility methods for common events
-  /**
-   * Track a click event on a specific element
-   * @param element - The element that was clicked
-   * @param properties - Additional click properties
-   */
-  async trackClick(
-    element: string,
-    properties: Record<string, unknown> = {},
-  ): Promise<void> {
-    await this.track("click", {
-      element,
-      ...properties,
-    });
-  }
-
-  /**
-   * Track an error event with context
-   * @param error - The error object
-   * @param context - Additional error context
-   */
-  async trackError(
-    error: Error,
-    context?: Record<string, unknown>,
-  ): Promise<void> {
-    await this.track("error", {
-      error_message: error.message,
-      error_stack: error.stack || "No stack trace available",
-      ...context,
-    });
-  }
-
-  /**
-   * Track a timing/performance event
-   * @param name - The timing event name
-   * @param duration - Duration in milliseconds
-   * @param properties - Additional timing properties
-   */
-  async trackTiming(
-    name: string,
-    duration: number,
-    properties: Record<string, unknown> = {},
-  ): Promise<void> {
-    await this.track("timing", {
-      timing_name: name,
-      timing_duration: duration,
-      ...properties,
-    });
-  }
-
   // Privacy methods
   /**
    * Opt out of analytics tracking
@@ -284,12 +210,7 @@ export const analytics = new ClientAnalytics();
  */
 export function useAnalytics() {
   return {
-    track: analytics.track.bind(analytics),
     page: analytics.page.bind(analytics),
-    identify: analytics.identify.bind(analytics),
-    trackClick: analytics.trackClick.bind(analytics),
-    trackError: analytics.trackError.bind(analytics),
-    trackTiming: analytics.trackTiming.bind(analytics),
     optOut: analytics.optOut.bind(analytics),
     optIn: analytics.optIn.bind(analytics),
     isOptedOut: analytics.isOptedOut.bind(analytics),

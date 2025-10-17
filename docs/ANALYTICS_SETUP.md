@@ -1,108 +1,129 @@
-# Google Analytics 4 (GA4) Setup Guide
+# GoatCounter Analytics Setup Guide
 
-This guide walks through setting up Google Analytics 4 tracking for the portfolio website.
+This guide walks through setting up GoatCounter analytics for the portfolio website.
 
 ## Overview
 
 The analytics implementation uses:
 
-- **Client-side tracking** via a vendor-agnostic analytics service
-- **Server-side tracking** via GA4 Measurement Protocol (bypasses ad blockers)
-- **Privacy-first approach** with DNT support and opt-out functionality
+- **Privacy-first tracking** via GoatCounter's lightweight API
+- **Server-side tracking** via GoatCounter Measurement API (bypasses ad blockers)
+- **Pageviews-only** - Simple, focused analytics without complex event tracking
+- **Provider-agnostic architecture** - Easy to swap analytics services if needed
 - **Type-safe** implementation with TypeScript
+
+## Why GoatCounter?
+
+- **Free for hobby projects** - Up to 100,000 pageviews/month, commercial use allowed
+- **Privacy-focused** - No cookies, GDPR compliant by design
+- **Lightweight** - Fast, simple analytics without the bloat
+- **Open source** - Transparent, auditable code
+- **No ads or tracking** - Clean, straightforward visitor analytics
 
 ## Prerequisites
 
-1. A Google Analytics 4 account
-2. A GA4 property and data stream configured
+1. A GoatCounter account (free signup at [goatcounter.com](https://www.goatcounter.com/))
+2. A site code (chosen during signup)
 
-## Step 1: Create GA4 Property
+## Step 1: Sign Up for GoatCounter
 
-1. Go to [Google Analytics](https://analytics.google.com/)
-2. Click **Admin** (bottom left gear icon)
-3. In the **Property** column, click **Create Property**
-4. Fill in property details:
-   - **Property name**: "Jimmy Van Veen Portfolio" (or your preferred name)
-   - **Reporting time zone**: Your timezone
-   - **Currency**: Your preferred currency
-5. Click **Next** and complete the setup wizard
+1. Go to [https://www.goatcounter.com/signup](https://www.goatcounter.com/signup)
+2. Choose a site code (e.g., "jimmyvanveen")
+   - This will be your subdomain: `jimmyvanveen.goatcounter.com`
+   - Can only contain letters, numbers, hyphens, and underscores
+3. Enter your email address
+4. Agree to the Terms of Service and Privacy Policy
+5. Click **Sign up**
+6. Verify your email address
 
-## Step 2: Create Data Stream
+## Step 2: Get Your API Token
 
-1. In your new property, go to **Admin** > **Data Streams**
-2. Click **Add stream** > **Web**
-3. Configure the stream:
-   - **Website URL**: `https://jimmyvanveen.com` (or your domain)
-   - **Stream name**: "Portfolio Website"
-   - **Enhanced measurement**: Enable recommended events
-4. Click **Create stream**
+1. Log in to your GoatCounter account
+2. Go to **Settings** > **Password, MFA, API**
+3. Scroll to **API tokens** section
+4. Click **Generate new token**
+5. Give it a name: "Portfolio Server-side Tracking"
+6. **Copy the token** - you'll only see it once!
+   - Save it securely in your password manager
 
-## Step 3: Get Measurement ID
-
-1. In your data stream details, find the **Measurement ID**
-   - Format: `G-XXXXXXXXXX`
-   - This is your `GA4_MEASUREMENT_ID`
-2. Copy this value for later
-
-## Step 4: Create Measurement Protocol API Secret
-
-The Measurement Protocol allows server-side event tracking.
-
-1. In your data stream, scroll to **Measurement Protocol API secrets**
-2. Click **Create**
-3. Give it a name: "Portfolio Server-side Tracking"
-4. Click **Create**
-5. Copy the **Secret value** - this is your `GA4_API_SECRET`
-   - ⚠️ **Important**: You can only see this value once! Save it securely.
-
-## Step 5: Configure Environment Variables
+## Step 3: Configure Environment Variables
 
 Add the following to `config/env/.env`:
 
 ```bash
-# Google Analytics 4 (GA4) Configuration
-GA4_MEASUREMENT_ID="G-XXXXXXXXXX"  # Replace with your Measurement ID
-GA4_API_SECRET="your_api_secret_here"  # Replace with your API Secret
+# GoatCounter Analytics Configuration
+GOATCOUNTER_SITE_CODE="jimmyvanveen"  # Replace with your site code
+GOATCOUNTER_API_TOKEN="your_api_token_here"  # Replace with your API token
 
 # Optional: Enable debug mode for detailed logging
-GA4_DEBUG="false"
+GOATCOUNTER_DEBUG="false"
 ```
 
 ### Environment Variable Details
 
-- **GA4_MEASUREMENT_ID** (required)
-  - Your GA4 property's Measurement ID
-  - Format: `G-XXXXXXXXXX`
-  - Found in: GA4 Admin > Data Streams > [Your Stream]
+- **GOATCOUNTER_SITE_CODE** (required)
+  - Your GoatCounter site code (subdomain)
+  - Format: Alphanumeric, hyphens, underscores only
+  - Example: `"jimmyvanveen"`
 
-- **GA4_API_SECRET** (required)
-  - Measurement Protocol API secret
-  - Format: Base64-like string, 20+ characters
-  - Found in: GA4 Admin > Data Streams > [Your Stream] > Measurement Protocol API secrets
+- **GOATCOUNTER_API_TOKEN** (required)
+  - Your GoatCounter API token
+  - Format: Long alphanumeric string
+  - Found in: Settings > Password, MFA, API > API tokens
 
-- **GA4_DEBUG** (optional)
+- **GOATCOUNTER_DEBUG** (optional)
   - Set to `"true"` to enable detailed payload logging
   - Useful for debugging tracking issues
   - Default: `"false"`
 
-## Step 6: Verify Configuration
+## Step 4: Deploy to Netlify
+
+### Add Environment Variables
+
+1. Go to [Netlify Dashboard](https://app.netlify.com/)
+2. Select your site
+3. Go to **Site configuration** > **Environment variables**
+4. Add the following variables:
+   - **Variable**: `GOATCOUNTER_SITE_CODE`
+     **Value**: Your site code (e.g., `jimmyvanveen`)
+   - **Variable**: `GOATCOUNTER_API_TOKEN`
+     **Value**: Your API token from Step 2
+
+5. Click **Save**
+6. Redeploy your site for changes to take effect
+
+### Deploy Previews and Staging
+
+By default, **deploy previews and branch previews will NOT track analytics**. This is intentional because:
+
+- Preview deployments are temporary testing environments
+- You likely don't want test traffic in your production analytics
+- The site will function normally without analytics configured
+
+If you need separate analytics for staging/previews, you can:
+
+1. Create a second GoatCounter site (e.g., `yoursite-staging`)
+2. Add context-specific environment variables in Netlify for the `deploy-preview` context
+3. Keep production and staging analytics completely separate
+
+## Step 5: Verify Tracking
 
 ### Local Testing
 
-1. Set `GA4_DEBUG="true"` in your `.env` file
+1. Set `GOATCOUNTER_DEBUG="true"` in your `.env` file
 2. Start the dev server:
    ```bash
    npm run dev
    ```
 3. Navigate to `http://localhost:5173`
-4. Check the server console for GA4 debug logs:
+4. Check the server console for debug logs:
    ```
-   Sending to GA4: {
-     "client_id": "...",
-     "events": [
+   [goatcounter] Sending to GoatCounter: {
+     "hits": [
        {
-         "name": "page_view",
-         "params": { ... }
+         "path": "/",
+         "title": "Home",
+         ...
        }
      ]
    }
@@ -110,18 +131,202 @@ GA4_DEBUG="false"
 
 ### Production Verification
 
-1. Deploy your site with GA4 credentials configured
+1. Deploy your site with GoatCounter credentials configured
 2. Visit your live site
-3. In GA4, go to **Reports** > **Realtime**
-4. You should see active users within 30 seconds
+3. Log in to your GoatCounter dashboard at `https://{your-site-code}.goatcounter.com`
+4. You should see pageviews appearing in real-time
 
-### Debug View in GA4
+## Architecture
 
-1. In GA4, go to **Configure** > **DebugView**
-2. Visit your site with `GA4_DEBUG="true"` enabled
-3. You'll see events in real-time with full details
+### Client-Side Flow
 
-## Step 7: Run Tests
+1. User visits page
+2. `clientLoader` in route calls `analytics.page()`
+3. `analytics.client.ts` checks privacy settings (DNT, opt-out)
+4. If allowed, sends pageview to `/api/events` with metadata
+5. Server forwards to GoatCounter
+
+### Server-Side Flow
+
+1. Receive event at `/api/events`
+2. Validate and sanitize event data
+3. Add server-side context (IP, user agent, timestamp)
+4. Send to GoatCounter API
+5. Return success to client
+
+### Privacy Controls
+
+- **Do Not Track (DNT)**: Automatically respected
+- **User Opt-out**: Available via `analytics.optOut()`
+- **No cookies**: GoatCounter doesn't use cookies
+- **Server-side tracking**: Bypasses client-side ad blockers
+- **GDPR compliant**: No PII collected
+
+## Tracked Data
+
+GoatCounter tracks **pageviews only**. Each pageview includes:
+
+| Property  | Description  | Example                 |
+| --------- | ------------ | ----------------------- |
+| `path`    | URL path     | `/blog/my-post`         |
+| `title`   | Page title   | `"My Blog Post"`        |
+| `ref`     | Referrer URL | `"https://google.com"`  |
+| `session` | Session ID   | Generated automatically |
+
+### No Custom Events
+
+Unlike GA4, GoatCounter is **pageviews-only**. There's no tracking for:
+
+- Click events
+- Errors
+- Timing/performance metrics
+- Custom user events
+
+This simplicity is intentional - GoatCounter focuses on answering "who's visiting which pages?"
+
+## Using Analytics in Your Code
+
+### Track a Page View
+
+Page views are tracked automatically via `clientLoader` in routes:
+
+```tsx
+// app/routes/_index.tsx
+import { ClientLoaderFunctionArgs } from "react-router";
+
+import { analytics } from "~/utils/analytics.client";
+
+export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
+  // Track page view
+  await analytics.page();
+
+  return null;
+}
+```
+
+### Manual Tracking
+
+Track custom paths:
+
+```tsx
+import { analytics } from "~/utils/analytics.client";
+
+// Track a specific page
+await analytics.page("/custom-path");
+
+// Track with additional properties (passed to page title, etc.)
+await analytics.page("/pricing", {
+  utm_source: "twitter",
+});
+```
+
+### Privacy Controls
+
+```tsx
+import { analytics } from "~/utils/analytics.client";
+
+// Opt out of tracking
+analytics.optOut();
+
+// Opt back in
+analytics.optIn();
+
+// Check opt-out status
+const hasOptedOut = analytics.isOptedOut();
+```
+
+## Troubleshooting
+
+### Events not appearing in GoatCounter
+
+1. **Check environment variables**
+
+   ```bash
+   # Verify they're set correctly
+   echo $GOATCOUNTER_SITE_CODE
+   echo $GOATCOUNTER_API_TOKEN
+   ```
+
+2. **Enable debug mode**
+
+   ```bash
+   GOATCOUNTER_DEBUG="true"
+   ```
+
+   Check server logs for API errors
+
+3. **Verify site code format**
+   - Should be alphanumeric, hyphens, underscores only
+   - No spaces or special characters
+
+4. **Check API token**
+   - Must be a valid API token from Settings
+   - Token should be long (50+ characters)
+   - Create a new one if unsure
+
+5. **Check Netlify environment variables**
+   - Ensure variables are set in Netlify Dashboard
+   - Redeploy after adding variables
+
+### Common Issues
+
+**"GoatCounter environment variables not configured"**
+
+- Environment variables are missing
+- Check `config/env/.env` file locally
+- Check Netlify Dashboard > Environment Variables for production
+
+**"Invalid GOATCOUNTER_SITE_CODE format"**
+
+- Site code should only contain letters, numbers, hyphens, underscores
+- No spaces or special characters
+
+**"Invalid GOATCOUNTER_API_TOKEN"**
+
+- API token should be 50+ characters
+- Get a fresh token from Settings > Password, MFA, API
+
+**Events tracked locally but not in production**
+
+- Ensure environment variables are set in Netlify
+- Go to Netlify Dashboard > Site Settings > Environment Variables
+- Redeploy your site after adding variables
+
+## GoatCounter Dashboard
+
+### Accessing Your Dashboard
+
+Visit `https://{your-site-code}.goatcounter.com` (e.g., `https://jimmyvanveen.goatcounter.com`)
+
+### Key Metrics
+
+1. **Pages**
+   - Most viewed pages
+   - View counts per page
+   - Unique visitor counts
+
+2. **Referrers**
+   - Where visitors come from
+   - Social media, search engines, direct traffic
+
+3. **Browsers**
+   - Browser usage statistics
+   - Screen sizes
+   - Operating systems
+
+4. **Locations**
+   - Country/region of visitors
+   - Privacy-friendly (no exact locations)
+
+### Export Data
+
+GoatCounter allows CSV exports of all your data:
+
+1. Go to Settings > Export
+2. Select date range
+3. Download CSV
+
+## Running Tests
 
 Verify the analytics implementation with automated tests:
 
@@ -139,164 +344,51 @@ npm run test:all
 npm run test:coverage
 ```
 
-## Architecture
+## Performance
 
-### Client-Side Flow
-
-1. User visits page
-2. `clientLoader` in route calls `trackPageView()`
-3. `analytics.client.ts` checks privacy settings (DNT, opt-out)
-4. If allowed, sends event to `/api/events` with client metadata
-5. Server enriches event and forwards to GA4
-
-### Server-Side Flow
-
-1. Receive event at `/api/events`
-2. Validate and sanitize event data
-3. Add server-side context (IP, user agent, timestamp)
-4. Send to GA4 Measurement Protocol API
-5. Return success to client
-
-### Privacy Controls
-
-- **Do Not Track (DNT)**: Automatically respected
-- **User Opt-out**: Available via `analytics.optOut()`
-- **Client ID**: Stored in localStorage for consistency
-- **Server-side tracking**: Bypasses client-side ad blockers
-
-## Tracked Events
-
-### Standard Events
-
-| Event       | Description         | Properties                                 |
-| ----------- | ------------------- | ------------------------------------------ |
-| `page_view` | Page navigation     | `page_path`, `page_location`, `page_title` |
-| `click`     | User clicks         | `element`, custom properties               |
-| `error`     | JavaScript errors   | `error_message`, `error_stack`             |
-| `timing`    | Performance metrics | `timing_name`, `timing_duration`           |
-
-### Custom Events
-
-Add custom tracking in your components:
-
-```tsx
-import { useAnalytics } from "~/utils/analytics.client";
-
-function MyComponent() {
-  const analytics = useAnalytics();
-
-  const handleClick = () => {
-    analytics.trackClick("cta_button", { location: "hero" });
-  };
-
-  return <button onClick={handleClick}>Click me</button>;
-}
-```
-
-## Troubleshooting
-
-### Events not appearing in GA4
-
-1. **Check environment variables**
-
-   ```bash
-   # Verify they're set correctly
-   echo $GA4_MEASUREMENT_ID
-   echo $GA4_API_SECRET
-   ```
-
-2. **Enable debug mode**
-
-   ```bash
-   GA4_DEBUG="true"
-   ```
-
-   Check server logs for GA4 API errors
-
-3. **Verify Measurement ID format**
-   - Should be `G-XXXXXXXXXX` (exactly 10 characters after `G-`)
-
-4. **Check GA4 Realtime reports**
-   - Events can take 24-48 hours to appear in standard reports
-   - Use **Realtime** view for immediate verification
-
-5. **Verify API Secret**
-   - Must be a valid Measurement Protocol API secret
-   - Create a new one if unsure
-
-### Common Issues
-
-**"GA4 credentials not configured"**
-
-- Environment variables are missing
-- Check `config/env/.env` file
-
-**"Invalid GA4_MEASUREMENT_ID format"**
-
-- Measurement ID should match: `G-[A-Z0-9]{10}`
-- No spaces or extra characters
-
-**"Invalid GA4_API_SECRET format"**
-
-- API Secret should be 20+ characters
-- Alphanumeric with dashes/underscores
-
-**Events tracked locally but not in production**
-
-- Ensure environment variables are set in Netlify
-- Go to Netlify Dashboard > Site Settings > Environment Variables
-
-## GA4 Dashboard Setup
-
-### Recommended Reports
-
-1. **Realtime Overview**
-   - Path: Reports > Realtime
-   - Shows active users and current page views
-
-2. **Pages and Screens**
-   - Path: Reports > Engagement > Pages and screens
-   - Most viewed pages on your site
-
-3. **Events**
-   - Path: Reports > Engagement > Events
-   - All tracked events with counts
-
-4. **Traffic Acquisition**
-   - Path: Reports > Acquisition > Traffic acquisition
-   - Where visitors come from
-
-### Custom Dimensions
-
-Create custom dimensions for better insights:
-
-1. Go to **Configure** > **Custom definitions**
-2. Click **Create custom dimension**
-3. Useful dimensions:
-   - `client_id` (Dimension name: "Client ID", Event parameter: `client_id`)
-   - `page_path` (Dimension name: "Page Path", Event parameter: `page_path`)
-
-## Performance Considerations
-
-- Events are sent asynchronously (non-blocking)
-- Failed analytics requests don't impact user experience
-- Rate limiting prevents abuse (60 requests/minute per IP)
-- Serverless-friendly with in-memory rate limiting
+- **Minimal overhead**: ~2KB JavaScript (vs 45KB+ for GA4)
+- **Fast API**: Pageview tracking completes in <100ms
+- **Non-blocking**: Failed requests don't impact user experience
+- **Rate limiting**: 60 requests/minute per IP (prevents abuse)
 
 ## Privacy & Compliance
 
-- ✅ Respects DNT (Do Not Track) header
-- ✅ Allows user opt-out via `analytics.optOut()`
-- ✅ No third-party cookies
-- ✅ Client IDs are anonymized UUIDs
-- ✅ Server-side tracking for privacy
-- ✅ No PII (Personally Identifiable Information) collected
+- ✅ **No cookies** - GoatCounter doesn't use cookies
+- ✅ **GDPR compliant** - No PII collected by default
+- ✅ **Respects DNT** (Do Not Track) header
+- ✅ **User opt-out** available via `analytics.optOut()`
+- ✅ **Open source** - Transparent, auditable tracking
+- ✅ **EU-friendly** - Data hosted in EU (if you choose EU servers)
+
+## Limitations
+
+- **Pageviews only** - No custom event tracking
+- **Basic metrics** - Not as feature-rich as GA4
+- **Free tier limits** - 100k pageviews/month (upgrade available)
+- **Self-hosted option** - Requires technical setup (not covered here)
+
+## Switching Providers
+
+Thanks to the provider-agnostic architecture, switching analytics providers is easy:
+
+1. Create a new provider in `app/utils/analytics/providers/`
+2. Implement the `AnalyticsProvider` interface
+3. Register in `app/routes/api.events.tsx`
+4. Update environment variables
+
+Example providers that could be added:
+
+- Plausible
+- Umami
+- Fathom
+- Matomo
+- Custom solution
 
 ## Additional Resources
 
-- [GA4 Documentation](https://support.google.com/analytics/answer/10089681)
-- [Measurement Protocol Guide](https://developers.google.com/analytics/devguides/collection/protocol/ga4)
-- [GA4 Events Reference](https://developers.google.com/analytics/devguides/collection/ga4/reference/events)
+- [GoatCounter Documentation](https://www.goatcounter.com/help)
+- [GoatCounter API Reference](https://www.goatcounter.com/api)
+- [GoatCounter GitHub](https://github.com/arp242/goatcounter)
 - [React Router Docs](https://reactrouter.com/start/library/routing)
 
 ## Support
@@ -304,6 +396,7 @@ Create custom dimensions for better insights:
 If you encounter issues:
 
 1. Check the [troubleshooting section](#troubleshooting)
-2. Review server logs with `GA4_DEBUG="true"`
-3. Verify GA4 Realtime reports
+2. Review server logs with `GOATCOUNTER_DEBUG="true"`
+3. Verify GoatCounter dashboard shows your site
 4. Check Netlify deploy logs for environment variable issues
+5. Visit [GoatCounter support](https://www.goatcounter.com/help/support)

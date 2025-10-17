@@ -48,84 +48,6 @@ describe("Analytics Client", () => {
     });
   });
 
-  describe("track()", () => {
-    it("should send analytics events to the server", async () => {
-      await analytics.track("test_event", { foo: "bar" });
-
-      expect(fetch).toHaveBeenCalledWith(
-        "/api/events",
-        expect.objectContaining({
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }),
-      );
-
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
-
-      expect(payload.event).toBe("test_event");
-      expect(payload.properties).toMatchObject({
-        foo: "bar",
-        page_url: "https://test.com/page",
-        page_title: "Test Page",
-        page_referrer: "https://example.com",
-      });
-      expect(payload.properties.client_id).toBeDefined();
-      expect(payload.properties.timestamp).toBeDefined();
-    });
-
-    it("should not track when DNT is enabled", async () => {
-      Object.defineProperty(navigator, "doNotTrack", {
-        value: "1",
-        writable: true,
-        configurable: true,
-      });
-
-      // Reset the module cache to force re-initialization with new DNT setting
-      vi.resetModules();
-
-      // Create new analytics instance to pick up DNT setting
-      const { analytics: newAnalytics } = await import("./analytics.client");
-      await newAnalytics.track("test_event");
-
-      expect(fetch).not.toHaveBeenCalled();
-    });
-
-    it("should not track when user has opted out", async () => {
-      analytics.optOut();
-      await analytics.track("test_event");
-
-      // Should not send analytics after opt-out
-      expect(fetch).not.toHaveBeenCalled();
-    });
-
-    it("should handle server errors gracefully", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-      } as Response);
-
-      // Should not throw error
-      await expect(analytics.track("test_event")).resolves.toBeUndefined();
-    });
-
-    it("should include client_id in all events", async () => {
-      await analytics.track("event1");
-      await analytics.track("event2");
-
-      const call1 = JSON.parse(
-        (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
-      );
-      const call2 = JSON.parse(
-        (fetch as ReturnType<typeof vi.fn>).mock.calls[1][1].body,
-      );
-
-      expect(call1.properties.client_id).toBeDefined();
-      expect(call2.properties.client_id).toBeDefined();
-      expect(call1.properties.client_id).toBe(call2.properties.client_id);
-    });
-  });
-
   describe("page()", () => {
     it("should track page views with default path", async () => {
       await analytics.page();
@@ -148,61 +70,56 @@ describe("Analytics Client", () => {
       expect(payload.properties.page_path).toBe("/custom-page");
       expect(payload.properties.utm_source).toBe("test");
     });
-  });
 
-  describe("identify()", () => {
-    it("should track user identification", async () => {
-      await analytics.identify("user123", { name: "Test User", plan: "pro" });
+    it("should not track when DNT is enabled", async () => {
+      Object.defineProperty(navigator, "doNotTrack", {
+        value: "1",
+        writable: true,
+        configurable: true,
+      });
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
+      // Reset the module cache to force re-initialization with new DNT setting
+      vi.resetModules();
 
-      expect(payload.event).toBe("user_identify");
-      expect(payload.properties.user_id).toBe("user123");
-      expect(payload.properties.name).toBe("Test User");
-      expect(payload.properties.plan).toBe("pro");
+      // Create new analytics instance to pick up DNT setting
+      const { analytics: newAnalytics } = await import("./analytics.client");
+      await newAnalytics.page();
+
+      expect(fetch).not.toHaveBeenCalled();
     });
-  });
 
-  describe("trackClick()", () => {
-    it("should track click events", async () => {
-      await analytics.trackClick("cta_button", { location: "hero" });
+    it("should not track when user has opted out", async () => {
+      analytics.optOut();
+      await analytics.page();
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
-
-      expect(payload.event).toBe("click");
-      expect(payload.properties.element).toBe("cta_button");
-      expect(payload.properties.location).toBe("hero");
+      // Should not send analytics after opt-out
+      expect(fetch).not.toHaveBeenCalled();
     });
-  });
 
-  describe("trackError()", () => {
-    it("should track error events", async () => {
-      const error = new Error("Test error");
-      await analytics.trackError(error, { component: "Header" });
+    it("should handle server errors gracefully", async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+      } as Response);
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
-
-      expect(payload.event).toBe("error");
-      expect(payload.properties.error_message).toBe("Test error");
-      expect(payload.properties.error_stack).toContain("Error: Test error");
-      expect(payload.properties.component).toBe("Header");
+      // Should not throw error
+      await expect(analytics.page()).resolves.toBeUndefined();
     });
-  });
 
-  describe("trackTiming()", () => {
-    it("should track timing events", async () => {
-      await analytics.trackTiming("api_call", 1234, { endpoint: "/api/data" });
+    it("should include client_id in all page views", async () => {
+      await analytics.page("/page1");
+      await analytics.page("/page2");
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const payload = JSON.parse(callArgs[1].body);
+      const call1 = JSON.parse(
+        (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
+      );
+      const call2 = JSON.parse(
+        (fetch as ReturnType<typeof vi.fn>).mock.calls[1][1].body,
+      );
 
-      expect(payload.event).toBe("timing");
-      expect(payload.properties.timing_name).toBe("api_call");
-      expect(payload.properties.timing_duration).toBe(1234);
-      expect(payload.properties.endpoint).toBe("/api/data");
+      expect(call1.properties.client_id).toBeDefined();
+      expect(call2.properties.client_id).toBeDefined();
+      expect(call1.properties.client_id).toBe(call2.properties.client_id);
     });
   });
 
@@ -233,7 +150,7 @@ describe("Analytics Client", () => {
 
   describe("Client ID Persistence", () => {
     it("should generate and persist client ID", async () => {
-      await analytics.track("test_event");
+      await analytics.page();
 
       const clientId = localStorage.getItem("analytics_client_id");
       expect(clientId).not.toBeNull();
@@ -243,10 +160,10 @@ describe("Analytics Client", () => {
     });
 
     it("should reuse existing client ID", async () => {
-      await analytics.track("event1");
+      await analytics.page("/page1");
       const firstClientId = localStorage.getItem("analytics_client_id");
 
-      await analytics.track("event2");
+      await analytics.page("/page2");
       const secondClientId = localStorage.getItem("analytics_client_id");
 
       expect(firstClientId).toBe(secondClientId);

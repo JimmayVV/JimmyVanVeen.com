@@ -32,8 +32,8 @@ declare namespace NodeJS {
     readonly EMAIL_ADDRESS?: string;
     readonly EMAIL_APP_PASSWORD?: string;
     readonly RECAPTCHA_SECRET_KEY?: string;
-    readonly GA4_MEASUREMENT_ID?: string;
-    readonly GA4_API_SECRET?: string;
-    readonly GA4_DEBUG?: string;
+    readonly GOATCOUNTER_SITE_CODE?: string;
+    readonly GOATCOUNTER_API_TOKEN?: string;
+    readonly GOATCOUNTER_DEBUG?: string;
   }
 }
