@@ -71,7 +71,7 @@
     "@babel/preset-typescript": "^7.27.1",
     "@eslint/js": "^9.38.0",
     "@mjackson/node-fetch-server": "^0.7.0",
-    "@netlify/vite-plugin-react-router": "^1.0.1",
+    "@netlify/vite-plugin-react-router": "^2.0.1",
     "@playwright/test": "^1.56.1",
     "@react-router/dev": "^7.9.4",
     "@stylistic/eslint-plugin": "^5.5.0",

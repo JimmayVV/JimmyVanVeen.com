@@ -1,10 +1,11 @@
-import { createRequestHandler } from "react-router";
+import { type AppLoadContext, createRequestHandler } from "react-router";
 
 import type { Config, Context } from "@netlify/functions";
 
 declare module "react-router" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface AppLoadContext {}
+  interface AppLoadContext extends Context {
+    [key: string]: unknown;
+  }
 }
 
 const requestHandler = createRequestHandler(
@@ -12,8 +13,8 @@ const requestHandler = createRequestHandler(
   import.meta.env.MODE,
 );
 
-export default async (request: Request, _context: Context) => {
-  return requestHandler(request, {});
+export default async (request: Request, context: Context) => {
+  return requestHandler(request, context as unknown as AppLoadContext);
 };
 
 export const config: Config = {
