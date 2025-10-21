@@ -3,27 +3,36 @@ import { Octokit as createOctokit } from "@octokit/rest";
 
 const Octokit = createOctokit.plugin(throttling);
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-  throttle: {
-    onRateLimit: (retryAfter, options) => {
-      console.warn(
-        `Request quota exhausted for request ${options.method} ${options.url}. Retrying after ${String(retryAfter)} seconds.`,
-      );
+const isDisabled = process.env.DISABLE_GITHUB_INTEGRATION === "true";
 
-      return true;
-    },
-    onSecondaryRateLimit: (retryAfter, options) => {
-      console.warn(
-        `SecondaryRateLimit detected for request ${options.method} ${options.url}. Retrying after ${String(retryAfter)} seconds.`,
-      );
+const octokit = isDisabled
+  ? null
+  : new Octokit({
+      auth: process.env.GITHUB_TOKEN,
+      throttle: {
+        onRateLimit: (retryAfter, options) => {
+          console.warn(
+            `Request quota exhausted for request ${options.method} ${options.url}. Retrying after ${String(retryAfter)} seconds.`,
+          );
 
-      return true;
-    },
-  },
-});
+          return true;
+        },
+        onSecondaryRateLimit: (retryAfter, options) => {
+          console.warn(
+            `SecondaryRateLimit detected for request ${options.method} ${options.url}. Retrying after ${String(retryAfter)} seconds.`,
+          );
+
+          return true;
+        },
+      },
+    });
 
 export const getAllRepositories = async () => {
+  if (isDisabled || !octokit) {
+    console.warn("GitHub integration is disabled");
+    return [];
+  }
+
   const { data } = await octokit.repos.listForAuthenticatedUser({
     per_page: 100,
   });
@@ -40,6 +49,11 @@ export const getRepositoriesByNodeId = async (nodeIds: string[]) => {
 };
 
 export const getRepositoryReadme = async (owner: string, repo: string) => {
+  if (isDisabled || !octokit) {
+    console.warn("GitHub integration is disabled");
+    return null;
+  }
+
   const { data } = await octokit.repos.getReadme({
     owner,
     repo,
