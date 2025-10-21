@@ -114,3 +114,10 @@ jobs:
 
       - name: Run Playwright E2E tests
         run: npm run test:e2e
+        env:
+          # Disable external API calls during E2E tests
+          DISABLE_CONTENTFUL_RUNTIME: true
+          # Provide test values for required environment variables
+          JVV_ALLOW_EMAILS: false
+          JVV_RECAPTCHA_SITE_KEY: test-key
+          GITHUB_TOKEN: test-token
