@@ -104,9 +104,7 @@ test.describe("Analytics E2E Tests", () => {
       page_url: expect.stringContaining("/"),
       page_title: expect.any(String),
       timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
-      client_id: expect.stringMatching(
-        /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/,
-      ),
+      client_id: expect.stringMatching(/^\d+\.\d+\.[a-z0-9]+$/),
     });
   });
 
@@ -198,7 +196,7 @@ test.describe("Analytics E2E Tests", () => {
     expect(pageTitle).toBeDefined();
   });
 
-  test("should generate valid UUIIDv4 client IDs", async ({ page }) => {
+  test("should generate valid client IDs", async ({ page }) => {
     let clientId: string | null = null;
 
     await page.route("**/api/events", async (route) => {
@@ -219,11 +217,9 @@ test.describe("Analytics E2E Tests", () => {
     await page.goto("/");
     await page.waitForTimeout(1000);
 
-    // Verify client ID is a valid UUIDv4
+    // Verify client ID is in the format: timestamp.entropy.random
     expect(clientId).toBeDefined();
-    expect(clientId).toMatch(
-      /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/,
-    );
+    expect(clientId).toMatch(/^\d+\.\d+\.[a-z0-9]+$/);
   });
 
   test("should store client ID in localStorage", async ({ page }) => {
@@ -244,9 +240,8 @@ test.describe("Analytics E2E Tests", () => {
     });
 
     expect(storedClientId).toBeDefined();
-    expect(storedClientId).toMatch(
-      /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/,
-    );
+    // Verify client ID is in the format: timestamp.entropy.random
+    expect(storedClientId).toMatch(/^\d+\.\d+\.[a-z0-9]+$/);
   });
 
   test("should track multiple page views during session", async ({ page }) => {
