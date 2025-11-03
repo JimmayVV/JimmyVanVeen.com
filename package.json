@@ -40,7 +40,7 @@
     "@netlify/blobs": "^10.2.1",
     "@netlify/functions": "^4.3.0",
     "@octokit/plugin-throttling": "^11.0.2",
-    "@octokit/rest": "^22.0.0",
+    "@octokit/rest": "^22.0.1",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-menubar": "^1.1.16",
     "@radix-ui/react-navigation-menu": "^1.2.14",
