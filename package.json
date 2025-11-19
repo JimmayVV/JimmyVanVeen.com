@@ -38,7 +38,7 @@
   "dependencies": {
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@netlify/blobs": "^10.3.1",
-    "@netlify/functions": "^4.3.0",
+    "@netlify/functions": "^5.1.0",
     "@octokit/plugin-throttling": "^11.0.2",
     "@octokit/rest": "^22.0.1",
     "@radix-ui/react-dialog": "^1.1.15",
