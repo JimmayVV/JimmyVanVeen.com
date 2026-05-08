@@ -17,6 +17,7 @@ export function TopBar() {
   const { pathname } = useLocation();
   const [open, setOpen] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const firstLinkRef = React.useRef<HTMLAnchorElement>(null);
 
   React.useEffect(() => {
     setOpen(false);
@@ -45,6 +46,12 @@ export function TopBar() {
     if (open) main.setAttribute("inert", "");
     else main.removeAttribute("inert");
     return () => main.removeAttribute("inert");
+  }, [open]);
+
+  // Move focus into the sheet on open so keyboard users land on the
+  // first interactive element instead of being parked on the trigger.
+  React.useEffect(() => {
+    if (open) firstLinkRef.current?.focus();
   }, [open]);
 
   return (
@@ -84,8 +91,9 @@ export function TopBar() {
         aria-label="Mobile site navigation"
         aria-hidden={!open ? true : undefined}
       >
-        {SECTIONS.map((section) => (
+        {SECTIONS.map((section, idx) => (
           <Link
+            ref={idx === 0 ? firstLinkRef : undefined}
             key={section.to}
             to={section.to}
             prefetch="intent"
