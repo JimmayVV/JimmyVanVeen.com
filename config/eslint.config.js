@@ -114,12 +114,6 @@ export default tseslint.config(
     },
   },
   {
-    files: ["app/components/ui/**/*"],
-    rules: {
-      "react-refresh/only-export-components": "off", // Disable for shadcn/ui components
-    },
-  },
-  {
     files: ["**/*.js", "**/*.mjs"],
     ...tseslint.configs.disableTypeChecked,
   },

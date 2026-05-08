@@ -1,190 +1,24 @@
 @import "tailwindcss";
 
-@plugin "tailwindcss-animate";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-primary: #21d;
-  --color-secondary: #333;
-  --color-brand: #e10600; /* Hex */
-  --color-brand-rgb: rgb(225, 6, 0); /* RGB */
-  --color-brand-hsl: hsl(2, 100%, 44%); /* HSL */
-  --color-brand-cmyk: cmyk(0, 97, 100, 12); /* CMYK */
-
-  --font-sans: "Source Sans 3", helvetica, sans-serif;
-  --font-raleway: Raleway, helvetica, sans-serif;
-
-  --animate-marquee: marquee 30s linear infinite;
-  --animate-marquee-slow: marquee 60s linear infinite;
-
-  --background-image-hero-pattern:
-    linear-gradient(0deg, rgba(51, 51, 51, 0.8), rgba(51, 51, 51, 0.8)),
-    url("/images/talladega_glory.jpg");
-
-  /* Smooth continuous marquee animation */
-  @keyframes marquee {
-    0% {
-      transform: translateX(0%);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
-  }
-
-  /* Alternative fade in/out animation */
-  @keyframes fade-slide {
-    0% {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-    10% {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    90% {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    100% {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-  }
+  /* Editorial typography (site-wide) */
+  --font-display:
+    Newsreader, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-display-italic: Fraunces, Newsreader, Georgia, serif;
+  --font-serif:
+    "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Menlo, monospace;
 }
 
 :root {
-  --foreground: hsl(0 0% 100%);
-  --background: hsl(0 0% 3.9%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(0 0% 3.9%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(0 0% 3.9%);
-  --primary: hsl(0 0% 9%);
-  --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(0 0% 96.1%);
-  --secondary-foreground: hsl(0 0% 9%);
-  --muted: hsl(0 0% 96.1%);
-  --muted-foreground: hsl(0 0% 45.1%);
-  --accent: hsl(0 0% 96.1%);
-  --accent-foreground: hsl(0 0% 15%);
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(0 0% 89.8%);
-  --input: hsl(0 0% 89.8%);
-  --ring: hsl(0 0% 3.9%);
-  --chart-1: hsl(12 76% 61%);
-  --chart-2: hsl(173 58% 39%);
-  --chart-3: hsl(197 37% 24%);
-  --chart-4: hsl(43 74% 66%);
-  --chart-5: hsl(27 87% 67%);
-  --header-height: 3rem;
-  --radius: 0.6rem;
-  --sidebar: rgb(26 26 26 / var(--tw-bg-opacity, 1));
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-
   --min-width: 320px;
 }
 
-.dark {
-  --background: hsl(0 0% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(0 0% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(0 0% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 98%);
-  --primary-foreground: hsl(0 0% 9%);
-  --secondary: hsl(0 0% 14.9%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(0 0% 14.9%);
-  --muted-foreground: hsl(0 0% 63.9%);
-  --accent: hsl(0 0% 14.9%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(0 0% 14.9%);
-  --input: hsl(0 0% 14.9%);
-  --ring: hsl(0 0% 83.1%);
-  --chart-1: hsl(220 70% 50%);
-  --chart-2: hsl(160 60% 45%);
-  --chart-3: hsl(30 80% 55%);
-  --chart-4: hsl(280 65% 60%);
-  --chart-5: hsl(340 75% 55%);
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-}
-
-/* External link indicator - using CSS icon instead of image for color matching */
-a[target="_blank"]:not(#sidebar-footer a):after {
-  content: "↗";
-  display: inline-block;
-  margin-left: 0.2em;
-  font-size: 0.85em;
-  font-weight: bold;
-  vertical-align: super;
-  line-height: 0;
-  opacity: 0.8;
-}
-
-/* Make sure external link icon inherits the link color */
-#blogContent a[target="_blank"]:after,
-.prose a[target="_blank"]:after {
-  color: inherit;
-}
-
-/* Alternative SVG icon approach for better control */
-a[target="_blank"]:not(#sidebar-footer a)::after {
+/* External link indicator — small ↗ icon after target=_blank links,
+   inherits the surrounding text color. */
+a[target="_blank"]::after {
   content: "";
   display: inline-block;
   width: 0.75em;
@@ -196,80 +30,1184 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   mask-repeat: no-repeat;
   mask-position: center;
   vertical-align: middle;
+  opacity: 0.8;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+/* ───────────────────────────────────────────────────────────────────────────
+   Editorial Blog — "Quiet Editorial"
+   Typography-first reading experience. Two true themes: paper / midnight ink.
+   ─────────────────────────────────────────────────────────────────────────── */
 
-  #blogContent h2 {
-    @apply text-3xl font-bold mt-8 mb-4;
-  }
+.editorial-theme {
+  /* paper (light) */
+  --paper-bg: #f7f4ec;
+  --paper-surface: #efeae0;
+  --paper-ink: #1c1a17;
+  --paper-muted: #6e665b;
+  --paper-rule: #d9d2c3;
+  --paper-accent: #7a2e1f;
+  --paper-accent-soft: #a14c39;
 
-  #blogContent p {
-    @apply mb-4 tracking-wider leading-7;
-  }
+  /* code tokens (light) — keyword and number left strong; string pushed
+     to a more saturated, less-warm green so it stops blending with the
+     other dark-on-cream tones; function bumped for a touch more chroma. */
+  --syntax-comment: #857a68;
+  --syntax-keyword: #a8381a;
+  --syntax-string: #0d8e5a;
+  --syntax-function: #0e5fa6;
+  --syntax-number: #a26110;
+  --syntax-punct: #6e665b;
+  --syntax-tag: #a8381a;
+  --syntax-attr: #0e5fa6;
 
-  #blogContent blockquote {
-    @apply border-l-4 border-brand pl-4 pt-2 pb-1 mb-2 italic;
-  }
+  --blog-bg: var(--paper-bg);
+  --blog-surface: var(--paper-surface);
+  --blog-ink: var(--paper-ink);
+  --blog-muted: var(--paper-muted);
+  --blog-rule: var(--paper-rule);
+  --blog-accent: var(--paper-accent);
+  --blog-accent-soft: var(--paper-accent-soft);
 
-  /* Blog content links - using brand red */
-  #blogContent a,
-  .prose a {
-    @apply font-semibold text-red-500 no-underline relative transition-all;
-    background-image: linear-gradient(to right, currentColor, currentColor);
-    background-size: 0% 2px;
-    background-position: left bottom;
-    background-repeat: no-repeat;
-    padding-bottom: 2px;
-  }
+  --topbar-height: 3.5rem;
 
-  #blogContent a:hover,
-  .prose a:hover {
-    @apply text-red-400;
-    background-size: 100% 2px;
-  }
+  /* Code-block surface — pulled away from the page bg toward a warmer
+     parchment so the block reads as a printed-paper inset rather than
+     blending into the page. */
+  --code-surface: #ebe2c9;
+  /* Default code ink softened from full ink so colored tokens carry the
+     visual weight; pure black-on-cream made every line feel equally
+     loud and drowned out the syntax colors. */
+  --code-default-ink: #3a3225;
 
-  /* Alternative: Blue accent for better readability on dark background */
-  .prose-blue a {
-    @apply font-semibold text-blue-400 no-underline relative transition-all;
-    background-image: linear-gradient(to right, currentColor, currentColor);
-    background-size: 0% 2px;
-    background-position: left bottom;
-    background-repeat: no-repeat;
-    padding-bottom: 2px;
-  }
+  background: var(--blog-bg);
+  color: var(--blog-ink);
+  font-family: var(--font-serif);
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
 
-  .prose-blue a:hover {
-    @apply text-blue-300;
-    background-size: 100% 2px;
-  }
+.dark .editorial-theme {
+  /* midnight ink (dark) */
+  --blog-bg: #13110f;
+  --blog-surface: #1c1916;
+  --blog-ink: #e8e2d5;
+  --blog-muted: #928876;
+  --blog-rule: #2a2520;
+  --blog-accent: #d98b6e;
+  --blog-accent-soft: #e6a791;
 
-  #blogContent pre div {
-    @apply rounded bg-accent-foreground;
-  }
+  /* Code surface — distinctly darker than the body bg but not so deep
+     that the contrast becomes harsh. The previous #0d0b09 made every
+     token read as if it were straining against the ink. */
+  --code-surface: #1a1612;
 
-  #blogContent p > code {
-    @apply bg-white rounded px-1 py-0.5 mx-0.5 text-accent-foreground;
-  }
+  /* Default code text — bright enough that identifiers feel substantial
+     so token colors sit AT the same luminance band, not above it. */
+  --code-default-ink: #d6cdb8;
 
-  #blogContent strong {
-    @apply font-bold;
-  }
+  /* Token palette — moderate saturation, distinct hue families. Comments
+     stay luminance-matched to default ink (italic does the work) but
+     keywords, strings, functions all sit in clearly different hue
+     families against the cream default so the eye can parse them at a
+     glance. Editorial, not neon.
 
-  #blogContent ul {
-    @apply list-inside list-disc;
-  }
+     String green pushed cleaner/less yellow (sage was blending with
+     warm cream default ink). Function blue and keyword coral were both
+     called out as well-performing — leave alone. */
+  --syntax-comment: #b3a48d;
+  --syntax-keyword: #f0926d;
+  --syntax-string: #66cd99;
+  --syntax-function: #86b8e5;
+  --syntax-number: #ebbb78;
+  --syntax-punct: #bdb29d;
+  --syntax-tag: #f0926d;
+  --syntax-attr: #86b8e5;
+}
 
-  .clip-triangle {
-    clip-path: polygon(0 100%, 100% 0, 100% 100%);
+.blog-toggle {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--blog-rule);
+  border-radius: 999px;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blog-ink);
+  cursor: pointer;
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    background 200ms ease;
+}
+.blog-toggle:hover {
+  border-color: var(--blog-accent);
+  color: var(--blog-accent);
+}
+.blog-toggle:focus-visible {
+  outline: 2px solid var(--blog-accent);
+  outline-offset: 3px;
+  border-color: var(--blog-accent);
+}
+.blog-toggle:active {
+  transform: rotate(180deg);
+}
+.blog-toggle svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Site-wide focus-visible for navigation/brand/menu */
+.site-topbar .brand:focus-visible,
+.site-topbar nav.section-nav a:focus-visible,
+.site-topbar .menu-button:focus-visible,
+.site-mobile-sheet a:focus-visible,
+.blog-back-link:focus-visible,
+.home-section .head a.see-all:focus-visible,
+.project-row .row-links a:focus-visible,
+.site-footer a:focus-visible,
+.prose-editorial a:focus-visible,
+.blog-index-row a:focus-visible {
+  outline: 2px solid var(--blog-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Projects loading / error states */
+.projects-status {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--blog-muted);
+}
+.projects-status a {
+  color: var(--blog-accent);
+}
+
+/* Error pages */
+.error-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 60;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.018em;
+  color: var(--blog-ink);
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}
+.error-body {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.125rem;
+  color: var(--blog-muted);
+  margin-bottom: 1.5rem;
+}
+.error-stack {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: var(--blog-surface);
+  color: var(--blog-ink);
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+/* Back-link used in blog post footer */
+.blog-back-link {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blog-accent);
+  text-decoration: none;
+  margin-top: 0.75rem;
+  transition: color 180ms ease;
+}
+.blog-back-link:hover {
+  color: var(--blog-accent-soft);
+}
+
+/* Reading progress hairline */
+.blog-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  z-index: 50;
+  pointer-events: none;
+}
+.blog-progress > span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--blog-accent);
+  transition: width 80ms linear;
+}
+
+/* Reading column wrapper — 84ch ≈ 27% wider than the typographic ideal of 66ch,
+   trading a touch of optimal measure for a more substantial feeling at desktop. */
+.blog-page {
+  max-width: 84ch;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 5vw, 3rem)
+    clamp(3rem, 8vw, 6rem);
+}
+
+@media (min-width: 1100px) {
+  .blog-page {
+    padding-top: 5rem;
+    padding-bottom: 7rem;
   }
-  .clip-triangle-flip {
-    clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+/* ─── Index list ─── */
+
+.blog-index-intro {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 60;
+  font-weight: 500;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.018em;
+  color: var(--blog-ink);
+  margin-bottom: 0.5rem;
+  text-wrap: balance;
+}
+.blog-index-dek {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--blog-muted);
+  margin-bottom: 3rem;
+  max-width: 52ch;
+}
+.blog-index-rule {
+  height: 1px;
+  background: var(--blog-rule);
+  margin-bottom: 2.5rem;
+}
+.blog-index-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.blog-index-row {
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--blog-rule);
+}
+.blog-index-row:last-child {
+  border-bottom: none;
+}
+.blog-index-row a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.blog-index-row .meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  margin-bottom: 0.625rem;
+}
+.blog-index-row .title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 48;
+  font-weight: 500;
+  font-size: 1.875rem;
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  color: var(--blog-ink);
+  transition: color 200ms ease;
+  margin-bottom: 0.5rem;
+  text-wrap: balance;
+}
+.blog-index-row a:hover .title {
+  color: var(--blog-accent);
+}
+.blog-index-row .dek {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--blog-muted);
+  max-width: 56ch;
+}
+
+.blog-empty-note {
+  border: 1px solid var(--blog-rule);
+  background: var(--blog-surface);
+  padding: 1.5rem 1.75rem;
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  color: var(--blog-ink);
+}
+.blog-empty-note h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.blog-empty-note p {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--blog-muted);
+}
+
+/* ─── Post hero ─── */
+
+.blog-post-hero {
+  margin-bottom: 2.75rem;
+}
+.blog-post-hero .dateline {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: blogFadeIn 220ms ease 0ms forwards;
+}
+.blog-post-hero h1 {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72;
+  font-weight: 600;
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--blog-ink);
+  margin-bottom: 1.25rem;
+  text-wrap: balance;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: blogRiseIn 360ms cubic-bezier(0.2, 0.7, 0.2, 1) 80ms forwards;
+}
+.blog-post-hero .dek {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--blog-muted);
+  margin-bottom: 2rem;
+  max-width: 52ch;
+  text-wrap: balance;
+  opacity: 0;
+  animation: blogFadeIn 320ms ease 200ms forwards;
+}
+.blog-post-hero .rule {
+  height: 1px;
+  background: var(--blog-rule);
+  width: 0;
+  animation: blogRuleGrow 420ms cubic-bezier(0.2, 0.7, 0.2, 1) 320ms forwards;
+}
+
+.blog-post-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--blog-rule);
+}
+.blog-post-footer .dateline {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+}
+
+/* ─── Prose (article body) ─── */
+
+.prose-editorial {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  letter-spacing: -0.003em;
+  color: var(--blog-ink);
+  font-feature-settings: "kern", "liga";
+  opacity: 0;
+  animation: blogFadeIn 480ms ease 400ms forwards;
+}
+.prose-editorial p,
+.prose-editorial blockquote,
+.prose-editorial li {
+  font-feature-settings: "kern", "liga", "onum";
+}
+
+@media (max-width: 640px) {
+  .prose-editorial {
+    font-size: 1.0625rem;
+    line-height: 1.65;
   }
+}
+
+.prose-editorial > * + * {
+  margin-top: 1.1em;
+}
+
+.prose-editorial p {
+  text-wrap: pretty;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+.prose-editorial h2 {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 36;
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--blog-ink);
+  margin-top: 2.5em;
+  margin-bottom: 0.6em;
+  text-wrap: balance;
+}
+
+.prose-editorial h3 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.375rem;
+  line-height: 1.3;
+  color: var(--blog-ink);
+  margin-top: 2em;
+  margin-bottom: 0.4em;
+}
+
+.prose-editorial h4 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.4;
+  color: var(--blog-ink);
+  margin-top: 1.6em;
+  margin-bottom: 0.3em;
+}
+
+.prose-editorial a {
+  color: var(--blog-accent);
+  font-weight: 500;
+  text-decoration: none;
+  background-image: linear-gradient(to right, currentColor, currentColor);
+  background-size: 100% 1px;
+  background-position: 0 95%;
+  background-repeat: no-repeat;
+  padding-bottom: 1px;
+  transition: color 180ms ease;
+}
+.prose-editorial a:hover {
+  color: var(--blog-accent-soft);
+}
+
+.prose-editorial strong {
+  font-weight: 600;
+  color: var(--blog-ink);
+}
+
+.prose-editorial em {
+  font-style: italic;
+}
+
+.prose-editorial blockquote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--blog-ink);
+  border-left: 2px solid var(--blog-accent);
+  padding: 0.5em 0 0.5em 1.25em;
+  margin: 2em 0;
+  text-wrap: pretty;
+}
+@media (max-width: 640px) {
+  .prose-editorial blockquote {
+    font-size: 1.125rem;
+  }
+}
+.prose-editorial blockquote p {
+  margin: 0;
+}
+
+.prose-editorial ul,
+.prose-editorial ol {
+  padding-left: 1.4em;
+}
+.prose-editorial li {
+  margin-top: 0.4em;
+}
+.prose-editorial li::marker {
+  color: var(--blog-muted);
+}
+
+.prose-editorial hr {
+  border: none;
+  text-align: center;
+  margin: 2.5em 0;
+  color: var(--blog-muted);
+  font-family: var(--font-display);
+}
+.prose-editorial hr::before {
+  content: "❦";
+  font-size: 1.25rem;
+}
+
+/* Inline code — tinted accent tag, set off from running prose without
+   creating a heavy box. Uses the accent color so snippets feel like
+   technical artifacts woven into the sentence rather than ghosted blocks. */
+.prose-editorial :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--blog-accent) 10%, transparent);
+  color: var(--blog-accent);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  word-break: break-word;
+}
+/* Slightly stronger background in dark mode so the tint reads against
+   the warmer ink ground. */
+.dark .prose-editorial :not(pre) > code {
+  background: color-mix(in srgb, var(--blog-accent) 14%, transparent);
+}
+/* When inline code lives inside a link, defer to the link's underline
+   treatment but keep the tag affordance. */
+.prose-editorial a > code {
+  color: inherit;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* Code blocks (rendered via react-syntax-highlighter into <pre><code>) */
+/* Code block — flat tinted strip, not a card. No border, no rounded
+   corners; bleeds slightly past the reading column on desktop so the
+   code has more horizontal room than the prose. Edge-to-edge on mobile. */
+/* No !important needed — useInlineStyles={false} + empty
+   style/customStyle/codeTagProps in $slug.tsx already prevent
+   react-syntax-highlighter from inlining anything on <pre>, so these
+   declarations win on specificity alone.
+
+   If react-syntax-highlighter ever changes how it merges styles, or
+   the <SyntaxHighlighter> call site loses any of those props, the
+   library would inline default Prism styles (color:black, Consolas
+   font) on <code>/<pre> at higher specificity than these rules. The
+   visible signal would be the JetBrains Mono falling back to Consolas
+   and the dark code block losing its custom token coloring. */
+.prose-editorial pre,
+.prose-editorial pre[class*="language-"] {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  background: var(--code-surface);
+  color: var(--code-default-ink);
+  padding: 1em 1.25em;
+  margin: 1.6em -1.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+/* The <code> wrapper inside <pre> from react-syntax-highlighter must
+   inherit our editorial typography and not create its own scroll. */
+.prose-editorial pre > code,
+.prose-editorial pre code[class*="language-"] {
+  display: block;
+  overflow: visible;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-shadow: none;
+  white-space: pre;
+}
+@media (max-width: 640px) {
+  .prose-editorial pre,
+  .prose-editorial pre[class*="language-"] {
+    margin-left: -1.25rem;
+    margin-right: -1.25rem;
+    padding: 0.875em 1.25em;
+  }
+}
+
+/* Prism token colors driven by our theme variables */
+.prose-editorial pre .token.comment,
+.prose-editorial pre .token.prolog,
+.prose-editorial pre .token.cdata {
+  color: var(--syntax-comment);
+  font-style: italic;
+  font-weight: 500;
+}
+.prose-editorial pre .token.keyword,
+.prose-editorial pre .token.boolean,
+.prose-editorial pre .token.constant,
+.prose-editorial pre .token.symbol,
+.prose-editorial pre .token.deleted,
+.prose-editorial pre .token.builtin {
+  color: var(--syntax-keyword);
+}
+.prose-editorial pre .token.string,
+.prose-editorial pre .token.char,
+.prose-editorial pre .token.attr-value,
+.prose-editorial pre .token.regex,
+.prose-editorial pre .token.inserted,
+.prose-editorial pre .token.url {
+  color: var(--syntax-string);
+}
+.prose-editorial pre .token.function,
+.prose-editorial pre .token.class-name {
+  color: var(--syntax-function);
+}
+.prose-editorial pre .token.number {
+  color: var(--syntax-number);
+}
+.prose-editorial pre .token.punctuation,
+.prose-editorial pre .token.operator {
+  color: var(--syntax-punct);
+}
+.prose-editorial pre .token.tag,
+.prose-editorial pre .token.selector {
+  color: var(--syntax-tag);
+}
+.prose-editorial pre .token.attr-name,
+.prose-editorial pre .token.property {
+  color: var(--syntax-attr);
+}
+.prose-editorial pre .linenumber,
+.prose-editorial pre .react-syntax-highlighter-line-number {
+  display: inline-block;
+  color: var(--blog-muted);
+  opacity: 0.55;
+  font-style: normal;
+  min-width: 2.25em;
+  padding-right: 1em;
+  text-align: right;
+  user-select: none;
+}
+
+/* Drop cap on long posts — kept on Fraunces, the one place its character earns it.
+   font-style: italic is required because the Google Fonts URL only loads
+   Fraunces' italic axis (`ital@1`); without this declaration the browser
+   falls back to Newsreader/Georgia. */
+.prose-editorial[data-long="true"] > p:first-of-type::first-letter {
+  font-family: var(--font-display-italic);
+  font-style: italic;
+  font-variation-settings: "opsz" 144;
+  font-weight: 700;
+  float: left;
+  font-size: 4.4em;
+  line-height: 0.86;
+  padding: 0.08em 0.08em 0 0;
+  margin-right: 0.05em;
+  color: var(--blog-accent);
+}
+@media (max-width: 640px) {
+  .prose-editorial[data-long="true"] > p:first-of-type::first-letter {
+    font-size: 3.6em;
+  }
+}
+
+/* Figures */
+.prose-editorial figure {
+  margin: 2em 0;
+}
+.prose-editorial figure img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+.prose-editorial figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--blog-muted);
+  margin-top: 0.6em;
+  text-align: center;
+}
+
+/* External link icon — recolor for editorial accent */
+.prose-editorial a[target="_blank"]::after {
+  background-color: currentColor;
+  opacity: 0.7;
+}
+
+/* Editorial keyframes */
+@keyframes blogFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes blogRiseIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes blogRuleGrow {
+  to {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-post-hero .dateline,
+  .blog-post-hero h1,
+  .blog-post-hero .dek,
+  .prose-editorial {
+    opacity: 1;
+    animation: none;
+    transform: none;
+  }
+  .blog-post-hero .rule {
+    width: 100%;
+    animation: none;
+  }
+  .blog-toggle,
+  .blog-toggle:active {
+    transition: none;
+    transform: none;
+  }
+  .blog-progress > span {
+    transition: none;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Site chrome — TopBar (replaces sidebar)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.site-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: var(--topbar-height);
+  padding: 0.875rem clamp(1.25rem, 5vw, 3rem);
+  background: color-mix(in srgb, var(--blog-bg) 92%, transparent);
+  backdrop-filter: saturate(160%) blur(8px);
+  -webkit-backdrop-filter: saturate(160%) blur(8px);
+  border-bottom: 1px solid var(--blog-rule);
+}
+
+.site-topbar .brand {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-ink);
+  text-decoration: none;
+  transition: color 200ms ease;
+  white-space: nowrap;
+}
+.site-topbar .brand:hover {
+  color: var(--blog-accent);
+}
+
+.site-topbar nav.section-nav {
+  display: none;
+  gap: 1.5rem;
+  margin-left: 2rem;
+}
+@media (min-width: 720px) {
+  .site-topbar nav.section-nav {
+    display: flex;
+  }
+}
+
+.site-topbar nav.section-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  text-decoration: none;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid transparent;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
+}
+.site-topbar nav.section-nav a:hover {
+  color: var(--blog-ink);
+}
+.site-topbar nav.section-nav a[aria-current="page"] {
+  color: var(--blog-accent);
+  border-bottom-color: var(--blog-accent);
+}
+
+.site-topbar .spacer {
+  flex: 1;
+}
+
+/* Mobile menu — small inline sheet under 720px */
+.site-topbar .menu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0 0.75rem;
+  border-radius: 4px;
+}
+.site-topbar .menu-button:hover {
+  color: var(--blog-ink);
+}
+@media (min-width: 720px) {
+  .site-topbar .menu-button {
+    display: none;
+  }
+}
+
+.site-mobile-sheet {
+  position: fixed;
+  inset: var(--topbar-height) 0 auto 0;
+  z-index: 29;
+  background: var(--blog-bg);
+  border-bottom: 1px solid var(--blog-rule);
+  padding: 1rem clamp(1.25rem, 5vw, 3rem) 1.5rem;
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+.site-mobile-sheet.is-open {
+  display: flex;
+}
+.site-mobile-sheet a {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  text-decoration: none;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--blog-rule);
+}
+.site-mobile-sheet a[aria-current="page"] {
+  color: var(--blog-accent);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Plate — editorial photograph treatment (sparing, deliberate)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.plate {
+  margin: 0;
+  display: block;
+}
+.plate-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--blog-surface);
+  box-shadow:
+    inset 0 0 0 1px var(--blog-rule),
+    0 1px 0 0 color-mix(in srgb, var(--blog-rule) 60%, transparent);
+}
+.plate-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: saturate(0.78) contrast(1.04);
+  transition: filter 600ms ease;
+}
+/* Markdown images come through the <Plate> renderer with no width/height
+   attrs (the AST doesn't carry them). Reserve space with a sensible
+   default aspect ratio so the page doesn't shift when the image loads.
+   Explicit width/height on the hero plate take precedence.
+   Tradeoff: portrait or square images without explicit dimensions
+   will be cropped to 16:9 by object-fit: cover. Acceptable for
+   editorial hero/inline shots; if a post needs a portrait plate,
+   pass width/height props to override this rule. */
+.plate-frame img:not([width]):not([height]) {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.dark .plate-frame img {
+  filter: saturate(0.7) contrast(1.05) brightness(0.92);
+}
+.plate-caption {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  margin-top: 0.875rem;
+  text-align: center;
+}
+.plate-caption .sep {
+  margin: 0 0.4em;
+  opacity: 0.7;
+}
+.plate-caption .credit {
+  text-transform: none;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--blog-muted) 70%, transparent);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Home cover
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.home-cover {
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 5vw, 3rem)
+    clamp(3rem, 8vw, 6rem);
+}
+
+.home-dateline {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  margin-bottom: 1.5rem;
+}
+
+.home-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72;
+  font-weight: 500;
+  font-size: clamp(2.5rem, 6vw, 4.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+  color: var(--blog-ink);
+  margin-bottom: 1rem;
+  text-wrap: balance;
+}
+
+.home-dek {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--blog-muted);
+  margin-bottom: 2.5rem;
+  max-width: 52ch;
+  text-wrap: pretty;
+}
+
+.home-hero-plate {
+  margin: 2rem 0 3.5rem;
+}
+
+@media (min-width: 1100px) {
+  .home-cover {
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    grid-template-areas:
+      "text plate"
+      "sections sections";
+    column-gap: clamp(2rem, 5vw, 4rem);
+    row-gap: 4rem;
+    padding-left: clamp(2rem, 6vw, 5rem);
+    padding-right: clamp(2rem, 6vw, 5rem);
+  }
+  .home-cover > .home-text {
+    grid-area: text;
+    align-self: end;
+    max-width: 28em;
+  }
+  .home-cover > .home-hero-plate {
+    grid-area: plate;
+    align-self: end;
+    margin: 0;
+  }
+  .home-cover > .home-sections {
+    grid-area: sections;
+    max-width: 84ch;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+.home-section {
+  margin-top: 3.5rem;
+}
+.home-section .head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--blog-rule);
+}
+.home-section .head h2 {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 36;
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: -0.012em;
+  color: var(--blog-ink);
+  margin: 0;
+}
+.home-section .head a.see-all {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-accent);
+  text-decoration: none;
+}
+.home-section .head a.see-all:hover {
+  color: var(--blog-accent-soft);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   ProjectRow — editorial project list item
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.project-row {
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--blog-rule);
+}
+.project-row:last-child {
+  border-bottom: none;
+}
+
+.project-row .row-screenshot {
+  display: block;
+  margin-bottom: 1.25rem;
+  background: var(--blog-surface);
+  box-shadow:
+    inset 0 0 0 1px var(--blog-rule),
+    0 1px 0 0 color-mix(in srgb, var(--blog-rule) 60%, transparent);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.project-row .row-screenshot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: center top;
+  filter: saturate(0.82) contrast(1.03);
+  transition: filter 320ms ease;
+}
+.project-row .row-screenshot:hover img {
+  filter: saturate(1) contrast(1);
+}
+.project-row .row-screenshot:focus-visible {
+  outline: 2px solid var(--blog-accent);
+  outline-offset: 3px;
+}
+
+@media (min-width: 760px) {
+  .project-row.has-screenshot {
+    display: grid;
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+    gap: 1.75rem;
+    align-items: start;
+  }
+  .project-row.has-screenshot .row-screenshot {
+    margin-bottom: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-row .row-screenshot,
+  .project-row .row-screenshot img {
+    transition: none;
+  }
+}
+
+.project-row .row-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 36;
+  font-weight: 500;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--blog-ink);
+  margin-bottom: 0.4rem;
+}
+.project-row .row-dek {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: var(--blog-muted);
+  margin-bottom: 0.75rem;
+  max-width: 56ch;
+}
+.project-row .row-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.project-row .row-links a {
+  color: var(--blog-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 180ms ease;
+}
+.project-row .row-links a:hover {
+  border-bottom-color: var(--blog-accent);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Site footer
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.site-footer {
+  max-width: 72ch;
+  margin: 4rem auto 0;
+  padding: 2rem clamp(1.25rem, 5vw, 3rem) 3rem;
+  border-top: 1px solid var(--blog-rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+}
+.site-footer a {
+  color: var(--blog-muted);
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+.site-footer a:hover {
+  color: var(--blog-accent);
+}
+.site-footer .footer-links {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }

@@ -8,9 +8,7 @@ import {
   isRouteErrorResponse,
 } from "react-router";
 
-import { AppHeader, type BlogTopics } from "~/components/app-header";
-import { AppSidebar } from "~/components/app-sidebar/app-sidebar";
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { TopBar } from "~/components/site/top-bar";
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
 
 import type { Route } from "./+types/root";
@@ -32,26 +30,25 @@ export const links: Route.LinksFunction = () => {
     },
     {
       rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap",
+      href: "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap",
     },
     { rel: "stylesheet", href: styles },
   ];
 };
 
 export async function loader() {
-  const blogPosts = await getCachedBlogPosts();
-
-  return blogPosts.map((blog) => ({
-    title: blog.fields.title,
-    date: new Date(blog.fields.publishDate)
-      .toLocaleDateString("en-us", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
-      .toString(),
-    link: blog.fields.slug,
-  }));
+  try {
+    const blogPosts = await getCachedBlogPosts();
+    return blogPosts.map((blog) => ({
+      title: blog.fields.title,
+      description: blog.fields.description ?? undefined,
+      slug: blog.fields.slug,
+      publishDate: blog.fields.publishDate,
+    }));
+  } catch (error) {
+    console.error("Root loader: failed to load blog posts", error);
+    return [];
+  }
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -62,6 +59,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* Render-blocking on purpose: must run synchronously before
+            first paint to set the .dark class. defer/async would defeat
+            the no-flash guarantee. */}
+        <script src="/theme-init.js" />
       </head>
       <body className={"min-w-(--min-width) min-h-screen"}>
         {children}
@@ -72,11 +73,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
+export default function App() {
   return (
-    <Template blogPosts={loaderData}>
+    <Shell>
       <Outlet />
-    </Template>
+    </Shell>
   );
 }
 
@@ -97,34 +98,25 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <Template>
-      <main className="pt-16 p-4 container mx-auto">
-        <h1>{message}</h1>
-        <p>{details}</p>
-        {stack && (
-          <pre className="w-full p-4 overflow-x-auto">
+    <Shell>
+      <main className="blog-page error-page">
+        <h1 className="error-title">{message}</h1>
+        <p className="error-body">{details}</p>
+        {stack ? (
+          <pre className="error-stack">
             <code>{stack}</code>
           </pre>
-        )}
+        ) : null}
       </main>
-    </Template>
+    </Shell>
   );
 }
 
-function Template({
-  children,
-  blogPosts,
-}: {
-  children: React.ReactNode;
-  blogPosts?: BlogTopics[];
-}) {
+function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider className="flex flex-col">
-      <AppHeader blogs={blogPosts} />
-      <div className="flex flex-1">
-        <AppSidebar />
-        <SidebarInset className="bg-black">{children}</SidebarInset>
-      </div>
-    </SidebarProvider>
+    <div className="editorial-theme">
+      <TopBar />
+      {children}
+    </div>
   );
 }

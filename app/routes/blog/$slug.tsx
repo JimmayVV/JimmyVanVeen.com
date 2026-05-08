@@ -1,18 +1,17 @@
-// Libs
+import * as React from "react";
 import ReactMarkdown from "react-markdown";
-import { redirect } from "react-router";
+import { Link, redirect } from "react-router";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-import { format } from "date-fns";
 import rehypeExternalLinks from "rehype-external-links";
 
-import ContentCards, { ContentCard } from "~/components/content-cards";
-// Components
-import GradientBanner from "~/components/gradient-banner";
+import { PostFooter } from "~/components/blog/post-footer";
+import { PostHero } from "~/components/blog/post-hero";
+import { ReadingProgress } from "~/components/blog/reading-progress";
+import { Plate } from "~/components/site/plate";
 import { trackPageView } from "~/utils/analytics-loader";
-// Utils
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
+import { readingStats } from "~/utils/reading-time";
 
 import type { Route } from "./+types/$slug";
 
@@ -21,17 +20,15 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   try {
     return await getCachedBlogPostBySlug(slug);
-  } catch (_error) {
-    // If blog post not found, redirect to blog index
+  } catch (error) {
+    console.error("Failed to load blog post", { slug, error });
     return redirect("/blog", { status: 302 });
   }
 }
 
-// Add analytics tracking to this route
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   const result = await serverLoader();
 
-  // Track page view in background
   trackPageView().catch((error) => {
     console.warn("Analytics tracking failed:", error);
   });
@@ -40,51 +37,112 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 }
 clientLoader.hydrate = true;
 
-export default function Index({ loaderData: blog }: Route.ComponentProps) {
+export function ErrorBoundary() {
   return (
-    <div className="min-h-screen bg-black">
-      <GradientBanner>
-        <h2 className="border-b-2 border-b-zinc-500/50 text-4xl mb-6 pb-4 leading-[60px] font-bold tracking-widest">
-          {blog.fields.title}
-        </h2>
-        <p className="leading-8 tracking-widest">{blog.fields.description}</p>
-      </GradientBanner>
+    <main className="blog-page">
+      <h1 className="error-title">Couldn&rsquo;t load that post</h1>
+      <p className="error-body">
+        Something went wrong fetching this post. The post index has the latest
+        list either way.
+      </p>
+      <Link to="/blog" className="blog-back-link" prefetch="intent">
+        ← All posts
+      </Link>
+    </main>
+  );
+}
 
-      <ContentCards spacing="space-y-8 -mt-40 relative z-10">
-        <ContentCard>
-          <div id="blogContent" className="prose prose-invert max-w-none">
-            <ReactMarkdown
-              components={{
-                code({ node: _node, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className ?? "");
-                  return match ? (
-                    <SyntaxHighlighter
-                      showLineNumbers
-                      language={match[1]}
-                      style={vscDarkPlus}
-                      PreTag="div"
-                    >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
-              rehypePlugins={[[rehypeExternalLinks, { target: "_blank" }]]}
-            >
-              {blog.fields.body}
-            </ReactMarkdown>
-          </div>
+export default function Post({ loaderData: blog }: Route.ComponentProps) {
+  const body = blog.fields.body;
+  // Memoize the regex chain so re-renders don't re-walk the full post.
+  const { minutes, long } = React.useMemo(() => readingStats(body), [body]);
 
-          <h3 className="mb-6 mt-10 pt-9 font-sans font-bold italic underline text-lg border-t-2 border-zinc-700">
-            Posted on{" "}
-            {format(new Date(blog.fields.publishDate), "MMMM dd, yyyy")}
-          </h3>
-        </ContentCard>
-      </ContentCards>
-    </div>
+  return (
+    <>
+      <ReadingProgress />
+      <main className="blog-page">
+        <PostHero
+          title={blog.fields.title}
+          publishDate={blog.fields.publishDate}
+          description={blog.fields.description}
+          readingMinutes={minutes}
+        />
+
+        <article
+          className="prose-editorial"
+          data-long={long ? "true" : undefined}
+        >
+          <ReactMarkdown
+            components={{
+              img({ src, alt, title }) {
+                if (!src || typeof src !== "string") return null;
+                return (
+                  <Plate
+                    src={src}
+                    alt={alt ?? ""}
+                    caption={title ?? undefined}
+                  />
+                );
+              },
+              // ReactMarkdown wraps fenced code in <pre> by default. We
+              // also have <SyntaxHighlighter PreTag="pre"> rendering its
+              // own <pre>. For language-tagged code we unwrap (let
+              // SyntaxHighlighter own the <pre>) — that's how we avoid
+              // nested-pre / double scrollbars. For untagged blocks we
+              // keep the <pre> so the semantics aren't lost.
+              //
+              // This is fragile against future ReactMarkdown changes to
+              // its AST shape; if that ever breaks the type guard below,
+              // language-tagged blocks would silently double-wrap again.
+              // Worth re-evaluating when react-markdown ships native
+              // syntax-highlighting support and we can drop the
+              // SyntaxHighlighter component entirely.
+              pre({ children, ...props }) {
+                if (React.isValidElement(children)) {
+                  const childProps = children.props as Record<string, unknown>;
+                  const className = childProps.className;
+                  if (
+                    typeof className === "string" &&
+                    /language-/.test(className)
+                  ) {
+                    return <>{children}</>;
+                  }
+                }
+                return <pre {...props}>{children}</pre>;
+              },
+              code({ node: _node, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className ?? "");
+                return match ? (
+                  <SyntaxHighlighter
+                    showLineNumbers
+                    useInlineStyles={false}
+                    language={match[1]}
+                    PreTag="pre"
+                    // Empty style + customStyle + codeTagProps suppress
+                    // the library's default inline `color:black;
+                    // font-family:Consolas; background:none` on the
+                    // <code> wrapper, which was overriding our CSS.
+                    style={{}}
+                    customStyle={{}}
+                    codeTagProps={{ style: {} }}
+                  >
+                    {String(children).replace(/\n$/, "")}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                );
+              },
+            }}
+            rehypePlugins={[[rehypeExternalLinks, { target: "_blank" }]]}
+          >
+            {body}
+          </ReactMarkdown>
+        </article>
+
+        <PostFooter publishDate={blog.fields.publishDate} />
+      </main>
+    </>
   );
 }
