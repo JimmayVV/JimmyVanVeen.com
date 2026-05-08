@@ -7,6 +7,7 @@ import rehypeExternalLinks from "rehype-external-links";
 import { PostFooter } from "~/components/blog/post-footer";
 import { PostHero } from "~/components/blog/post-hero";
 import { ReadingProgress } from "~/components/blog/reading-progress";
+import { Plate } from "~/components/site/plate";
 import { trackPageView } from "~/utils/analytics-loader";
 import { editorialPrismStyle } from "~/utils/code-theme";
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
@@ -60,6 +61,12 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
         >
           <ReactMarkdown
             components={{
+              img({ src, alt, title }) {
+                if (!src || typeof src !== "string") return null;
+                return (
+                  <Plate src={src} alt={alt ?? ""} caption={title || alt} />
+                );
+              },
               code({ node: _node, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className ?? "");
                 return match ? (

@@ -6,12 +6,9 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
-  useLocation,
 } from "react-router";
 
-import { AppHeader, type BlogTopics } from "~/components/app-header";
-import { AppSidebar } from "~/components/app-sidebar/app-sidebar";
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { TopBar } from "~/components/site/top-bar";
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
 
 import type { Route } from "./+types/root";
@@ -33,7 +30,7 @@ export const links: Route.LinksFunction = () => {
     },
     {
       rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,30;1,9..144,300..900,30&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap",
+      href: "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=Fraunces:ital,opsz,wght@1,9..144,300..700&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap",
     },
     { rel: "stylesheet", href: styles },
   ];
@@ -44,14 +41,9 @@ export async function loader() {
 
   return blogPosts.map((blog) => ({
     title: blog.fields.title,
-    date: new Date(blog.fields.publishDate)
-      .toLocaleDateString("en-us", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
-      .toString(),
-    link: blog.fields.slug,
+    description: blog.fields.description ?? "",
+    slug: blog.fields.slug,
+    publishDate: blog.fields.publishDate,
   }));
 }
 
@@ -74,11 +66,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
+export default function App() {
   return (
-    <Template blogPosts={loaderData}>
+    <Shell>
       <Outlet />
-    </Template>
+    </Shell>
   );
 }
 
@@ -99,41 +91,42 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <Template>
-      <main className="pt-16 p-4 container mx-auto">
-        <h1>{message}</h1>
-        <p>{details}</p>
-        {stack && (
-          <pre className="w-full p-4 overflow-x-auto">
+    <Shell>
+      <main className="blog-page">
+        <h1
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(2rem, 5vw, 3.5rem)",
+            fontWeight: 500,
+            marginBottom: "1rem",
+          }}
+        >
+          {message}
+        </h1>
+        <p
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            color: "var(--blog-muted)",
+          }}
+        >
+          {details}
+        </p>
+        {stack ? (
+          <pre className="prose-editorial">
             <code>{stack}</code>
           </pre>
-        )}
+        ) : null}
       </main>
-    </Template>
+    </Shell>
   );
 }
 
-function Template({
-  children,
-  blogPosts,
-}: {
-  children: React.ReactNode;
-  blogPosts?: BlogTopics[];
-}) {
-  const location = useLocation();
-  const isBlogRoute = location.pathname.startsWith("/blog");
-
-  if (isBlogRoute) {
-    return <div className="min-h-screen">{children}</div>;
-  }
-
+function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider className="flex flex-col">
-      <AppHeader blogs={blogPosts} />
-      <div className="flex flex-1">
-        <AppSidebar />
-        <SidebarInset className="bg-black">{children}</SidebarInset>
-      </div>
-    </SidebarProvider>
+    <div className="editorial-theme">
+      <TopBar />
+      {children}
+    </div>
   );
 }
