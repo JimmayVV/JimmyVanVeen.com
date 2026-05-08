@@ -6,8 +6,13 @@ function wordCount(markdown: string | undefined | null): number {
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/`[^`]*`/g, " ")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, " $1 ")
-    .replace(/^[-*>] /gm, " ")
-    .replace(/[#*_~]/g, " ");
+    // Strip list markers at the start of lines: '- ', '* ', '> ', and
+    // numbered '1. ' / '12. ' (any digit run followed by '. ').
+    .replace(/^(?:[-*>]|\d+\.)\s/gm, " ")
+    // Strip the rest of the markdown punctuation. '_' is omitted on
+    // purpose so identifiers like `super_fast` stay one word; same for
+    // '#' so 'C#' stays intact.
+    .replace(/[*~]/g, " ");
   return stripped.split(/\s+/).filter(Boolean).length;
 }
 

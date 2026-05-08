@@ -28,7 +28,7 @@ export function Plate({
           width={width}
           height={height}
           loading={priority ? "eager" : "lazy"}
-          fetchPriority={priority ? "high" : "auto"}
+          fetchPriority={priority ? "high" : undefined}
           decoding="async"
         />
       </div>

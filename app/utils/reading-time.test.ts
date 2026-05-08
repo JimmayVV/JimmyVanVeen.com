@@ -59,6 +59,20 @@ describe("readingStats", () => {
     expect(words).toBe(6);
   });
 
+  it("strips numbered list markers", () => {
+    const md = ["1. first item", "2. second item", "12. twelfth item"].join(
+      "\n",
+    );
+    const { words } = readingStats(md);
+    expect(words).toBe(6);
+  });
+
+  it("preserves identifiers with underscores and hash characters", () => {
+    const { words } = readingStats("Use super_fast and C# in your code");
+    // Use, super_fast, and, C#, in, your, code
+    expect(words).toBe(7);
+  });
+
   it("flags long posts at the 400-word threshold", () => {
     const shortPost = "word ".repeat(399).trim();
     const longPost = "word ".repeat(400).trim();

@@ -63,6 +63,9 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 clientLoader.hydrate = true;
 
 export default function Index({ loaderData: repos }: Route.ComponentProps) {
+  // Couples this page to the shape returned by app/root.tsx's loader
+  // ({ title, description, slug, publishDate }). If that loader's
+  // shape changes, update the "Recent writing" rendering below.
   const rootData = useRouteLoaderData<typeof rootLoader>("root");
   const recentPosts = (rootData ?? []).slice(0, 3);
 
