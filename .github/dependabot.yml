@@ -49,7 +49,8 @@ updates:
       # the rule is addressed.
       - dependency-name: "eslint-plugin-react-hooks"
         update-types:
-          ["version-update:semver-minor", "version-update:semver-major"]
+          - "version-update:semver-minor"
+          - "version-update:semver-major"
 
       # @types/node tracks Node LTS (22). Skip non-LTS jumps to 25/27/etc.
       - dependency-name: "@types/node"
