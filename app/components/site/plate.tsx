@@ -29,7 +29,7 @@ export function Plate({
           height={height}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
-          decoding={priority ? "sync" : "async"}
+          decoding="async"
         />
       </div>
       {caption || credit ? (

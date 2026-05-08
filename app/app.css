@@ -287,8 +287,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
    Typography-first reading experience. Two true themes: paper / midnight ink.
    ─────────────────────────────────────────────────────────────────────────── */
 
-.editorial-theme,
-.blog-theme {
+.editorial-theme {
   /* paper (light) */
   --paper-bg: #f7f4ec;
   --paper-surface: #efeae0;
@@ -316,6 +315,12 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   --blog-accent: var(--paper-accent);
   --blog-accent-soft: var(--paper-accent-soft);
 
+  /* Code-block surface — for light mode the existing paper-surface
+     already provides sufficient contrast against the page; aliased here
+     so the dark override in `.dark .editorial-theme` can swap a deeper
+     value without touching the rule that consumes it. */
+  --code-surface: var(--paper-surface);
+
   background: var(--blog-bg);
   color: var(--blog-ink);
   font-family: var(--font-serif);
@@ -325,8 +330,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   min-height: 100vh;
 }
 
-.dark .editorial-theme,
-.dark .blog-theme {
+.dark .editorial-theme {
   /* midnight ink (dark) */
   --blog-bg: #13110f;
   --blog-surface: #1c1916;
@@ -336,14 +340,23 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   --blog-accent: #d98b6e;
   --blog-accent-soft: #e6a791;
 
-  --syntax-comment: #7a7060;
-  --syntax-keyword: #d98b6e;
-  --syntax-string: #9dbe8a;
-  --syntax-function: #8da9c4;
-  --syntax-number: #d9b375;
-  --syntax-punct: #928876;
-  --syntax-tag: #d98b6e;
-  --syntax-attr: #8da9c4;
+  /* Code-block surface is a separate, more contrasted token from the
+     body --blog-surface (which is also used for inline-code, plate
+     frames, etc). The block needs more presence than the page so tokens
+     have something to read against. */
+  --code-surface: #0d0b09;
+
+  /* Token palette tuned for the cream body color (#e8e2d5). Each hue
+     family is bumped in saturation/lightness from the previous pass so
+     keywords / strings / functions actually separate visually. */
+  --syntax-comment: #8e8270;
+  --syntax-keyword: #ef9b81;
+  --syntax-string: #b9d4a0;
+  --syntax-function: #a8c1dc;
+  --syntax-number: #edc28d;
+  --syntax-punct: #a89d88;
+  --syntax-tag: #ef9b81;
+  --syntax-attr: #a8c1dc;
 }
 
 .blog-toggle {
@@ -390,6 +403,16 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   outline: 2px solid var(--blog-accent);
   outline-offset: 3px;
   border-radius: 2px;
+}
+
+/* Projects loading / error states */
+.projects-status {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--blog-muted);
+}
+.projects-status a {
+  color: var(--blog-accent);
 }
 
 /* Error pages */
@@ -799,8 +822,9 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   font-family: var(--font-mono) !important;
   font-size: 0.92rem !important;
   line-height: 1.6 !important;
-  background: var(--blog-surface) !important;
+  background: var(--code-surface) !important;
   color: var(--blog-ink) !important;
+  border: 1px solid var(--blog-rule);
   border-radius: 10px;
   padding: 1.25em 1.5em !important;
   margin: 1.6em 0;
@@ -957,6 +981,10 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
    Site chrome — TopBar (replaces sidebar)
    ─────────────────────────────────────────────────────────────────────────── */
 
+.editorial-theme {
+  --topbar-height: 3.5rem;
+}
+
 .site-topbar {
   position: sticky;
   top: 0;
@@ -964,6 +992,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  min-height: var(--topbar-height);
   padding: 0.875rem clamp(1.25rem, 5vw, 3rem);
   background: color-mix(in srgb, var(--blog-bg) 92%, transparent);
   backdrop-filter: saturate(160%) blur(8px);
@@ -1053,7 +1082,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 
 .site-mobile-sheet {
   position: fixed;
-  inset: 56px 0 auto 0;
+  inset: var(--topbar-height) 0 auto 0;
   z-index: 29;
   background: var(--blog-bg);
   border-bottom: 1px solid var(--blog-rule);
@@ -1257,7 +1286,10 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 .project-row .row-screenshot img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: center top;
   filter: saturate(0.82) contrast(1.03);
   transition: filter 320ms ease;
 }

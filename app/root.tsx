@@ -41,7 +41,7 @@ export async function loader() {
 
   return blogPosts.map((blog) => ({
     title: blog.fields.title,
-    description: blog.fields.description ?? "",
+    description: blog.fields.description ?? undefined,
     slug: blog.fields.slug,
     publishDate: blog.fields.publishDate,
   }));
@@ -55,6 +55,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* Render-blocking on purpose: must run synchronously before
+            first paint to set the .dark class. defer/async would defeat
+            the no-flash guarantee. */}
         <script src="/theme-init.js" />
       </head>
       <body className={"min-w-(--min-width) min-h-screen"}>

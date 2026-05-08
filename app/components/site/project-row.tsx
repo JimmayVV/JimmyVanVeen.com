@@ -13,23 +13,35 @@ export function ProjectRow({
   repoUrl,
   screenshotUrl,
 }: ProjectRowProps) {
+  const targetUrl = liveUrl ?? repoUrl;
   return (
     <article className={`project-row${screenshotUrl ? " has-screenshot" : ""}`}>
       {screenshotUrl ? (
-        <a
-          href={liveUrl ?? repoUrl ?? "#"}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`Open ${title}`}
-          className="row-screenshot"
-        >
-          <img
-            src={screenshotUrl}
-            alt={`Screenshot of ${title}`}
-            loading="lazy"
-            decoding="async"
-          />
-        </a>
+        targetUrl ? (
+          <a
+            href={targetUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Open ${title}`}
+            className="row-screenshot"
+          >
+            <img
+              src={screenshotUrl}
+              alt={`Screenshot of ${title}`}
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
+        ) : (
+          <div className="row-screenshot" aria-hidden="true">
+            <img
+              src={screenshotUrl}
+              alt={`Screenshot of ${title}`}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        )
       ) : null}
       <div className="row-body">
         <h3 className="row-title">{title}</h3>

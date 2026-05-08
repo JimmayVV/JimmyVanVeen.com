@@ -1,5 +1,5 @@
 import ReactMarkdown from "react-markdown";
-import { isRouteErrorResponse, redirect } from "react-router";
+import { Link, redirect } from "react-router";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import rehypeExternalLinks from "rehype-external-links";
@@ -20,11 +20,8 @@ export async function loader({ params }: Route.LoaderArgs) {
   try {
     return await getCachedBlogPostBySlug(slug);
   } catch (error) {
-    if (isRouteErrorResponse(error) && error.status === 404) {
-      return redirect("/blog", { status: 302 });
-    }
     console.error("Failed to load blog post", { slug, error });
-    throw error;
+    return redirect("/blog", { status: 302 });
   }
 }
 
@@ -38,6 +35,21 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   return result;
 }
 clientLoader.hydrate = true;
+
+export function ErrorBoundary() {
+  return (
+    <main className="blog-page">
+      <h1 className="error-title">Couldn&rsquo;t load that post</h1>
+      <p className="error-body">
+        Something went wrong fetching this post. The post index has the latest
+        list either way.
+      </p>
+      <Link to="/blog" className="blog-back-link" prefetch="intent">
+        ← All posts
+      </Link>
+    </main>
+  );
+}
 
 export default function Post({ loaderData: blog }: Route.ComponentProps) {
   const body = blog.fields.body;

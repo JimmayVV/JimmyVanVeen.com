@@ -1,13 +1,12 @@
 import * as React from "react";
 import { Await, Link, useRouteLoaderData } from "react-router";
 
-import { format, parseISO } from "date-fns";
-
 import { Plate } from "~/components/site/plate";
 import { ProjectRow } from "~/components/site/project-row";
 import type { loader as rootLoader } from "~/root";
 import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
+import { formatPostDate } from "~/utils/format-post-date";
 import { getRepositoriesByNodeId } from "~/utils/github";
 
 import type { Route } from "./+types/index";
@@ -108,7 +107,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
                 <li className="blog-index-row" key={post.slug}>
                   <Link to={`/blog/${post.slug}`} prefetch="intent">
                     <div className="meta">
-                      {format(parseISO(post.publishDate), "MMMM d, yyyy")}
+                      {formatPostDate(post.publishDate)}
                     </div>
                     <h3 className="title">{post.title}</h3>
                     {post.description ? (
@@ -160,36 +159,14 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
 }
 
 function ProjectsFallback() {
-  return (
-    <p
-      style={{
-        fontFamily: "var(--font-serif)",
-        fontStyle: "italic",
-        color: "var(--blog-muted)",
-      }}
-    >
-      Loading projects&hellip;
-    </p>
-  );
+  return <p className="projects-status">Loading projects&hellip;</p>;
 }
 
 function ProjectsError() {
   return (
-    <p
-      style={{
-        fontFamily: "var(--font-serif)",
-        fontStyle: "italic",
-        color: "var(--blog-muted)",
-      }}
-    >
+    <p className="projects-status">
       Couldn&rsquo;t reach GitHub right now. Try again later, or browse{" "}
-      <a
-        href="https://github.com/JimmayVV"
-        style={{ color: "var(--blog-accent)" }}
-      >
-        the source on GitHub
-      </a>
-      .
+      <a href="https://github.com/JimmayVV">the source on GitHub</a>.
     </p>
   );
 }
