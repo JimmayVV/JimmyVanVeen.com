@@ -43,12 +43,23 @@ describe("contentful client config", () => {
   it("treats CONTENTFUL_PREVIEW=false as off", async () => {
     process.env.CONTENTFUL_PREVIEW = "false";
     await importContentful();
-    expect(createClient).toHaveBeenCalledWith(
-      expect.objectContaining({
-        accessToken: "delivery-token",
-        host: "cdn.contentful.com",
-      }),
-    );
+    expect(createClient).toHaveBeenCalledWith({
+      space: "space-id",
+      accessToken: "delivery-token",
+      host: "cdn.contentful.com",
+    });
+  });
+
+  it("treats unset CONTENTFUL_PREVIEW_TOKEN the same as empty string", async () => {
+    const { CONTENTFUL_PREVIEW_TOKEN: _unset, ...rest } = process.env;
+    process.env = { ...rest, CONTENTFUL_PREVIEW: "true" };
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const mod = await importContentful();
+
+    expect(warnSpy).toHaveBeenCalled();
+    expect(createClient).not.toHaveBeenCalled();
+    expect(mod.isContentfulConfigured()).toBe(false);
   });
 
   it("uses the Preview API when CONTENTFUL_PREVIEW=true", async () => {
