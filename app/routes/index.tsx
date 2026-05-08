@@ -1,31 +1,28 @@
-// Libs
 import * as React from "react";
-import { Await } from "react-router";
+import { Await, Link, useRouteLoaderData } from "react-router";
+import { format } from "date-fns";
 
-import ContentCards, { ContentCard } from "~/components/content-cards";
-// Components
-import GradientBanner from "~/components/gradient-banner";
-import Project from "~/components/project";
+import { Plate } from "~/components/site/plate";
+import { ProjectRow } from "~/components/site/project-row";
 import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
-// Utils
 import { getRepositoriesByNodeId } from "~/utils/github";
 
 import type { Route } from "./+types/index";
 
 interface Repository {
-  /** The name of the repository */
   name: string;
-  /** The ID of the repository */
   id: number;
-  /** The URL for the repository on GitHub */
   homepageUrl: string | null;
-  /** The description of the repository */
   description: string | null;
-  /** The URL for the repository on GitHub */
   url: string;
-  /** The URL for the screenshot */
-  screenshotUrl?: string;
+}
+
+interface RootBlogPost {
+  title: string;
+  description: string;
+  slug: string;
+  publishDate: string;
 }
 
 export async function loader() {
@@ -36,169 +33,186 @@ export async function loader() {
         .sort((a, b) => Number(a.fields.priority) - Number(b.fields.priority))
         .map((p) => p.fields.ghId),
     );
-    const repositories: Repository[] = repos.map((repo) => {
-      const project = projects.find((p) => p.fields.ghId === repo.node_id);
-      return {
-        name: repo.name,
-        id: repo.id,
-        homepageUrl: repo.homepage,
-        description: repo.description,
-        url: repo.html_url,
-        screenshotUrl:
-          project?.fields.screenshot && "fields" in project.fields.screenshot
-            ? project.fields.screenshot.fields.file?.url
-            : undefined,
-      } satisfies Repository;
-    });
+    const repositories: Repository[] = repos.map((repo) => ({
+      name: repo.name,
+      id: repo.id,
+      homepageUrl: repo.homepage,
+      description: repo.description,
+      url: repo.html_url,
+    }));
     return repositories;
   }
 
   return getData();
 }
 
-// Add analytics tracking to this route
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   const result = await serverLoader();
-
-  // Track page view in background
   trackPageView().catch((error) => {
     console.warn("Analytics tracking failed:", error);
   });
-
   return result;
 }
 clientLoader.hydrate = true;
 
 export default function Index({ loaderData: repos }: Route.ComponentProps) {
-  return (
-    <div className="min-h-screen bg-black">
-      <GradientBanner>
-        <h2 className="text-2xl font-mono mb-4 text-white">
-          Mission Statement
-        </h2>
-        <p className="text-[#B0B0B0] text-lg leading-relaxed pb-20">
-          My mission is to create innovative and user-centric digital
-          experiences that seamlessly blend aesthetics with functionality. I
-          strive to push the boundaries of web design and game development,
-          always aiming to deliver solutions that not only meet but exceed user
-          expectations.
-        </p>
-      </GradientBanner>
+  const rootData = useRouteLoaderData("root") as RootBlogPost[] | undefined;
+  const recentPosts = (rootData ?? []).slice(0, 3);
 
-      <ContentCards spacing="space-y-8 -mt-40 relative z-10">
-        <ContentCard title="Projects">
-          <React.Suspense fallback={"Loading projects..."}>
-            <Await resolve={repos} errorElement={"Could not load projects"}>
-              {(resolvedRepos) => {
-                return (
-                  <section className="md:grid md:gap-8 pb-10 md:grid-cols-2">
-                    {resolvedRepos.map((repo: Repository) => {
-                      return (
-                        <Project
-                          key={repo.id}
-                          title={repo.name}
-                          description={repo.description}
-                          repoUrl={repo.url}
-                          url={repo.homepageUrl}
-                          screenshotUrl={repo.screenshotUrl}
-                        />
-                      );
-                    })}
-                  </section>
-                );
-              }}
+  return (
+    <main className="home-cover">
+      <div className="home-text">
+        <div className="home-dateline">
+          Jimmy Van Veen · Web engineer · Detroit
+        </div>
+        <h1 className="home-title">
+          I build software, write down what I learn, and race cars on the
+          internet.
+        </h1>
+        <p className="home-dek">
+          A working portfolio &mdash; projects I&rsquo;ve shipped, notes from
+          the workshop, and the occasional lap at Talladega. The interesting
+          stuff is in the writing.
+        </p>
+      </div>
+
+      <Plate
+        className="home-hero-plate"
+        src="/images/talladega_glory.jpg"
+        alt="A pack of stock cars running three-wide down the front stretch at Talladega Superspeedway."
+        caption="Plate I — Three-wide at Talladega"
+      />
+
+      <div className="home-sections">
+        {recentPosts.length > 0 ? (
+          <section className="home-section">
+            <div className="head">
+              <h2>Recent writing</h2>
+              <Link to="/blog" prefetch="intent" className="see-all">
+                All posts →
+              </Link>
+            </div>
+            <ul className="blog-index-list">
+              {recentPosts.map((post) => (
+                <li className="blog-index-row" key={post.slug}>
+                  <Link to={`/blog/${post.slug}`} prefetch="intent">
+                    <div className="meta">
+                      {format(new Date(post.publishDate), "MMMM d, yyyy")}
+                    </div>
+                    <h3 className="title">{post.title}</h3>
+                    {post.description ? (
+                      <p className="dek">{post.description}</p>
+                    ) : null}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        <section className="home-section">
+          <div className="head">
+            <h2>Selected work</h2>
+            <a
+              href="https://github.com/JimmayVV"
+              target="_blank"
+              rel="noreferrer"
+              className="see-all"
+            >
+              GitHub →
+            </a>
+          </div>
+          <React.Suspense fallback={<ProjectsFallback />}>
+            <Await resolve={repos} errorElement={<ProjectsError />}>
+              {(resolvedRepos) => (
+                <div>
+                  {resolvedRepos.slice(0, 4).map((repo: Repository) => (
+                    <ProjectRow
+                      key={repo.id}
+                      title={repo.name}
+                      description={repo.description}
+                      liveUrl={repo.homepageUrl}
+                      repoUrl={repo.url}
+                    />
+                  ))}
+                </div>
+              )}
             </Await>
           </React.Suspense>
-        </ContentCard>
-      </ContentCards>
-    </div>
+        </section>
+      </div>
+
+      <SiteFooter />
+    </main>
   );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
-  // Check if this is a GitHub API authentication error
-  // These errors typically have "Requires authentication" in the message
-  // and come with a 401 status
-  const isGitHubAuthError =
-    error?.message?.includes("Requires authentication") ||
-    error?.message?.includes("401") ||
-    error?.message?.includes("Bad credentials") ||
-    error?.message?.includes("Unauthorized");
-
-  // For GitHub auth errors, render the normal page layout with an error message
-  if (isGitHubAuthError) {
-    return (
-      <div className="min-h-screen bg-black">
-        <GradientBanner>
-          <h2 className="text-2xl font-mono mb-4 text-white">
-            Mission Statement
-          </h2>
-          <p className="text-[#B0B0B0] text-lg leading-relaxed pb-20">
-            My mission is to create innovative and user-centric digital
-            experiences that seamlessly blend aesthetics with functionality. I
-            strive to push the boundaries of web design and game development,
-            always aiming to deliver solutions that not only meet but exceed
-            user expectations.
-          </p>
-        </GradientBanner>
-
-        <ContentCards spacing="space-y-8 -mt-40 relative z-10">
-          <ContentCard title="Projects">
-            <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 p-6 rounded-lg mb-6">
-              <div className="flex items-start gap-4">
-                <svg
-                  className="w-8 h-8 text-yellow-600 dark:text-yellow-500 mt-0.5 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-yellow-900 dark:text-yellow-100 mb-2">
-                    GitHub API Configuration Required
-                  </h3>
-                  <p className="text-base font-medium text-yellow-800 dark:text-yellow-200 mb-4">
-                    Projects cannot be loaded without GitHub API access. The
-                    portfolio data is temporarily unavailable.
-                  </p>
-                  <a
-                    href="https://github.com/JimmayVV?tab=repositories"
-                    className="inline-flex items-center text-base font-semibold text-yellow-700 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-300"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View projects on GitHub
-                  </a>
-                </div>
-              </div>
-            </div>
-          </ContentCard>
-        </ContentCards>
-      </div>
-    );
-  }
-
-  // For other errors, show a more generic error boundary
+function ProjectsFallback() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
-      <div className="max-w-md text-center">
-        <h1 className="text-4xl font-bold mb-4">Something went wrong</h1>
-        <p className="text-gray-400 mb-6">
-          An unexpected error occurred. Please try refreshing the page.
-        </p>
-        <a
-          href="/"
-          className="inline-block px-6 py-3 bg-white text-black font-medium rounded hover:bg-gray-200 transition"
-        >
-          Go Home
+    <p
+      style={{
+        fontFamily: "var(--font-serif)",
+        fontStyle: "italic",
+        color: "var(--blog-muted)",
+      }}
+    >
+      Loading projects&hellip;
+    </p>
+  );
+}
+
+function ProjectsError() {
+  return (
+    <p
+      style={{
+        fontFamily: "var(--font-serif)",
+        fontStyle: "italic",
+        color: "var(--blog-muted)",
+      }}
+    >
+      Couldn&rsquo;t reach GitHub right now. Try again later, or browse{" "}
+      <a
+        href="https://github.com/JimmayVV"
+        style={{ color: "var(--blog-accent)" }}
+      >
+        the source on GitHub
+      </a>
+      .
+    </p>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <span>© Jimmy Van Veen</span>
+      <div className="footer-links">
+        <a href="https://github.com/JimmayVV" target="_blank" rel="noreferrer">
+          GitHub
         </a>
+        <a
+          href="https://bsky.app/profile/jimmyvanveen.com"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Bluesky
+        </a>
+        <Link to="/privacy" prefetch="intent">
+          Privacy
+        </Link>
       </div>
-    </div>
+    </footer>
+  );
+}
+
+export function ErrorBoundary() {
+  return (
+    <main className="home-cover">
+      <h1 className="home-title">Something went wrong</h1>
+      <p className="home-dek">
+        An unexpected error occurred while loading the home page. Try
+        refreshing.
+      </p>
+    </main>
   );
 }

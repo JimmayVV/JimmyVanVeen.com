@@ -15,8 +15,10 @@
   --font-sans: "Source Sans 3", helvetica, sans-serif;
   --font-raleway: Raleway, helvetica, sans-serif;
 
-  /* Editorial blog typography */
-  --font-display: Fraunces, "Times New Roman", Georgia, serif;
+  /* Editorial typography (site-wide) */
+  --font-display:
+    Newsreader, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-display-italic: Fraunces, Newsreader, Georgia, serif;
   --font-serif:
     "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Menlo, monospace;
@@ -285,6 +287,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
    Typography-first reading experience. Two true themes: paper / midnight ink.
    ─────────────────────────────────────────────────────────────────────────── */
 
+.editorial-theme,
 .blog-theme {
   /* paper (light) */
   --paper-bg: #f7f4ec;
@@ -322,7 +325,8 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   min-height: 100vh;
 }
 
-.dark .blog-theme {
+.dark .editorial-theme,
+.blog-theme {
   /* midnight ink (dark) */
   --blog-bg: #13110f;
   --blog-surface: #1c1916;
@@ -438,11 +442,11 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 
 .blog-index-intro {
   font-family: var(--font-display);
-  font-variation-settings: "opsz" 144;
+  font-variation-settings: "opsz" 60;
   font-weight: 500;
   font-size: clamp(2rem, 4.5vw, 3rem);
   line-height: 1.05;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.018em;
   color: var(--blog-ink);
   margin-bottom: 0.5rem;
   text-wrap: balance;
@@ -489,7 +493,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 }
 .blog-index-row .title {
   font-family: var(--font-display);
-  font-variation-settings: "opsz" 96;
+  font-variation-settings: "opsz" 48;
   font-weight: 500;
   font-size: 1.875rem;
   line-height: 1.15;
@@ -548,11 +552,11 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 }
 .blog-post-hero h1 {
   font-family: var(--font-display);
-  font-variation-settings: "opsz" 144;
+  font-variation-settings: "opsz" 72;
   font-weight: 600;
   font-size: clamp(2.4rem, 5vw, 3.8rem);
   line-height: 1.05;
-  letter-spacing: -0.022em;
+  letter-spacing: -0.02em;
   color: var(--blog-ink);
   margin-bottom: 1.25rem;
   text-wrap: balance;
@@ -629,7 +633,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   font-weight: 600;
   font-size: 1.75rem;
   line-height: 1.2;
-  letter-spacing: -0.012em;
+  letter-spacing: -0.01em;
   color: var(--blog-ink);
   margin-top: 2.5em;
   margin-bottom: 0.6em;
@@ -813,9 +817,9 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   user-select: none;
 }
 
-/* Drop cap on long posts */
+/* Drop cap on long posts — kept on Fraunces, the one place its character earns it */
 .prose-editorial[data-long="true"] > p:first-of-type::first-letter {
-  font-family: var(--font-display);
+  font-family: var(--font-display-italic);
   font-variation-settings: "opsz" 144;
   font-weight: 700;
   float: left;
@@ -886,4 +890,360 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
     width: 100%;
     animation: none;
   }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Site chrome — TopBar (replaces sidebar)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.site-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.875rem clamp(1.25rem, 5vw, 3rem);
+  background: color-mix(in srgb, var(--blog-bg) 92%, transparent);
+  backdrop-filter: saturate(160%) blur(8px);
+  -webkit-backdrop-filter: saturate(160%) blur(8px);
+  border-bottom: 1px solid var(--blog-rule);
+}
+
+.site-topbar .brand {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-ink);
+  text-decoration: none;
+  transition: color 200ms ease;
+  white-space: nowrap;
+}
+.site-topbar .brand:hover {
+  color: var(--blog-accent);
+}
+
+.site-topbar nav.section-nav {
+  display: none;
+  gap: 1.5rem;
+  margin-left: 2rem;
+}
+@media (min-width: 720px) {
+  .site-topbar nav.section-nav {
+    display: flex;
+  }
+}
+
+.site-topbar nav.section-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  text-decoration: none;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid transparent;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
+}
+.site-topbar nav.section-nav a:hover {
+  color: var(--blog-ink);
+}
+.site-topbar nav.section-nav a[aria-current="page"] {
+  color: var(--blog-accent);
+  border-bottom-color: var(--blog-accent);
+}
+
+.site-topbar .spacer {
+  flex: 1;
+}
+
+/* Mobile menu — small inline sheet under 720px */
+.site-topbar .menu-button {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+.site-topbar .menu-button:hover {
+  color: var(--blog-ink);
+}
+@media (min-width: 720px) {
+  .site-topbar .menu-button {
+    display: none;
+  }
+}
+
+.site-mobile-sheet {
+  position: fixed;
+  inset: 56px 0 auto 0;
+  z-index: 29;
+  background: var(--blog-bg);
+  border-bottom: 1px solid var(--blog-rule);
+  padding: 1rem clamp(1.25rem, 5vw, 3rem) 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.site-mobile-sheet a {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  text-decoration: none;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--blog-rule);
+}
+.site-mobile-sheet a[aria-current="page"] {
+  color: var(--blog-accent);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Plate — editorial photograph treatment (sparing, deliberate)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.plate {
+  margin: 0;
+  display: block;
+}
+.plate-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--blog-surface);
+  box-shadow:
+    inset 0 0 0 1px var(--blog-rule),
+    0 1px 0 0 color-mix(in srgb, var(--blog-rule) 60%, transparent);
+}
+.plate-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: saturate(0.78) contrast(1.04);
+  transition: filter 600ms ease;
+}
+.dark .plate-frame img {
+  filter: saturate(0.7) contrast(1.05) brightness(0.92);
+}
+.plate-caption {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  margin-top: 0.875rem;
+  text-align: center;
+}
+.plate-caption .credit {
+  text-transform: none;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--blog-muted) 70%, transparent);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Home cover
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.home-cover {
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 5vw, 3rem)
+    clamp(3rem, 8vw, 6rem);
+}
+
+.home-dateline {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+  margin-bottom: 1.5rem;
+}
+
+.home-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72;
+  font-weight: 500;
+  font-size: clamp(2.5rem, 6vw, 4.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+  color: var(--blog-ink);
+  margin-bottom: 1rem;
+  text-wrap: balance;
+}
+
+.home-dek {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--blog-muted);
+  margin-bottom: 2.5rem;
+  max-width: 52ch;
+  text-wrap: pretty;
+}
+
+.home-hero-plate {
+  margin: 2rem 0 3.5rem;
+}
+
+@media (min-width: 1100px) {
+  .home-cover {
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    grid-template-areas:
+      "text plate"
+      "sections sections";
+    column-gap: clamp(2rem, 5vw, 4rem);
+    row-gap: 4rem;
+    padding-left: clamp(2rem, 6vw, 5rem);
+    padding-right: clamp(2rem, 6vw, 5rem);
+  }
+  .home-cover > .home-text {
+    grid-area: text;
+    align-self: end;
+    max-width: 28em;
+  }
+  .home-cover > .home-hero-plate {
+    grid-area: plate;
+    align-self: end;
+    margin: 0;
+  }
+  .home-cover > .home-sections {
+    grid-area: sections;
+    max-width: 72ch;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+.home-section {
+  margin-top: 3.5rem;
+}
+.home-section .head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--blog-rule);
+}
+.home-section .head h2 {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 36;
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: -0.012em;
+  color: var(--blog-ink);
+  margin: 0;
+}
+.home-section .head a.see-all {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-accent);
+  text-decoration: none;
+}
+.home-section .head a.see-all:hover {
+  color: var(--blog-accent-soft);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   ProjectRow — editorial project list item
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.project-row {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--blog-rule);
+}
+.project-row:last-child {
+  border-bottom: none;
+}
+.project-row .row-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 36;
+  font-weight: 500;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--blog-ink);
+  margin-bottom: 0.4rem;
+}
+.project-row .row-dek {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: var(--blog-muted);
+  margin-bottom: 0.75rem;
+  max-width: 56ch;
+}
+.project-row .row-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.project-row .row-links a {
+  color: var(--blog-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 180ms ease;
+}
+.project-row .row-links a:hover {
+  border-bottom-color: var(--blog-accent);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Site footer
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.site-footer {
+  max-width: 72ch;
+  margin: 4rem auto 0;
+  padding: 2rem clamp(1.25rem, 5vw, 3rem) 3rem;
+  border-top: 1px solid var(--blog-rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+}
+.site-footer a {
+  color: var(--blog-muted);
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+.site-footer a:hover {
+  color: var(--blog-accent);
+}
+.site-footer .footer-links {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
