@@ -8,12 +8,15 @@ function getInitial(): Theme {
 }
 
 export function ThemeToggle() {
+  // useState's lazy initializer reads document.documentElement on the client
+  // (theme-init.js has already set the .dark class before hydration), so
+  // we don't need a second setTheme inside the effect — that would just
+  // schedule a redundant re-render with the same value.
   const [theme, setTheme] = React.useState<Theme>(getInitial);
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
-    setTheme(getInitial());
   }, []);
 
   function toggle() {
@@ -27,19 +30,19 @@ export function ThemeToggle() {
     }
   }
 
+  const label =
+    theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+
   if (!mounted) {
     return (
       <button
         type="button"
-        aria-label="Theme toggle"
+        aria-label={label}
         className="blog-toggle"
         suppressHydrationWarning
       />
     );
   }
-
-  const label =
-    theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
   return (
     <button
