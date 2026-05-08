@@ -51,25 +51,23 @@ export function TopBar() {
         </button>
         <ThemeToggle />
       </header>
-      {open ? (
-        <div
-          id="site-mobile-sheet"
-          className="site-mobile-sheet"
-          role="dialog"
-          aria-label="Site navigation"
-        >
-          {SECTIONS.map((section) => (
-            <Link
-              key={section.to}
-              to={section.to}
-              prefetch="intent"
-              aria-current={isActive(pathname, section.to) ? "page" : undefined}
-            >
-              {section.label}
-            </Link>
-          ))}
-        </div>
-      ) : null}
+      <nav
+        id="site-mobile-sheet"
+        className="site-mobile-sheet"
+        aria-label="Mobile site navigation"
+        hidden={!open}
+      >
+        {SECTIONS.map((section) => (
+          <Link
+            key={section.to}
+            to={section.to}
+            prefetch="intent"
+            aria-current={isActive(pathname, section.to) ? "page" : undefined}
+          >
+            {section.label}
+          </Link>
+        ))}
+      </nav>
     </>
   );
 }

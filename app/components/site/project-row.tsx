@@ -1,8 +1,8 @@
 interface ProjectRowProps {
   title: string;
-  description?: string | null;
-  liveUrl?: string | null;
-  repoUrl?: string;
+  description: string | null;
+  liveUrl: string | null;
+  repoUrl: string | null;
 }
 
 export function ProjectRow({

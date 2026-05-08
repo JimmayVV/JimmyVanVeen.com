@@ -4,13 +4,33 @@ interface PlateProps {
   caption?: string;
   credit?: string;
   className?: string;
+  width?: number;
+  height?: number;
+  priority?: boolean;
 }
 
-export function Plate({ src, alt, caption, credit, className }: PlateProps) {
+export function Plate({
+  src,
+  alt,
+  caption,
+  credit,
+  className,
+  width,
+  height,
+  priority = false,
+}: PlateProps) {
   return (
     <figure className={`plate${className ? ` ${className}` : ""}`}>
       <div className="plate-frame">
-        <img src={src} alt={alt} loading="lazy" decoding="async" />
+        <img
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          decoding={priority ? "sync" : "async"}
+        />
       </div>
       {caption || credit ? (
         <figcaption className="plate-caption">

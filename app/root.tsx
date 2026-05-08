@@ -92,28 +92,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   return (
     <Shell>
-      <main className="blog-page">
-        <h1
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(2rem, 5vw, 3.5rem)",
-            fontWeight: 500,
-            marginBottom: "1rem",
-          }}
-        >
-          {message}
-        </h1>
-        <p
-          style={{
-            fontFamily: "var(--font-serif)",
-            fontStyle: "italic",
-            color: "var(--blog-muted)",
-          }}
-        >
-          {details}
-        </p>
+      <main className="blog-page error-page">
+        <h1 className="error-title">{message}</h1>
+        <p className="error-body">{details}</p>
         {stack ? (
-          <pre className="prose-editorial">
+          <pre className="error-stack">
             <code>{stack}</code>
           </pre>
         ) : null}

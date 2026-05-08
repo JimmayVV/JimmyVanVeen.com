@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 interface PostHeroProps {
   title: string;
@@ -13,7 +13,7 @@ export function PostHero({
   description,
   readingMinutes,
 }: PostHeroProps) {
-  const date = format(new Date(publishDate), "MMMM d, yyyy");
+  const date = format(parseISO(publishDate), "MMMM d, yyyy");
   const meta = readingMinutes ? `${date} · ${readingMinutes} min read` : date;
 
   return (

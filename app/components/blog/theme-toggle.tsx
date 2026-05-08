@@ -27,6 +27,17 @@ export function ThemeToggle() {
     }
   }
 
+  if (!mounted) {
+    return (
+      <button
+        type="button"
+        aria-label="Theme toggle"
+        className="blog-toggle"
+        suppressHydrationWarning
+      />
+    );
+  }
+
   const label =
     theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
@@ -38,7 +49,7 @@ export function ThemeToggle() {
       onClick={toggle}
       className="blog-toggle"
     >
-      {mounted && theme === "dark" ? <SunIcon /> : <MoonIcon />}
+      {theme === "dark" ? <SunIcon /> : <MoonIcon />}
     </button>
   );
 }

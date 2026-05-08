@@ -1,6 +1,6 @@
 import { Link, useLoaderData } from "react-router";
 
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 import { trackPageView } from "~/utils/analytics-loader";
 import { isContentfulConfigured } from "~/utils/contentful";
@@ -44,7 +44,7 @@ export default function BlogIndex() {
             <li className="blog-index-row" key={blog.sys.id}>
               <Link to={`./${blog.fields.slug}`} prefetch="intent">
                 <div className="meta">
-                  {format(new Date(blog.fields.publishDate), "MMMM d, yyyy")}
+                  {format(parseISO(blog.fields.publishDate), "MMMM d, yyyy")}
                 </div>
                 <h2 className="title">{blog.fields.title}</h2>
                 {blog.fields.description ? (

@@ -1,12 +1,14 @@
 import * as React from "react";
 import { Await, Link, useRouteLoaderData } from "react-router";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 import { Plate } from "~/components/site/plate";
 import { ProjectRow } from "~/components/site/project-row";
 import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 import { getRepositoriesByNodeId } from "~/utils/github";
+
+import type { loader as rootLoader } from "~/root";
 
 import type { Route } from "./+types/index";
 
@@ -16,13 +18,6 @@ interface Repository {
   homepageUrl: string | null;
   description: string | null;
   url: string;
-}
-
-interface RootBlogPost {
-  title: string;
-  description: string;
-  slug: string;
-  publishDate: string;
 }
 
 export async function loader() {
@@ -56,7 +51,7 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 clientLoader.hydrate = true;
 
 export default function Index({ loaderData: repos }: Route.ComponentProps) {
-  const rootData = useRouteLoaderData("root") as RootBlogPost[] | undefined;
+  const rootData = useRouteLoaderData<typeof rootLoader>("root");
   const recentPosts = (rootData ?? []).slice(0, 3);
 
   return (
@@ -81,6 +76,9 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
         src="/images/talladega_glory.jpg"
         alt="A pack of stock cars running three-wide down the front stretch at Talladega Superspeedway."
         caption="Plate I — Three-wide at Talladega"
+        width={1920}
+        height={1080}
+        priority
       />
 
       <div className="home-sections">
@@ -97,7 +95,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
                 <li className="blog-index-row" key={post.slug}>
                   <Link to={`/blog/${post.slug}`} prefetch="intent">
                     <div className="meta">
-                      {format(new Date(post.publishDate), "MMMM d, yyyy")}
+                      {format(parseISO(post.publishDate), "MMMM d, yyyy")}
                     </div>
                     <h3 className="title">{post.title}</h3>
                     {post.description ? (

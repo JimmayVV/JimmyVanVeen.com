@@ -1,5 +1,5 @@
 import ReactMarkdown from "react-markdown";
-import { redirect } from "react-router";
+import { isRouteErrorResponse, redirect } from "react-router";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import rehypeExternalLinks from "rehype-external-links";
@@ -9,9 +9,8 @@ import { PostHero } from "~/components/blog/post-hero";
 import { ReadingProgress } from "~/components/blog/reading-progress";
 import { Plate } from "~/components/site/plate";
 import { trackPageView } from "~/utils/analytics-loader";
-import { editorialPrismStyle } from "~/utils/code-theme";
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
-import { isLongPost, readingMinutes } from "~/utils/reading-time";
+import { readingStats } from "~/utils/reading-time";
 
 import type { Route } from "./+types/$slug";
 
@@ -20,17 +19,18 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   try {
     return await getCachedBlogPostBySlug(slug);
-  } catch (_error) {
-    // If blog post not found, redirect to blog index
-    return redirect("/blog", { status: 302 });
+  } catch (error) {
+    if (isRouteErrorResponse(error) && error.status === 404) {
+      return redirect("/blog", { status: 302 });
+    }
+    console.error("Failed to load blog post", { slug, error });
+    throw error;
   }
 }
 
-// Add analytics tracking to this route
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   const result = await serverLoader();
 
-  // Track page view in background
   trackPageView().catch((error) => {
     console.warn("Analytics tracking failed:", error);
   });
@@ -41,8 +41,7 @@ clientLoader.hydrate = true;
 
 export default function Post({ loaderData: blog }: Route.ComponentProps) {
   const body = blog.fields.body;
-  const long = isLongPost(body);
-  const minutes = readingMinutes(body);
+  const { minutes, long } = readingStats(body);
 
   return (
     <>
@@ -64,7 +63,11 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
               img({ src, alt, title }) {
                 if (!src || typeof src !== "string") return null;
                 return (
-                  <Plate src={src} alt={alt ?? ""} caption={title || alt} />
+                  <Plate
+                    src={src}
+                    alt={alt ?? ""}
+                    caption={title ?? undefined}
+                  />
                 );
               },
               code({ node: _node, className, children, ...props }) {
@@ -74,7 +77,6 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
                     showLineNumbers
                     useInlineStyles={false}
                     language={match[1]}
-                    style={editorialPrismStyle}
                     PreTag="pre"
                   >
                     {String(children).replace(/\n$/, "")}

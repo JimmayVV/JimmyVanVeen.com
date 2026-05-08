@@ -5,7 +5,7 @@ export function wordCount(markdown: string | undefined | null): number {
   const stripped = markdown
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/`[^`]*`/g, " ")
-    .replace(/\[[^\]]*\]\([^)]*\)/g, " $1 ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, " $1 ")
     .replace(/[#>*_~-]/g, " ");
   return stripped.split(/\s+/).filter(Boolean).length;
 }
@@ -17,4 +17,17 @@ export function readingMinutes(markdown: string | undefined | null): number {
 
 export function isLongPost(markdown: string | undefined | null): boolean {
   return wordCount(markdown) >= 400;
+}
+
+export function readingStats(markdown: string | undefined | null): {
+  words: number;
+  minutes: number;
+  long: boolean;
+} {
+  const words = wordCount(markdown);
+  return {
+    words,
+    minutes: Math.max(1, Math.round(words / WORDS_PER_MINUTE)),
+    long: words >= 400,
+  };
 }

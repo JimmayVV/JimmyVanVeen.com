@@ -11,8 +11,9 @@ export function ReadingProgress() {
       setProgress(Math.min(100, Math.max(0, value)));
     }
     update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    const opts: AddEventListenerOptions = { passive: true };
+    window.addEventListener("scroll", update, opts);
+    window.addEventListener("resize", update, opts);
     return () => {
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
