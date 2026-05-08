@@ -34,16 +34,18 @@ export function ThemeToggle() {
     theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
   if (!mounted) {
-    // suppressHydrationWarning is doing real work here. theme-init.js
-    // sets the .dark class on <html> before hydration, so getInitial()
-    // on the client may return "dark" while the SSR pass returned
-    // "light" (no document on the server). The mismatch is intentional
-    // — we render an empty placeholder until mount, at which point the
-    // real toggle renders with the correct icon/label.
+    // The placeholder is intentionally non-functional and reserves
+    // layout space until hydration completes. We mark it aria-hidden
+    // so screen readers don't announce a stale label — getInitial()
+    // returns "light" during SSR (no document) so any aria-label here
+    // would be backwards for dark-mode users until mount.
+    // suppressHydrationWarning lets React reconcile the real button
+    // in on hydration without warning about the intentional swap.
     return (
       <button
         type="button"
-        aria-label={label}
+        aria-hidden="true"
+        tabIndex={-1}
         className="blog-toggle"
         suppressHydrationWarning
       />

@@ -16,10 +16,25 @@ function isActive(pathname: string, to: string) {
 export function TopBar() {
   const { pathname } = useLocation();
   const [open, setOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  // Escape closes the mobile sheet and returns focus to the trigger so
+  // keyboard users aren't stranded inside an open menu.
+  React.useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
     <>
@@ -41,6 +56,7 @@ export function TopBar() {
         </nav>
         <div className="spacer" />
         <button
+          ref={triggerRef}
           type="button"
           className="menu-button"
           aria-expanded={open}
@@ -55,7 +71,7 @@ export function TopBar() {
         id="site-mobile-sheet"
         className={`site-mobile-sheet${open ? " is-open" : ""}`}
         aria-label="Mobile site navigation"
-        aria-hidden={!open || undefined}
+        aria-hidden={!open ? true : undefined}
       >
         {SECTIONS.map((section) => (
           <Link

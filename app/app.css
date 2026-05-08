@@ -928,6 +928,14 @@ a[target="_blank"]::after {
   filter: saturate(0.78) contrast(1.04);
   transition: filter 600ms ease;
 }
+/* Markdown images come through the <Plate> renderer with no width/height
+   attrs (the AST doesn't carry them). Reserve space with a sensible
+   default aspect ratio so the page doesn't shift when the image loads.
+   Explicit width/height on the hero plate take precedence. */
+.plate-frame img:not([width]):not([height]) {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
 .dark .plate-frame img {
   filter: saturate(0.7) contrast(1.05) brightness(0.92);
 }

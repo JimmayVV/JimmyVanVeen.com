@@ -90,6 +90,13 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
               // SyntaxHighlighter own the <pre>) — that's how we avoid
               // nested-pre / double scrollbars. For untagged blocks we
               // keep the <pre> so the semantics aren't lost.
+              //
+              // This is fragile against future ReactMarkdown changes to
+              // its AST shape; if that ever breaks the type guard below,
+              // language-tagged blocks would silently double-wrap again.
+              // Worth re-evaluating when react-markdown ships native
+              // syntax-highlighting support and we can drop the
+              // SyntaxHighlighter component entirely.
               pre({ children, ...props }) {
                 if (React.isValidElement(children)) {
                   const childProps = children.props as Record<string, unknown>;

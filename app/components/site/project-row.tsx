@@ -29,6 +29,8 @@ export function ProjectRow({
           <img
             src={screenshotUrl}
             alt={`Screenshot of ${title}`}
+            width={1200}
+            height={750}
             loading="lazy"
             decoding="async"
           />
