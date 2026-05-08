@@ -134,11 +134,11 @@ const octokit = new Octokit({
 
 ```typescript
 try {
-  const repos = await fetchRepositories()
-  return { repos }
+  const repos = await fetchRepositories();
+  return { repos };
 } catch (error) {
-  console.error("GitHub API error:", error)
-  return { repos: [] } // Fallback to empty
+  console.error("GitHub API error:", error);
+  return { repos: [] }; // Fallback to empty
 }
 ```
 
