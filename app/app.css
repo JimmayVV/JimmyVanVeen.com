@@ -298,7 +298,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   --paper-accent-soft: #a14c39;
 
   /* code tokens (light) */
-  --syntax-comment: #9a8e7a;
+  --syntax-comment: #857a68;
   --syntax-keyword: #7a2e1f;
   --syntax-string: #3e6b3a;
   --syntax-function: #2a4a6b;
@@ -341,25 +341,26 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   --blog-accent: #d98b6e;
   --blog-accent-soft: #e6a791;
 
-  /* Code surface — distinctly deeper than the page so tokens have
-     something to read against. */
-  --code-surface: #0d0b09;
-  /* Slightly toned-down body text inside code blocks, so the saturated
-     token colors below carry the visual weight instead of competing
-     with bright cream identifiers. */
-  --code-default-ink: #c8bea9;
+  /* Code surface — distinctly darker than the body bg but not so deep
+     that the contrast becomes harsh. The previous #0d0b09 made every
+     token read as if it were straining against the ink. */
+  --code-surface: #1a1612;
 
-  /* Saturated token palette. Previous passes were too desaturated and
-     all read as one sepia wash. These hue families are clearly
-     separated in saturation AND luminance against #c8bea9. */
-  --syntax-comment: #a89c87;
-  --syntax-keyword: #ff8a6c;
-  --syntax-string: #a3d18a;
-  --syntax-function: #7eafe0;
-  --syntax-number: #f0bd72;
-  --syntax-punct: #c0b6a2;
-  --syntax-tag: #ff8a6c;
-  --syntax-attr: #7eafe0;
+  /* Default code text — bright enough that identifiers feel substantial
+     so token colors sit AT the same luminance band, not above it. */
+  --code-default-ink: #d6cdb8;
+
+  /* Token palette — luminance-matched so the block reads as one text
+     mass, with HUE (and italic for comments) doing the differentiation
+     instead of brightness contrast. Editorial, not neon. */
+  --syntax-comment: #c0b59f;
+  --syntax-keyword: #ef9b81;
+  --syntax-string: #a8c896;
+  --syntax-function: #9abace;
+  --syntax-number: #dfb887;
+  --syntax-punct: #bdb29d;
+  --syntax-tag: #ef9b81;
+  --syntax-attr: #9abace;
 }
 
 .blog-toggle {
@@ -833,6 +834,28 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   padding: 1em 1.25em !important;
   margin: 1.6em -1.5rem;
   overflow-x: auto;
+  overflow-y: hidden;
+}
+/* Force only <pre> to be the scroll container; the inner <code> from
+   react-syntax-highlighter must never create a second scrollbar of
+   its own. */
+.prose-editorial pre > code,
+.prose-editorial pre code[class*="language-"] {
+  display: block;
+  overflow: visible !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+  color: inherit !important;
+  white-space: pre;
+  word-break: normal;
+  width: max-content;
+  min-width: 100%;
 }
 @media (max-width: 640px) {
   .prose-editorial pre,
@@ -849,6 +872,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 .prose-editorial pre .token.cdata {
   color: var(--syntax-comment);
   font-style: italic;
+  font-weight: 500;
 }
 .prose-editorial pre .token.keyword,
 .prose-editorial pre .token.boolean,
