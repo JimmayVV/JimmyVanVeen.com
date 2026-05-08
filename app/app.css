@@ -297,18 +297,17 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   --paper-accent: #7a2e1f;
   --paper-accent-soft: #a14c39;
 
-  /* code tokens (light) — neutrals (comment, punct) untouched per
-     feedback. Colored tokens bumped in saturation + luminance so they
-     pop against the cream surface instead of blending into the dark-
-     on-light wash. */
+  /* code tokens (light) — keyword and number left strong; string pushed
+     to a more saturated, less-warm green so it stops blending with the
+     other dark-on-cream tones; function bumped for a touch more chroma. */
   --syntax-comment: #857a68;
   --syntax-keyword: #a8381a;
-  --syntax-string: #3f7d2c;
-  --syntax-function: #1d5a8e;
+  --syntax-string: #1f8a18;
+  --syntax-function: #0e5fa6;
   --syntax-number: #a26110;
   --syntax-punct: #6e665b;
   --syntax-tag: #a8381a;
-  --syntax-attr: #1d5a8e;
+  --syntax-attr: #0e5fa6;
 
   --blog-bg: var(--paper-bg);
   --blog-surface: var(--paper-surface);
@@ -357,10 +356,14 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
      stay luminance-matched to default ink (italic does the work) but
      keywords, strings, functions all sit in clearly different hue
      families against the cream default so the eye can parse them at a
-     glance. Editorial, not neon. */
+     glance. Editorial, not neon.
+
+     String green pushed cleaner/less yellow (sage was blending with
+     warm cream default ink). Function blue and keyword coral were both
+     called out as well-performing — leave alone. */
   --syntax-comment: #b3a48d;
   --syntax-keyword: #f0926d;
-  --syntax-string: #a4cd87;
+  --syntax-string: #85d168;
   --syntax-function: #86b8e5;
   --syntax-number: #ebbb78;
   --syntax-punct: #bdb29d;
