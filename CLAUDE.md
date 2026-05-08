@@ -91,7 +91,9 @@ Environment files are located in `config/env/` directory.
 Available via `process.env.*` in server code only - **NOT** exposed to client:
 
 - `CONTENTFUL_SPACE_ID` - Contentful space
-- `CONTENTFUL_ACCESS_TOKEN` - Contentful API token
+- `CONTENTFUL_ACCESS_TOKEN` - Contentful Delivery API token (published content)
+- `CONTENTFUL_PREVIEW_TOKEN` - Contentful Preview API token (drafts + published)
+- `CONTENTFUL_PREVIEW` - Set to `"true"` to switch the client to the Preview API so draft entries render. Intended for local dev and Netlify deploy previews; leave unset (or `"false"`) in production.
 - `GITHUB_TOKEN` - GitHub API token
 - `EMAIL_SERVICE` - Email service provider
 - `EMAIL_ADDRESS` - Contact email address

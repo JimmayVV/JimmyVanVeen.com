@@ -27,6 +27,7 @@ declare namespace NodeJS {
     readonly CONTENTFUL_SPACE_ID?: string;
     readonly CONTENTFUL_ACCESS_TOKEN?: string;
     readonly CONTENTFUL_PREVIEW_TOKEN?: string;
+    readonly CONTENTFUL_PREVIEW?: string;
     readonly GITHUB_TOKEN?: string;
     readonly EMAIL_SERVICE?: string;
     readonly EMAIL_ADDRESS?: string;

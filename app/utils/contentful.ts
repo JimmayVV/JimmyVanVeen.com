@@ -29,14 +29,29 @@ export type ProjectFieldsSkeleton = Contentful.EntrySkeletonType<
 
 const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID ?? "";
 const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN ?? "";
+const CONTENTFUL_PREVIEW_TOKEN = process.env.CONTENTFUL_PREVIEW_TOKEN ?? "";
+const CONTENTFUL_PREVIEW = process.env.CONTENTFUL_PREVIEW === "true";
+
+const activeToken = CONTENTFUL_PREVIEW
+  ? CONTENTFUL_PREVIEW_TOKEN
+  : CONTENTFUL_ACCESS_TOKEN;
+
+if (CONTENTFUL_PREVIEW && CONTENTFUL_PREVIEW_TOKEN.length === 0) {
+  console.warn(
+    "[contentful] CONTENTFUL_PREVIEW=true but CONTENTFUL_PREVIEW_TOKEN is not set — content will be empty",
+  );
+}
 
 const hasContentfulEnv =
-  CONTENTFUL_SPACE_ID.length > 0 && CONTENTFUL_ACCESS_TOKEN.length > 0;
+  CONTENTFUL_SPACE_ID.length > 0 && activeToken.length > 0;
 
 const client = hasContentfulEnv
   ? Contentful.createClient({
       space: CONTENTFUL_SPACE_ID,
-      accessToken: CONTENTFUL_ACCESS_TOKEN,
+      accessToken: activeToken,
+      host: CONTENTFUL_PREVIEW
+        ? "preview.contentful.com"
+        : "cdn.contentful.com",
     })
   : null;
 
