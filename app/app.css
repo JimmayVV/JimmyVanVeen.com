@@ -594,7 +594,14 @@ a[target="_blank"]::after {
 /* No !important needed — useInlineStyles={false} + empty
    style/customStyle/codeTagProps in $slug.tsx already prevent
    react-syntax-highlighter from inlining anything on <pre>, so these
-   declarations win on specificity alone. */
+   declarations win on specificity alone.
+
+   If react-syntax-highlighter ever changes how it merges styles, or
+   the <SyntaxHighlighter> call site loses any of those props, the
+   library would inline default Prism styles (color:black, Consolas
+   font) on <code>/<pre> at higher specificity than these rules. The
+   visible signal would be the JetBrains Mono falling back to Consolas
+   and the dark code block losing its custom token coloring. */
 .prose-editorial pre,
 .prose-editorial pre[class*="language-"] {
   font-family: var(--font-mono);
@@ -931,7 +938,11 @@ a[target="_blank"]::after {
 /* Markdown images come through the <Plate> renderer with no width/height
    attrs (the AST doesn't carry them). Reserve space with a sensible
    default aspect ratio so the page doesn't shift when the image loads.
-   Explicit width/height on the hero plate take precedence. */
+   Explicit width/height on the hero plate take precedence.
+   Tradeoff: portrait or square images without explicit dimensions
+   will be cropped to 16:9 by object-fit: cover. Acceptable for
+   editorial hero/inline shots; if a post needs a portrait plate,
+   pass width/height props to override this rule. */
 .plate-frame img:not([width]):not([height]) {
   aspect-ratio: 16 / 9;
   object-fit: cover;
