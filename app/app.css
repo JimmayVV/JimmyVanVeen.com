@@ -682,17 +682,21 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 }
 
 .prose-editorial blockquote {
-  font-family: var(--font-display);
-  font-variation-settings: "opsz" 72;
+  font-family: var(--font-serif);
   font-style: italic;
-  font-weight: 400;
-  font-size: 1.5rem;
-  line-height: 1.35;
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.5;
   color: var(--blog-ink);
   border-left: 2px solid var(--blog-accent);
-  padding: 0.25em 0 0.25em 1.25em;
+  padding: 0.5em 0 0.5em 1.25em;
   margin: 2em 0;
-  text-wrap: balance;
+  text-wrap: pretty;
+}
+@media (max-width: 640px) {
+  .prose-editorial blockquote {
+    font-size: 1.125rem;
+  }
 }
 .prose-editorial blockquote p {
   margin: 0;
@@ -797,11 +801,16 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 .prose-editorial pre .token.property {
   color: var(--syntax-attr);
 }
-.prose-editorial pre .linenumber {
-  color: var(--blog-muted) !important;
+.prose-editorial pre .linenumber,
+.prose-editorial pre .react-syntax-highlighter-line-number {
+  display: inline-block;
+  color: var(--blog-muted);
   opacity: 0.55;
-  font-style: normal !important;
-  min-width: 2em;
+  font-style: normal;
+  min-width: 2.25em;
+  padding-right: 1em;
+  text-align: right;
+  user-select: none;
 }
 
 /* Drop cap on long posts */

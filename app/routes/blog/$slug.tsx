@@ -65,11 +65,10 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
                 return match ? (
                   <SyntaxHighlighter
                     showLineNumbers
+                    useInlineStyles={false}
                     language={match[1]}
                     style={editorialPrismStyle}
                     PreTag="pre"
-                    customStyle={{}}
-                    codeTagProps={{ style: {} }}
                   >
                     {String(children).replace(/\n$/, "")}
                   </SyntaxHighlighter>
