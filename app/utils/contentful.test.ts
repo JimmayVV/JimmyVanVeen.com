@@ -16,13 +16,13 @@ const importContentful = async () => {
 describe("contentful client config", () => {
   beforeEach(() => {
     createClient.mockReset();
+    const { CONTENTFUL_PREVIEW: _unset, ...rest } = originalEnv;
     process.env = {
-      ...originalEnv,
+      ...rest,
       CONTENTFUL_SPACE_ID: "space-id",
       CONTENTFUL_ACCESS_TOKEN: "delivery-token",
       CONTENTFUL_PREVIEW_TOKEN: "preview-token",
     };
-    delete process.env.CONTENTFUL_PREVIEW;
   });
 
   afterEach(() => {
@@ -41,7 +41,7 @@ describe("contentful client config", () => {
   });
 
   it("treats CONTENTFUL_PREVIEW=false as off", async () => {
-    process.env.CONTENTFUL_PREVIEW = "false";
+    process.env = { ...process.env, CONTENTFUL_PREVIEW: "false" };
     await importContentful();
     expect(createClient).toHaveBeenCalledWith({
       space: "space-id",
@@ -63,7 +63,7 @@ describe("contentful client config", () => {
   });
 
   it("uses the Preview API when CONTENTFUL_PREVIEW=true", async () => {
-    process.env.CONTENTFUL_PREVIEW = "true";
+    process.env = { ...process.env, CONTENTFUL_PREVIEW: "true" };
     await importContentful();
     expect(createClient).toHaveBeenCalledWith({
       space: "space-id",
