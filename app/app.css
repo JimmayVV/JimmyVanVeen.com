@@ -350,17 +350,19 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
      so token colors sit AT the same luminance band, not above it. */
   --code-default-ink: #d6cdb8;
 
-  /* Token palette — luminance-matched so the block reads as one text
-     mass, with HUE (and italic for comments) doing the differentiation
-     instead of brightness contrast. Editorial, not neon. */
-  --syntax-comment: #c0b59f;
-  --syntax-keyword: #ef9b81;
-  --syntax-string: #a8c896;
-  --syntax-function: #9abace;
-  --syntax-number: #dfb887;
+  /* Token palette — moderate saturation, distinct hue families. Comments
+     stay luminance-matched to default ink (italic does the work) but
+     keywords, strings, functions all sit in clearly different hue
+     families against the cream default so the eye can parse them at a
+     glance. Editorial, not neon. */
+  --syntax-comment: #b3a48d;
+  --syntax-keyword: #f0926d;
+  --syntax-string: #a4cd87;
+  --syntax-function: #86b8e5;
+  --syntax-number: #ebbb78;
   --syntax-punct: #bdb29d;
-  --syntax-tag: #ef9b81;
-  --syntax-attr: #9abace;
+  --syntax-tag: #f0926d;
+  --syntax-attr: #86b8e5;
 }
 
 .blog-toggle {
@@ -836,26 +838,24 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   overflow-x: auto;
   overflow-y: hidden;
 }
-/* Force only <pre> to be the scroll container; the inner <code> from
-   react-syntax-highlighter must never create a second scrollbar of
-   its own. */
+/* The <code> wrapper inside <pre> from react-syntax-highlighter must
+   inherit our editorial typography and not create its own scroll. */
 .prose-editorial pre > code,
 .prose-editorial pre code[class*="language-"] {
   display: block;
-  overflow: visible !important;
-  background: transparent !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  font-family: inherit !important;
-  font-size: inherit !important;
-  font-weight: inherit !important;
-  line-height: inherit !important;
-  color: inherit !important;
+  overflow: visible;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-shadow: none;
   white-space: pre;
-  word-break: normal;
-  width: max-content;
-  min-width: 100%;
 }
 @media (max-width: 640px) {
   .prose-editorial pre,

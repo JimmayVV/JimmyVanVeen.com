@@ -82,6 +82,14 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
                   />
                 );
               },
+              // ReactMarkdown wraps fenced code in <pre> by default. We
+              // also have <SyntaxHighlighter PreTag="pre"> rendering its
+              // own <pre>. Returning the children directly (without an
+              // outer <pre>) avoids the nested-pre / double-scrollbar
+              // bug. SyntaxHighlighter ends up as the only <pre>.
+              pre({ children }) {
+                return <>{children}</>;
+              },
               code({ node: _node, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className ?? "");
                 return match ? (
@@ -90,6 +98,13 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
                     useInlineStyles={false}
                     language={match[1]}
                     PreTag="pre"
+                    // Empty style + customStyle + codeTagProps suppress
+                    // the library's default inline `color:black;
+                    // font-family:Consolas; background:none` on the
+                    // <code> wrapper, which was overriding our CSS.
+                    style={{}}
+                    customStyle={{}}
+                    codeTagProps={{ style: {} }}
                   >
                     {String(children).replace(/\n$/, "")}
                   </SyntaxHighlighter>
