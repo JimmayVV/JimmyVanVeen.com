@@ -1,6 +1,5 @@
 import { reactRouterDevTools } from "react-router-devtools";
 
-import netlify from "@netlify/vite-plugin";
 import netlifyReactRouter from "@netlify/vite-plugin-react-router";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -26,7 +25,6 @@ export default defineConfig({
     reactRouter(),
     tsconfigPaths(),
     netlifyReactRouter(),
-    netlify(),
   ],
   envPrefix: "JVV",
   envDir: "./config/env",
