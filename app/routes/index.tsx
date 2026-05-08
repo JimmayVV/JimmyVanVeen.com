@@ -18,6 +18,7 @@ interface Repository {
   homepageUrl: string | null;
   description: string | null;
   url: string;
+  screenshotUrl: string | null;
 }
 
 export async function loader() {
@@ -28,17 +29,29 @@ export async function loader() {
         .sort((a, b) => Number(a.fields.priority) - Number(b.fields.priority))
         .map((p) => p.fields.ghId),
     );
-    const repositories: Repository[] = repos.map((repo) => ({
-      name: repo.name,
-      id: repo.id,
-      homepageUrl: repo.homepage,
-      description: repo.description,
-      url: repo.html_url,
-    }));
+    const repositories: Repository[] = repos.map((repo) => {
+      const project = projects.find((p) => p.fields.ghId === repo.node_id);
+      const screenshot =
+        project?.fields.screenshot && "fields" in project.fields.screenshot
+          ? project.fields.screenshot.fields.file?.url
+          : undefined;
+      return {
+        name: repo.name,
+        id: repo.id,
+        homepageUrl: repo.homepage,
+        description: repo.description,
+        url: repo.html_url,
+        screenshotUrl: screenshot ? normalizeAssetUrl(screenshot) : null,
+      };
+    });
     return repositories;
   }
 
   return getData();
+}
+
+function normalizeAssetUrl(url: string): string {
+  return url.startsWith("//") ? `https:${url}` : url;
 }
 
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
@@ -58,7 +71,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
     <main className="home-cover">
       <div className="home-text">
         <div className="home-dateline">
-          Jimmy Van Veen · Web engineer · Detroit
+          Jimmy Van Veen · Web engineer · Greater Boston
         </div>
         <h1 className="home-title">
           I build software, write down what I learn, and race cars on the
@@ -74,8 +87,8 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
       <Plate
         className="home-hero-plate"
         src="/images/talladega_glory.jpg"
-        alt="A pack of stock cars running three-wide down the front stretch at Talladega Superspeedway."
-        caption="Plate I — Three-wide at Talladega"
+        alt="A pack of stock cars running three-wide down the front stretch at Talladega Superspeedway in iRacing."
+        caption="iRacing — the day job, and the way I spend most evenings"
         width={1920}
         height={1080}
         priority
@@ -131,6 +144,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
                       description={repo.description}
                       liveUrl={repo.homepageUrl}
                       repoUrl={repo.url}
+                      screenshotUrl={repo.screenshotUrl}
                     />
                   ))}
                 </div>

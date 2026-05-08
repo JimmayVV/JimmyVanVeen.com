@@ -456,9 +456,10 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   transition: width 80ms linear;
 }
 
-/* Reading column wrapper */
+/* Reading column wrapper — 84ch ≈ 27% wider than the typographic ideal of 66ch,
+   trading a touch of optimal measure for a more substantial feeling at desktop. */
 .blog-page {
-  max-width: 66ch;
+  max-width: 84ch;
   margin: 0 auto;
   padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 5vw, 3rem)
     clamp(3rem, 8vw, 6rem);
@@ -767,15 +768,29 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   font-size: 1.25rem;
 }
 
-/* Inline code */
+/* Inline code — tinted accent tag, set off from running prose without
+   creating a heavy box. Uses the accent color so snippets feel like
+   technical artifacts woven into the sentence rather than ghosted blocks. */
 .prose-editorial :not(pre) > code {
   font-family: var(--font-mono);
-  font-size: 0.92em;
+  font-size: 0.86em;
   font-weight: 500;
-  background: var(--blog-surface);
-  color: var(--blog-ink);
-  padding: 0.1em 0.35em;
+  background: color-mix(in srgb, var(--blog-accent) 10%, transparent);
+  color: var(--blog-accent);
+  padding: 0.15em 0.4em;
   border-radius: 3px;
+  word-break: break-word;
+}
+/* Slightly stronger background in dark mode so the tint reads against
+   the warmer ink ground. */
+.dark .prose-editorial :not(pre) > code {
+  background: color-mix(in srgb, var(--blog-accent) 14%, transparent);
+}
+/* When inline code lives inside a link, defer to the link's underline
+   treatment but keep the tag affordance. */
+.prose-editorial a > code {
+  color: inherit;
+  background: color-mix(in srgb, currentColor 10%, transparent);
 }
 
 /* Code blocks (rendered via react-syntax-highlighter into <pre><code>) */
@@ -1177,7 +1192,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   }
   .home-cover > .home-sections {
     grid-area: sections;
-    max-width: 72ch;
+    max-width: 84ch;
     margin: 0 auto;
     width: 100%;
   }
@@ -1221,12 +1236,57 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
    ─────────────────────────────────────────────────────────────────────────── */
 
 .project-row {
-  padding: 1.5rem 0;
+  padding: 1.75rem 0;
   border-bottom: 1px solid var(--blog-rule);
 }
 .project-row:last-child {
   border-bottom: none;
 }
+
+.project-row .row-screenshot {
+  display: block;
+  margin-bottom: 1.25rem;
+  background: var(--blog-surface);
+  box-shadow:
+    inset 0 0 0 1px var(--blog-rule),
+    0 1px 0 0 color-mix(in srgb, var(--blog-rule) 60%, transparent);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.project-row .row-screenshot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: saturate(0.82) contrast(1.03);
+  transition: filter 320ms ease;
+}
+.project-row .row-screenshot:hover img {
+  filter: saturate(1) contrast(1);
+}
+.project-row .row-screenshot:focus-visible {
+  outline: 2px solid var(--blog-accent);
+  outline-offset: 3px;
+}
+
+@media (min-width: 760px) {
+  .project-row.has-screenshot {
+    display: grid;
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+    gap: 1.75rem;
+    align-items: start;
+  }
+  .project-row.has-screenshot .row-screenshot {
+    margin-bottom: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-row .row-screenshot,
+  .project-row .row-screenshot img {
+    transition: none;
+  }
+}
+
 .project-row .row-title {
   font-family: var(--font-display);
   font-variation-settings: "opsz" 36;
