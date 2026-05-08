@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
+  useLocation,
 } from "react-router";
 
 import { AppHeader, type BlogTopics } from "~/components/app-header";
@@ -32,7 +33,7 @@ export const links: Route.LinksFunction = () => {
     },
     {
       rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap",
+      href: "https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,30;1,9..144,300..900,30&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap",
     },
     { rel: "stylesheet", href: styles },
   ];
@@ -62,6 +63,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script src="/theme-init.js" />
       </head>
       <body className={"min-w-(--min-width) min-h-screen"}>
         {children}
@@ -118,6 +120,13 @@ function Template({
   children: React.ReactNode;
   blogPosts?: BlogTopics[];
 }) {
+  const location = useLocation();
+  const isBlogRoute = location.pathname.startsWith("/blog");
+
+  if (isBlogRoute) {
+    return <div className="min-h-screen">{children}</div>;
+  }
+
   return (
     <SidebarProvider className="flex flex-col">
       <AppHeader blogs={blogPosts} />

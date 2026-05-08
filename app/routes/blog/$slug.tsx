@@ -1,18 +1,16 @@
-// Libs
 import ReactMarkdown from "react-markdown";
 import { redirect } from "react-router";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-import { format } from "date-fns";
 import rehypeExternalLinks from "rehype-external-links";
 
-import ContentCards, { ContentCard } from "~/components/content-cards";
-// Components
-import GradientBanner from "~/components/gradient-banner";
+import { PostFooter } from "~/components/blog/post-footer";
+import { PostHero } from "~/components/blog/post-hero";
+import { ReadingProgress } from "~/components/blog/reading-progress";
 import { trackPageView } from "~/utils/analytics-loader";
-// Utils
+import { editorialPrismStyle } from "~/utils/code-theme";
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
+import { isLongPost, readingMinutes } from "~/utils/reading-time";
 
 import type { Route } from "./+types/$slug";
 
@@ -40,51 +38,56 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 }
 clientLoader.hydrate = true;
 
-export default function Index({ loaderData: blog }: Route.ComponentProps) {
+export default function Post({ loaderData: blog }: Route.ComponentProps) {
+  const body = blog.fields.body;
+  const long = isLongPost(body);
+  const minutes = readingMinutes(body);
+
   return (
-    <div className="min-h-screen bg-black">
-      <GradientBanner>
-        <h2 className="border-b-2 border-b-zinc-500/50 text-4xl mb-6 pb-4 leading-[60px] font-bold tracking-widest">
-          {blog.fields.title}
-        </h2>
-        <p className="leading-8 tracking-widest">{blog.fields.description}</p>
-      </GradientBanner>
+    <>
+      <ReadingProgress />
+      <main className="blog-page">
+        <PostHero
+          title={blog.fields.title}
+          publishDate={blog.fields.publishDate}
+          description={blog.fields.description}
+          readingMinutes={minutes}
+        />
 
-      <ContentCards spacing="space-y-8 -mt-40 relative z-10">
-        <ContentCard>
-          <div id="blogContent" className="prose prose-invert max-w-none">
-            <ReactMarkdown
-              components={{
-                code({ node: _node, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className ?? "");
-                  return match ? (
-                    <SyntaxHighlighter
-                      showLineNumbers
-                      language={match[1]}
-                      style={vscDarkPlus}
-                      PreTag="div"
-                    >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
-              rehypePlugins={[[rehypeExternalLinks, { target: "_blank" }]]}
-            >
-              {blog.fields.body}
-            </ReactMarkdown>
-          </div>
+        <article
+          className="prose-editorial"
+          data-long={long ? "true" : undefined}
+        >
+          <ReactMarkdown
+            components={{
+              code({ node: _node, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className ?? "");
+                return match ? (
+                  <SyntaxHighlighter
+                    showLineNumbers
+                    language={match[1]}
+                    style={editorialPrismStyle}
+                    PreTag="pre"
+                    customStyle={{}}
+                    codeTagProps={{ style: {} }}
+                  >
+                    {String(children).replace(/\n$/, "")}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                );
+              },
+            }}
+            rehypePlugins={[[rehypeExternalLinks, { target: "_blank" }]]}
+          >
+            {body}
+          </ReactMarkdown>
+        </article>
 
-          <h3 className="mb-6 mt-10 pt-9 font-sans font-bold italic underline text-lg border-t-2 border-zinc-700">
-            Posted on{" "}
-            {format(new Date(blog.fields.publishDate), "MMMM dd, yyyy")}
-          </h3>
-        </ContentCard>
-      </ContentCards>
-    </div>
+        <PostFooter publishDate={blog.fields.publishDate} />
+      </main>
+    </>
   );
 }
