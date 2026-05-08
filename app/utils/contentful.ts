@@ -36,6 +36,12 @@ const activeToken = CONTENTFUL_PREVIEW
   ? CONTENTFUL_PREVIEW_TOKEN
   : CONTENTFUL_ACCESS_TOKEN;
 
+if (CONTENTFUL_PREVIEW && CONTENTFUL_PREVIEW_TOKEN.length === 0) {
+  console.warn(
+    "[contentful] CONTENTFUL_PREVIEW=true but CONTENTFUL_PREVIEW_TOKEN is not set — content will be empty",
+  );
+}
+
 const hasContentfulEnv =
   CONTENTFUL_SPACE_ID.length > 0 && activeToken.length > 0;
 
