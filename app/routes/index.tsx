@@ -1,14 +1,14 @@
 import * as React from "react";
 import { Await, Link, useRouteLoaderData } from "react-router";
+
 import { format, parseISO } from "date-fns";
 
 import { Plate } from "~/components/site/plate";
 import { ProjectRow } from "~/components/site/project-row";
+import type { loader as rootLoader } from "~/root";
 import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 import { getRepositoriesByNodeId } from "~/utils/github";
-
-import type { loader as rootLoader } from "~/root";
 
 import type { Route } from "./+types/index";
 
