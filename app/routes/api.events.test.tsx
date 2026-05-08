@@ -34,10 +34,18 @@ describe("Analytics API Route", () => {
     });
   };
 
+  const mockArgs = (request: Request) => ({
+    request,
+    url: new URL(request.url),
+    pattern: "/api/events",
+    params: {},
+    context: {} as never,
+  });
+
   describe("Request Validation", () => {
     it("should reject non-POST requests", async () => {
       const request = createMockRequest("GET");
-      const response = await action({ request, params: {}, context: {} });
+      const response = await action(mockArgs(request));
 
       expect(response.status).toBe(405);
       const data = await response.json();
@@ -48,7 +56,7 @@ describe("Analytics API Route", () => {
       const request = createMockRequest("POST", {
         properties: { foo: "bar" },
       });
-      const response = await action({ request, params: {}, context: {} });
+      const response = await action(mockArgs(request));
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -59,7 +67,7 @@ describe("Analytics API Route", () => {
       const request = createMockRequest("POST", {
         event: "invalid-event-name!",
       });
-      const response = await action({ request, params: {}, context: {} });
+      const response = await action(mockArgs(request));
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -97,11 +105,7 @@ describe("Analytics API Route", () => {
         return originalGet(name);
       };
 
-      const response = await action({
-        request: baseRequest,
-        params: {},
-        context: {},
-      });
+      const response = await action(mockArgs(baseRequest));
 
       expect(response.status).toBe(413);
       const data = await response.json();
@@ -116,7 +120,7 @@ describe("Analytics API Route", () => {
         },
       });
 
-      const response = await action({ request, params: {}, context: {} });
+      const response = await action(mockArgs(request));
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -136,7 +140,7 @@ describe("Analytics API Route", () => {
         event: "page_view",
       });
 
-      const response = await action({ request, params: {}, context: {} });
+      const response = await action(mockArgs(request));
 
       // Should still return success to client
       expect(response.status).toBe(200);
@@ -153,11 +157,9 @@ describe("Analytics API Route", () => {
       // Send 61 requests (exceeds 60 per minute limit)
       const responses = [];
       for (let i = 0; i < 61; i++) {
-        const response = await action({
-          request: createRequestWithIP("192.168.1.100"),
-          params: {},
-          context: {},
-        });
+        const response = await action(
+          mockArgs(createRequestWithIP("192.168.1.100")),
+        );
         responses.push(response);
       }
 
@@ -177,7 +179,7 @@ describe("Analytics API Route", () => {
           { event: "test_event" },
           { "x-real-ip": `192.168.1.${i}` },
         );
-        requests.push(action({ request, params: {}, context: {} }));
+        requests.push(action(mockArgs(request)));
       }
 
       const responses = await Promise.all(requests);
@@ -202,7 +204,7 @@ describe("Analytics API Route", () => {
         },
       });
 
-      const response = await action({ request, params: {}, context: {} });
+      const response = await action(mockArgs(request));
 
       expect(response.status).toBe(200);
     });
