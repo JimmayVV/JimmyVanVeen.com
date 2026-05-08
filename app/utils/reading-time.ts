@@ -6,6 +6,9 @@ function wordCount(markdown: string | undefined | null): number {
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/`[^`]*`/g, " ")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, " $1 ")
+    // Strip ATX heading markers at start of line ('# Title', '## Sub')
+    // before the bullet pass so '##' doesn't survive as a word token.
+    .replace(/^#{1,6}\s+/gm, "")
     // Strip list markers at the start of lines: '- ', '* ', '> ', and
     // numbered '1. ' / '12. ' (any digit run followed by '. ').
     .replace(/^(?:[-*>]|\d+\.)\s/gm, " ")

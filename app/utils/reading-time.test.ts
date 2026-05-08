@@ -59,6 +59,15 @@ describe("readingStats", () => {
     expect(words).toBe(6);
   });
 
+  it("strips ATX heading markers without dropping the heading text", () => {
+    const md = ["# Title here", "## Subheading text", "### Smaller one"].join(
+      "\n",
+    );
+    const { words } = readingStats(md);
+    // Title, here, Subheading, text, Smaller, one
+    expect(words).toBe(6);
+  });
+
   it("strips numbered list markers", () => {
     const md = ["1. first item", "2. second item", "12. twelfth item"].join(
       "\n",
