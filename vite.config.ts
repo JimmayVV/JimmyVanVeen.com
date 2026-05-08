@@ -5,7 +5,6 @@ import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import babel from "vite-plugin-babel";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 const ReactCompilerConfig = {
   target: "19",
@@ -23,9 +22,9 @@ export default defineConfig({
     tailwindcss(),
     reactRouterDevTools(),
     reactRouter(),
-    tsconfigPaths(),
     netlifyPlugin(),
   ],
+  resolve: { tsconfigPaths: true },
   envPrefix: "JVV",
   envDir: "./config/env",
 });
