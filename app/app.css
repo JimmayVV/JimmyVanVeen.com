@@ -320,6 +320,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
      so the dark override in `.dark .editorial-theme` can swap a deeper
      value without touching the rule that consumes it. */
   --code-surface: var(--paper-surface);
+  --code-default-ink: var(--blog-ink);
 
   background: var(--blog-bg);
   color: var(--blog-ink);
@@ -340,23 +341,25 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   --blog-accent: #d98b6e;
   --blog-accent-soft: #e6a791;
 
-  /* Code-block surface is a separate, more contrasted token from the
-     body --blog-surface (which is also used for inline-code, plate
-     frames, etc). The block needs more presence than the page so tokens
-     have something to read against. */
+  /* Code surface — distinctly deeper than the page so tokens have
+     something to read against. */
   --code-surface: #0d0b09;
+  /* Slightly toned-down body text inside code blocks, so the saturated
+     token colors below carry the visual weight instead of competing
+     with bright cream identifiers. */
+  --code-default-ink: #c8bea9;
 
-  /* Token palette tuned for the cream body color (#e8e2d5). Each hue
-     family is bumped in saturation/lightness from the previous pass so
-     keywords / strings / functions actually separate visually. */
-  --syntax-comment: #8e8270;
-  --syntax-keyword: #ef9b81;
-  --syntax-string: #b9d4a0;
-  --syntax-function: #a8c1dc;
-  --syntax-number: #edc28d;
-  --syntax-punct: #a89d88;
-  --syntax-tag: #ef9b81;
-  --syntax-attr: #a8c1dc;
+  /* Saturated token palette. Previous passes were too desaturated and
+     all read as one sepia wash. These hue families are clearly
+     separated in saturation AND luminance against #c8bea9. */
+  --syntax-comment: #a89c87;
+  --syntax-keyword: #ff8a6c;
+  --syntax-string: #a3d18a;
+  --syntax-function: #7eafe0;
+  --syntax-number: #f0bd72;
+  --syntax-punct: #c0b6a2;
+  --syntax-tag: #ff8a6c;
+  --syntax-attr: #7eafe0;
 }
 
 .blog-toggle {
@@ -817,17 +820,18 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 }
 
 /* Code blocks (rendered via react-syntax-highlighter into <pre><code>) */
+/* Code block — flat tinted strip, not a card. No border, no rounded
+   corners; bleeds slightly past the reading column on desktop so the
+   code has more horizontal room than the prose. Edge-to-edge on mobile. */
 .prose-editorial pre,
 .prose-editorial pre[class*="language-"] {
   font-family: var(--font-mono) !important;
   font-size: 0.92rem !important;
   line-height: 1.6 !important;
   background: var(--code-surface) !important;
-  color: var(--blog-ink) !important;
-  border: 1px solid var(--blog-rule);
-  border-radius: 10px;
-  padding: 1.25em 1.5em !important;
-  margin: 1.6em 0;
+  color: var(--code-default-ink) !important;
+  padding: 1em 1.25em !important;
+  margin: 1.6em -1.5rem;
   overflow-x: auto;
 }
 @media (max-width: 640px) {
@@ -835,8 +839,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   .prose-editorial pre[class*="language-"] {
     margin-left: -1.25rem;
     margin-right: -1.25rem;
-    border-radius: 0;
-    padding: 1em 1.25em !important;
+    padding: 0.875em 1.25em !important;
   }
 }
 
