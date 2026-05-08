@@ -32,15 +32,6 @@ npm run typecheck
 
 # Start local Netlify server
 npm start
-
-# Add shadcn/ui components
-npm run ui:add <component-name>
-
-# Initialize shadcn/ui (already done)
-npm run ui:init
-
-# Check for shadcn/ui updates
-npm run ui:diff <component-name>
 ```
 
 ## CI/CD Pipeline
@@ -61,19 +52,20 @@ npm run ui:diff <component-name>
 
 - **React Router v7** with SSR enabled
 - **React 19** with TypeScript strict mode
-- **Tailwind CSS v4** with shadcn/ui components
+- **Tailwind CSS v4** (no shadcn/ui — editorial design system in `app/app.css`)
 - **Vite** for building and development
 - **Contentful** for blog CMS
 - **GitHub API** via Octokit for repository data
 
 ### Key Structure
 
-- `app/root.tsx` - Application shell with sidebar provider
+- `app/root.tsx` - Application shell with global TopBar + editorial theme
 - `app/routes.ts` - Route configuration (file-based routing)
 - `app/utils/` - API integrations (Contentful, GitHub, email)
-- `app/components/ui/` - shadcn/ui component library
+- `app/components/blog/` - Blog-specific components (post hero/footer, theme toggle, reading progress)
+- `app/components/site/` - Site chrome (TopBar, Plate, ProjectRow)
 - `server/app.ts` - Netlify Functions entry point
-- `config/` - Configuration files (eslint, prettier, components.json, env, build scripts)
+- `config/` - Configuration files (eslint, prettier, env, build scripts)
 
 ### Data Flow
 
@@ -116,12 +108,10 @@ All environment variables are properly typed in `app/vite-env.d.ts` for TypeScri
 
 ### Component Organization
 
-- UI components follow shadcn/ui patterns with Radix primitives
-- Responsive sidebar layout with mobile collapse
-- CSS Grid for project displays
+- Editorial design system lives in `app/app.css` (CSS custom properties + scoped class system)
+- Two themes — paper (light) and midnight ink (dark) — via `.dark .editorial-theme`
 - Path alias `~/*` maps to `app/` directory
-- shadcn/ui configuration in `config/components.json`
-- Use `npm run ui:add <component>` to add new shadcn components
+- Typography: Newsreader (display), Source Serif 4 (body), JetBrains Mono (code), Fraunces italic (drop cap, blog-only)
 
 ### Content Management
 

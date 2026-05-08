@@ -1,20 +1,8 @@
 @import "tailwindcss";
 
-@plugin "tailwindcss-animate";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-primary: #21d;
-  --color-secondary: #333;
-  --color-brand: #e10600; /* Hex */
-  --color-brand-rgb: rgb(225, 6, 0); /* RGB */
-  --color-brand-hsl: hsl(2, 100%, 44%); /* HSL */
-  --color-brand-cmyk: cmyk(0, 97, 100, 12); /* CMYK */
-
-  --font-sans: "Source Sans 3", helvetica, sans-serif;
-  --font-raleway: Raleway, helvetica, sans-serif;
-
   /* Editorial typography (site-wide) */
   --font-display:
     Newsreader, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
@@ -22,177 +10,15 @@
   --font-serif:
     "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Menlo, monospace;
-
-  --animate-marquee: marquee 30s linear infinite;
-  --animate-marquee-slow: marquee 60s linear infinite;
-
-  --background-image-hero-pattern:
-    linear-gradient(0deg, rgba(51, 51, 51, 0.8), rgba(51, 51, 51, 0.8)),
-    url("/images/talladega_glory.jpg");
-
-  /* Smooth continuous marquee animation */
-  @keyframes marquee {
-    0% {
-      transform: translateX(0%);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
-  }
-
-  /* Alternative fade in/out animation */
-  @keyframes fade-slide {
-    0% {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-    10% {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    90% {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    100% {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-  }
 }
 
 :root {
-  --foreground: hsl(0 0% 100%);
-  --background: hsl(0 0% 3.9%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(0 0% 3.9%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(0 0% 3.9%);
-  --primary: hsl(0 0% 9%);
-  --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(0 0% 96.1%);
-  --secondary-foreground: hsl(0 0% 9%);
-  --muted: hsl(0 0% 96.1%);
-  --muted-foreground: hsl(0 0% 45.1%);
-  --accent: hsl(0 0% 96.1%);
-  --accent-foreground: hsl(0 0% 15%);
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(0 0% 89.8%);
-  --input: hsl(0 0% 89.8%);
-  --ring: hsl(0 0% 3.9%);
-  --chart-1: hsl(12 76% 61%);
-  --chart-2: hsl(173 58% 39%);
-  --chart-3: hsl(197 37% 24%);
-  --chart-4: hsl(43 74% 66%);
-  --chart-5: hsl(27 87% 67%);
-  --header-height: 3rem;
-  --radius: 0.6rem;
-  --sidebar: rgb(26 26 26 / var(--tw-bg-opacity, 1));
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-
   --min-width: 320px;
 }
 
-.dark {
-  --background: hsl(0 0% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(0 0% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(0 0% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 98%);
-  --primary-foreground: hsl(0 0% 9%);
-  --secondary: hsl(0 0% 14.9%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(0 0% 14.9%);
-  --muted-foreground: hsl(0 0% 63.9%);
-  --accent: hsl(0 0% 14.9%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(0 0% 14.9%);
-  --input: hsl(0 0% 14.9%);
-  --ring: hsl(0 0% 83.1%);
-  --chart-1: hsl(220 70% 50%);
-  --chart-2: hsl(160 60% 45%);
-  --chart-3: hsl(30 80% 55%);
-  --chart-4: hsl(280 65% 60%);
-  --chart-5: hsl(340 75% 55%);
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-}
-
-/* External link indicator - using CSS icon instead of image for color matching */
-a[target="_blank"]:not(#sidebar-footer a):after {
-  content: "↗";
-  display: inline-block;
-  margin-left: 0.2em;
-  font-size: 0.85em;
-  font-weight: bold;
-  vertical-align: super;
-  line-height: 0;
-  opacity: 0.8;
-}
-
-/* Make sure external link icon inherits the link color */
-#blogContent a[target="_blank"]:after,
-.prose a[target="_blank"]:after {
-  color: inherit;
-}
-
-/* Alternative SVG icon approach for better control */
-a[target="_blank"]:not(#sidebar-footer a)::after {
+/* External link indicator — small ↗ icon after target=_blank links,
+   inherits the surrounding text color. */
+a[target="_blank"]::after {
   content: "";
   display: inline-block;
   width: 0.75em;
@@ -204,82 +30,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   mask-repeat: no-repeat;
   mask-position: center;
   vertical-align: middle;
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-
-  #blogContent h2 {
-    @apply text-3xl font-bold mt-8 mb-4;
-  }
-
-  #blogContent p {
-    @apply mb-4 tracking-wider leading-7;
-  }
-
-  #blogContent blockquote {
-    @apply border-l-4 border-brand pl-4 pt-2 pb-1 mb-2 italic;
-  }
-
-  /* Blog content links - using brand red */
-  #blogContent a,
-  .prose a {
-    @apply font-semibold text-red-500 no-underline relative transition-all;
-    background-image: linear-gradient(to right, currentColor, currentColor);
-    background-size: 0% 2px;
-    background-position: left bottom;
-    background-repeat: no-repeat;
-    padding-bottom: 2px;
-  }
-
-  #blogContent a:hover,
-  .prose a:hover {
-    @apply text-red-400;
-    background-size: 100% 2px;
-  }
-
-  /* Alternative: Blue accent for better readability on dark background */
-  .prose-blue a {
-    @apply font-semibold text-blue-400 no-underline relative transition-all;
-    background-image: linear-gradient(to right, currentColor, currentColor);
-    background-size: 0% 2px;
-    background-position: left bottom;
-    background-repeat: no-repeat;
-    padding-bottom: 2px;
-  }
-
-  .prose-blue a:hover {
-    @apply text-blue-300;
-    background-size: 100% 2px;
-  }
-
-  #blogContent pre div {
-    @apply rounded bg-accent-foreground;
-  }
-
-  #blogContent p > code {
-    @apply bg-white rounded px-1 py-0.5 mx-0.5 text-accent-foreground;
-  }
-
-  #blogContent strong {
-    @apply font-bold;
-  }
-
-  #blogContent ul {
-    @apply list-inside list-disc;
-  }
-
-  .clip-triangle {
-    clip-path: polygon(0 100%, 100% 0, 100% 100%);
-  }
-  .clip-triangle-flip {
-    clip-path: polygon(0 0, 100% 100%, 0 100%);
-  }
+  opacity: 0.8;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -319,12 +70,14 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 
   --topbar-height: 3.5rem;
 
-  /* Code-block surface — for light mode the existing paper-surface
-     already provides sufficient contrast against the page; aliased here
-     so the dark override in `.dark .editorial-theme` can swap a deeper
-     value without touching the rule that consumes it. */
-  --code-surface: var(--paper-surface);
-  --code-default-ink: var(--blog-ink);
+  /* Code-block surface — pulled away from the page bg toward a warmer
+     parchment so the block reads as a printed-paper inset rather than
+     blending into the page. */
+  --code-surface: #ebe2c9;
+  /* Default code ink softened from full ink so colored tokens carry the
+     visual weight; pure black-on-cream made every line feel equally
+     loud and drowned out the syntax colors. */
+  --code-default-ink: #3a3225;
 
   background: var(--blog-bg);
   color: var(--blog-ink);

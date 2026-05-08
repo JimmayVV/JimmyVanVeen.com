@@ -30,7 +30,7 @@ export const links: Route.LinksFunction = () => {
     },
     {
       rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=Fraunces:ital,opsz,wght@1,9..144,300..700&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap",
+      href: "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap",
     },
     { rel: "stylesheet", href: styles },
   ];
