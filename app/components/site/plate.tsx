@@ -35,8 +35,8 @@ export function Plate({
       {caption || credit ? (
         <figcaption className="plate-caption">
           {caption}
-          {caption && credit ? "  " : null}
-          {credit ? <span className="credit">— {credit}</span> : null}
+          {caption && credit ? <span className="sep"> · </span> : null}
+          {credit ? <span className="credit">{credit}</span> : null}
         </figcaption>
       ) : null}
     </figure>
