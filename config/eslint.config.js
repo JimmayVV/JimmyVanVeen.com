@@ -3,6 +3,9 @@ import prettierConfig from "eslint-config-prettier";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import prettierPlugin from "eslint-plugin-prettier";
 import react from "eslint-plugin-react";
+// TODO(#282): unpin eslint-plugin-react-hooks from ~7.0.1 once the
+// react-hooks/set-state-in-effect rule (added in 7.1.x) is addressed
+// in use-mobile.ts and carousel.tsx.
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import unusedImports from "eslint-plugin-unused-imports";

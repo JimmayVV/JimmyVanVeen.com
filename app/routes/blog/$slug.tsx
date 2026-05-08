@@ -2,7 +2,7 @@
 import ReactMarkdown from "react-markdown";
 import { redirect } from "react-router";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import { format } from "date-fns";
 import rehypeExternalLinks from "rehype-external-links";

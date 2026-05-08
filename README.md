@@ -1,10 +1,12 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/1fb9ad3c-9c4b-4783-9ef8-7af1eb3daf8d/deploy-status)](https://app.netlify.com/sites/jimmyvanveencom/deploys)
 ![React](https://img.shields.io/github/package-json/dependency-version/JimmayVV/JimmyVanVeen.com/react?style=flat&logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/github/package-json/dependency-version/JimmayVV/JimmyVanVeen.com/typescript?style=flat&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/github/package-json/dependency-version/JimmayVV/JimmyVanVeen.com/tailwindcss?style=flat&logo=tailwindcss&logoColor=white)
+![TypeScript](https://img.shields.io/github/package-json/dependency-version/JimmayVV/JimmyVanVeen.com/dev/typescript?style=flat&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/github/package-json/dependency-version/JimmayVV/JimmyVanVeen.com/dev/tailwindcss?style=flat&logo=tailwindcss&logoColor=white)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fwww.jimmyvanveen.com&style=flat)](https://www.jimmyvanveen.com)
 [![GitHub Issues](https://img.shields.io/github/issues/JimmayVV/JimmyVanVeen.com?style=flat)](https://github.com/JimmayVV/JimmyVanVeen.com/issues)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/JimmayVV/JimmyVanVeen.com?style=flat)](https://github.com/JimmayVV/JimmyVanVeen.com/commits/main)
+[![Last commit](https://img.shields.io/github/last-commit/JimmayVV/JimmyVanVeen.com?style=flat)](https://github.com/JimmayVV/JimmyVanVeen.com/commits/main)
+![React Router](https://img.shields.io/github/package-json/dependency-version/JimmayVV/JimmyVanVeen.com/react-router?style=flat&logo=reactrouter&logoColor=white&label=react-router)
 
 # Jimmy Van Veen's Portfolio
 
