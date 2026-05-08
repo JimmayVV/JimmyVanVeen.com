@@ -3,8 +3,8 @@ command = "npm run build"
 publish = "build/client"
 
 [build.environment]
-# Pin Node to match engines and local dev
-NODE_VERSION = "20"
+# Node 22 (LTS) — Vite 8 requires Node >=20.19 || >=22.12
+NODE_VERSION = "22"
 
 [dev]
 command = "npm run dev"
