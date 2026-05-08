@@ -1,6 +1,7 @@
 import { reactRouterDevTools } from "react-router-devtools";
 
-import netlifyPlugin from "@netlify/vite-plugin-react-router";
+import netlify from "@netlify/vite-plugin";
+import netlifyReactRouter from "@netlify/vite-plugin-react-router";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
@@ -24,8 +25,16 @@ export default defineConfig({
     reactRouterDevTools(),
     reactRouter(),
     tsconfigPaths(),
-    netlifyPlugin(),
+    netlifyReactRouter(),
+    netlify(),
   ],
   envPrefix: "JVV",
   envDir: "./config/env",
+  ssr: {
+    // react-syntax-highlighter and refractor ship CJS dists that
+    // require ESM-only deps at runtime, which crashes Node-runtime
+    // Netlify Functions. Bundling them into the SSR output sidesteps
+    // the require-of-ESM error.
+    noExternal: ["react-syntax-highlighter", "refractor"],
+  },
 });
