@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link, useLocation } from "react-router";
 
-import { ThemeToggle } from "~/components/blog/theme-toggle";
+import { ThemeToggle } from "~/components/site/theme-toggle";
 
 const SECTIONS = [
   { label: "Home", to: "/" },
@@ -34,6 +34,17 @@ export function TopBar() {
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  // Make the page content behind the open sheet inert so Tab can't
+  // escape into the document below. The topbar (containing the trigger
+  // and the sheet itself) lives outside <main> and stays interactive.
+  React.useEffect(() => {
+    const main = document.querySelector("main");
+    if (!main) return;
+    if (open) main.setAttribute("inert", "");
+    else main.removeAttribute("inert");
+    return () => main.removeAttribute("inert");
   }, [open]);
 
   return (

@@ -14,11 +14,15 @@ export function ProjectRow({
   screenshotUrl,
 }: ProjectRowProps) {
   const targetUrl = liveUrl ?? repoUrl;
-  const hasScreenshot = Boolean(screenshotUrl && targetUrl);
+  // Only render the screenshot when there's somewhere to click — a
+  // decorative thumbnail with no associated action is dead UI.
+  const showScreenshot = screenshotUrl != null && targetUrl != null;
 
   return (
-    <article className={`project-row${hasScreenshot ? " has-screenshot" : ""}`}>
-      {hasScreenshot && screenshotUrl && targetUrl ? (
+    <article
+      className={`project-row${showScreenshot ? " has-screenshot" : ""}`}
+    >
+      {showScreenshot ? (
         <a
           href={targetUrl}
           target="_blank"
