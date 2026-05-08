@@ -297,15 +297,18 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   --paper-accent: #7a2e1f;
   --paper-accent-soft: #a14c39;
 
-  /* code tokens (light) */
+  /* code tokens (light) — neutrals (comment, punct) untouched per
+     feedback. Colored tokens bumped in saturation + luminance so they
+     pop against the cream surface instead of blending into the dark-
+     on-light wash. */
   --syntax-comment: #857a68;
-  --syntax-keyword: #7a2e1f;
-  --syntax-string: #3e6b3a;
-  --syntax-function: #2a4a6b;
-  --syntax-number: #8c5a1e;
+  --syntax-keyword: #a8381a;
+  --syntax-string: #3f7d2c;
+  --syntax-function: #1d5a8e;
+  --syntax-number: #a26110;
   --syntax-punct: #6e665b;
-  --syntax-tag: #7a2e1f;
-  --syntax-attr: #2a4a6b;
+  --syntax-tag: #a8381a;
+  --syntax-attr: #1d5a8e;
 
   --blog-bg: var(--paper-bg);
   --blog-surface: var(--paper-surface);
