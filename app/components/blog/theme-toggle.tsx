@@ -34,6 +34,12 @@ export function ThemeToggle() {
     theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
   if (!mounted) {
+    // suppressHydrationWarning is doing real work here. theme-init.js
+    // sets the .dark class on <html> before hydration, so getInitial()
+    // on the client may return "dark" while the SSR pass returned
+    // "light" (no document on the server). The mismatch is intentional
+    // — we render an empty placeholder until mount, at which point the
+    // real toggle renders with the correct icon/label.
     return (
       <button
         type="button"

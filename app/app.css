@@ -166,7 +166,11 @@ a[target="_blank"]::after {
 .site-topbar .menu-button:focus-visible,
 .site-mobile-sheet a:focus-visible,
 .blog-back-link:focus-visible,
-.home-section .head a.see-all:focus-visible {
+.home-section .head a.see-all:focus-visible,
+.project-row .row-links a:focus-visible,
+.site-footer a:focus-visible,
+.prose-editorial a:focus-visible,
+.blog-index-row a:focus-visible {
   outline: 2px solid var(--blog-accent);
   outline-offset: 3px;
   border-radius: 2px;
@@ -587,14 +591,18 @@ a[target="_blank"]::after {
 /* Code block — flat tinted strip, not a card. No border, no rounded
    corners; bleeds slightly past the reading column on desktop so the
    code has more horizontal room than the prose. Edge-to-edge on mobile. */
+/* No !important needed — useInlineStyles={false} + empty
+   style/customStyle/codeTagProps in $slug.tsx already prevent
+   react-syntax-highlighter from inlining anything on <pre>, so these
+   declarations win on specificity alone. */
 .prose-editorial pre,
 .prose-editorial pre[class*="language-"] {
-  font-family: var(--font-mono) !important;
-  font-size: 0.92rem !important;
-  line-height: 1.6 !important;
-  background: var(--code-surface) !important;
-  color: var(--code-default-ink) !important;
-  padding: 1em 1.25em !important;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  background: var(--code-surface);
+  color: var(--code-default-ink);
+  padding: 1em 1.25em;
   margin: 1.6em -1.5rem;
   overflow-x: auto;
   overflow-y: hidden;
@@ -623,7 +631,7 @@ a[target="_blank"]::after {
   .prose-editorial pre[class*="language-"] {
     margin-left: -1.25rem;
     margin-right: -1.25rem;
-    padding: 0.875em 1.25em !important;
+    padding: 0.875em 1.25em;
   }
 }
 

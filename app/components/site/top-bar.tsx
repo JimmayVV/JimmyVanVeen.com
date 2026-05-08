@@ -55,7 +55,7 @@ export function TopBar() {
         id="site-mobile-sheet"
         className={`site-mobile-sheet${open ? " is-open" : ""}`}
         aria-label="Mobile site navigation"
-        aria-hidden={!open}
+        aria-hidden={!open || undefined}
       >
         {SECTIONS.map((section) => (
           <Link

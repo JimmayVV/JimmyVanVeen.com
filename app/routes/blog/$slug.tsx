@@ -54,7 +54,8 @@ export function ErrorBoundary() {
 
 export default function Post({ loaderData: blog }: Route.ComponentProps) {
   const body = blog.fields.body;
-  const { minutes, long } = readingStats(body);
+  // Memoize the regex chain so re-renders don't re-walk the full post.
+  const { minutes, long } = React.useMemo(() => readingStats(body), [body]);
 
   return (
     <>
@@ -90,13 +91,15 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
               // nested-pre / double scrollbars. For untagged blocks we
               // keep the <pre> so the semantics aren't lost.
               pre({ children, ...props }) {
-                if (
-                  React.isValidElement(children) &&
-                  (children.props as { className?: string })?.className?.match(
-                    /language-/,
-                  )
-                ) {
-                  return <>{children}</>;
+                if (React.isValidElement(children)) {
+                  const childProps = children.props as Record<string, unknown>;
+                  const className = childProps.className;
+                  if (
+                    typeof className === "string" &&
+                    /language-/.test(className)
+                  ) {
+                    return <>{children}</>;
+                  }
                 }
                 return <pre {...props}>{children}</pre>;
               },
