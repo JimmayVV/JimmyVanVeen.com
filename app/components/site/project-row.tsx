@@ -14,34 +14,29 @@ export function ProjectRow({
   screenshotUrl,
 }: ProjectRowProps) {
   const targetUrl = liveUrl ?? repoUrl;
+  // Only render the screenshot when there is somewhere to click —
+  // a decorative thumbnail with no associated action is a dead UI.
+  const showScreenshot = Boolean(screenshotUrl && targetUrl);
+
   return (
-    <article className={`project-row${screenshotUrl ? " has-screenshot" : ""}`}>
-      {screenshotUrl ? (
-        targetUrl ? (
-          <a
-            href={targetUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`Open ${title}`}
-            className="row-screenshot"
-          >
-            <img
-              src={screenshotUrl}
-              alt={`Screenshot of ${title}`}
-              loading="lazy"
-              decoding="async"
-            />
-          </a>
-        ) : (
-          <div className="row-screenshot" aria-hidden="true">
-            <img
-              src={screenshotUrl}
-              alt={`Screenshot of ${title}`}
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        )
+    <article
+      className={`project-row${showScreenshot ? " has-screenshot" : ""}`}
+    >
+      {showScreenshot ? (
+        <a
+          href={targetUrl as string}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Open ${title}`}
+          className="row-screenshot"
+        >
+          <img
+            src={screenshotUrl as string}
+            alt={`Screenshot of ${title}`}
+            loading="lazy"
+            decoding="async"
+          />
+        </a>
       ) : null}
       <div className="row-body">
         <h3 className="row-title">{title}</h3>

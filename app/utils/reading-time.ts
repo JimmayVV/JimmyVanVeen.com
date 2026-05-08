@@ -6,7 +6,8 @@ function wordCount(markdown: string | undefined | null): number {
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/`[^`]*`/g, " ")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, " $1 ")
-    .replace(/[#>*_~-]/g, " ");
+    .replace(/^[-*>] /gm, " ")
+    .replace(/[#*_~]/g, " ");
   return stripped.split(/\s+/).filter(Boolean).length;
 }
 

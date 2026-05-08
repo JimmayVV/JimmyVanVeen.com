@@ -302,7 +302,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
      other dark-on-cream tones; function bumped for a touch more chroma. */
   --syntax-comment: #857a68;
   --syntax-keyword: #a8381a;
-  --syntax-string: #1f8a18;
+  --syntax-string: #0d8e5a;
   --syntax-function: #0e5fa6;
   --syntax-number: #a26110;
   --syntax-punct: #6e665b;
@@ -316,6 +316,8 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   --blog-rule: var(--paper-rule);
   --blog-accent: var(--paper-accent);
   --blog-accent-soft: var(--paper-accent-soft);
+
+  --topbar-height: 3.5rem;
 
   /* Code-block surface — for light mode the existing paper-surface
      already provides sufficient contrast against the page; aliased here
@@ -363,7 +365,7 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
      called out as well-performing — leave alone. */
   --syntax-comment: #b3a48d;
   --syntax-keyword: #f0926d;
-  --syntax-string: #85d168;
+  --syntax-string: #66cd99;
   --syntax-function: #86b8e5;
   --syntax-number: #ebbb78;
   --syntax-punct: #bdb29d;
@@ -927,9 +929,13 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
   user-select: none;
 }
 
-/* Drop cap on long posts — kept on Fraunces, the one place its character earns it */
+/* Drop cap on long posts — kept on Fraunces, the one place its character earns it.
+   font-style: italic is required because the Google Fonts URL only loads
+   Fraunces' italic axis (`ital@1`); without this declaration the browser
+   falls back to Newsreader/Georgia. */
 .prose-editorial[data-long="true"] > p:first-of-type::first-letter {
   font-family: var(--font-display-italic);
+  font-style: italic;
   font-variation-settings: "opsz" 144;
   font-weight: 700;
   float: left;
@@ -1013,10 +1019,6 @@ a[target="_blank"]:not(#sidebar-footer a)::after {
 /* ───────────────────────────────────────────────────────────────────────────
    Site chrome — TopBar (replaces sidebar)
    ─────────────────────────────────────────────────────────────────────────── */
-
-.editorial-theme {
-  --topbar-height: 3.5rem;
-}
 
 .site-topbar {
   position: sticky;

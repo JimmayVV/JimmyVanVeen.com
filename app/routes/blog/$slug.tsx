@@ -1,3 +1,4 @@
+import * as React from "react";
 import ReactMarkdown from "react-markdown";
 import { Link, redirect } from "react-router";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -84,11 +85,20 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
               },
               // ReactMarkdown wraps fenced code in <pre> by default. We
               // also have <SyntaxHighlighter PreTag="pre"> rendering its
-              // own <pre>. Returning the children directly (without an
-              // outer <pre>) avoids the nested-pre / double-scrollbar
-              // bug. SyntaxHighlighter ends up as the only <pre>.
-              pre({ children }) {
-                return <>{children}</>;
+              // own <pre>. For language-tagged code we unwrap (let
+              // SyntaxHighlighter own the <pre>) — that's how we avoid
+              // nested-pre / double scrollbars. For untagged blocks we
+              // keep the <pre> so the semantics aren't lost.
+              pre({ children, ...props }) {
+                if (
+                  React.isValidElement(children) &&
+                  (children.props as { className?: string })?.className?.match(
+                    /language-/,
+                  )
+                ) {
+                  return <>{children}</>;
+                }
+                return <pre {...props}>{children}</pre>;
               },
               code({ node: _node, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className ?? "");

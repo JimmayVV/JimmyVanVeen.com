@@ -37,14 +37,18 @@ export const links: Route.LinksFunction = () => {
 };
 
 export async function loader() {
-  const blogPosts = await getCachedBlogPosts();
-
-  return blogPosts.map((blog) => ({
-    title: blog.fields.title,
-    description: blog.fields.description ?? undefined,
-    slug: blog.fields.slug,
-    publishDate: blog.fields.publishDate,
-  }));
+  try {
+    const blogPosts = await getCachedBlogPosts();
+    return blogPosts.map((blog) => ({
+      title: blog.fields.title,
+      description: blog.fields.description ?? undefined,
+      slug: blog.fields.slug,
+      publishDate: blog.fields.publishDate,
+    }));
+  } catch (error) {
+    console.error("Root loader: failed to load blog posts", error);
+    return [];
+  }
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {

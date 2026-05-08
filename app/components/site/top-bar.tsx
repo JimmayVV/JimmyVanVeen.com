@@ -23,7 +23,7 @@ export function TopBar() {
 
   return (
     <>
-      <header className="site-topbar" role="banner">
+      <header className="site-topbar">
         <Link to="/" prefetch="intent" className="brand">
           Jimmy Van Veen
         </Link>
