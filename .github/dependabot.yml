@@ -28,3 +28,29 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "react-dom"
         update-types: ["version-update:semver-major"]
+      # Held-back items tracked by GitHub issues. Remove the
+      # corresponding entry below when the issue is closed.
+
+      # #296 — typescript-eslint caps at TS 5.x; revisit when it ships
+      # a TS-6-compatible major.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+
+      # #295 — eslint-plugin-react / -jsx-a11y / -react-hooks all peer
+      # cap at ^9. Revisit when the plugin ecosystem widens.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/js"
+        update-types: ["version-update:semver-major"]
+
+      # #282 — eslint-plugin-react-hooks 7.1.x introduced a new
+      # set-state-in-effect rule that fires on shadcn boilerplate.
+      # Pinned at ~7.0.1 in package.json; ignore minor bumps too until
+      # the rule is addressed.
+      - dependency-name: "eslint-plugin-react-hooks"
+        update-types:
+          ["version-update:semver-minor", "version-update:semver-major"]
+
+      # @types/node tracks Node LTS (22). Skip non-LTS jumps to 25/27/etc.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
