@@ -84,9 +84,7 @@ export async function withServerLoaderAnalytics(
   const result = await args.serverLoader();
 
   // Track page view in background to not block the loader
-  trackPageView().catch((error) => {
-    console.warn("Analytics tracking failed:", error);
-  });
+  trackPageView().catch(reportBackgroundAnalyticsFailure);
 
   return result;
 }
@@ -97,11 +95,32 @@ export async function withServerLoaderAnalytics(
  */
 export async function withCustomLoaderAnalytics<T>(data: T): Promise<T> {
   // Track page view in background to not block the loader
-  trackPageView().catch((error) => {
-    console.warn("Analytics tracking failed:", error);
-  });
+  trackPageView().catch(reportBackgroundAnalyticsFailure);
 
   return data;
+}
+
+/**
+ * Report a background analytics failure via the structured logger.
+ *
+ * Wrapped in try/catch because both helpers above invoke this in
+ * fire-and-forget `.catch()` handlers — if the logger itself fails to
+ * resolve (e.g. dynamic import of `logger.client` throws), we must not
+ * surface an unhandled promise rejection. The console.warn fallback
+ * preserves visibility in that degenerate path.
+ */
+async function reportBackgroundAnalyticsFailure(error: unknown): Promise<void> {
+  try {
+    const logger = await getRouteLogger();
+    logger.warn({ error }, "Analytics tracking failed in background");
+  } catch (loggerError) {
+    // Last-resort fallback when the structured logger itself fails to load.
+    console.warn(
+      "Analytics tracking failed and structured logger unavailable:",
+      error,
+      loggerError,
+    );
+  }
 }
 
 /**
