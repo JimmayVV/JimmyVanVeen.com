@@ -6,17 +6,60 @@ on:
   pull_request_review_comment:
     types: [created]
   issues:
-    types: [opened, assigned]
+    # Only `opened` — `assigned` would re-fire Claude every time an issue
+    # with `@claude` in its body got reassigned, since author_association
+    # tracks the issue's original author, not the assigner.
+    types: [opened]
   pull_request_review:
     types: [submitted]
 
 jobs:
   claude:
+    # Defense-in-depth: only trigger for trusted callers. `author_association`
+    # is set by GitHub on every event payload and reflects the commenter's
+    # relationship to the repo. OWNER + MEMBER + COLLABORATOR are the only
+    # values we accept; everyone else is deliberately excluded:
+    #   - CONTRIBUTOR / FIRST_TIME_CONTRIBUTOR / FIRST_TIMER — strangers and
+    #     drive-by contributors. Never trusted with secret access.
+    #   - NONE — no relationship. Default for new commenters on public repos.
+    #   - MANNEQUIN — placeholder users (e.g. unimported authors). Untrusted.
+    # Bot accounts (e.g. github-actions[bot], dependabot[bot]) typically
+    # report NONE or CONTRIBUTOR, so they're also dropped here. That's the
+    # desired behavior — we don't want automated comments containing
+    # `@claude` to trigger billable runs.
+    #
+    # On the `issues` branch, `author_association` reflects the issue's
+    # ORIGINAL author. This is safe specifically because the trigger types
+    # are `[opened]` only — if `labeled`, `edited`, or other action types
+    # are ever added to `on.issues.types`, revisit this gate: those events
+    # fire on actions performed by someone OTHER than the original author,
+    # and using the author's association would let an old issue from a
+    # trusted user be reused as a trigger payload.
+    #
+    # This matters if the repo ever goes public — without this gate,
+    # anyone with comment access could trigger billable Claude runs using
+    # CLAUDE_CODE_OAUTH_TOKEN.
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      (
+        github.event_name == 'issue_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      ) ||
+      (
+        github.event_name == 'pull_request_review_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      ) ||
+      (
+        github.event_name == 'pull_request_review' &&
+        contains(github.event.review.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.review.author_association)
+      ) ||
+      (
+        github.event_name == 'issues' &&
+        (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')) &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)
+      )
     runs-on: ubuntu-latest
     permissions:
       contents: read
