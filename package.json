@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.19.0"
+    "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
     "build": "react-router build",
@@ -12,6 +12,7 @@
     "typecheck": "react-router typegen && tsc",
     "lint": "eslint . -c ./config/eslint.config.js",
     "lint:fix": "eslint . -c ./config/eslint.config.js --fix",
+    "lint:fast": "oxlint -c ./config/oxlintrc.json --tsconfig=./tsconfig.json",
     "prepare": "husky",
     "format": "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write .",
     "format:check": "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --check .",
@@ -25,6 +26,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "oxlint -c ./config/oxlintrc.json --tsconfig=./tsconfig.json --fix",
       "eslint -c ./config/eslint.config.js --fix",
       "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write"
     ],
@@ -88,6 +90,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.4",
     "netlify-cli": "^26.0.1",
+    "oxlint": "^1.64.0",
     "prettier": "^3.5.3",
     "react-router-devtools": "^6.2.0",
     "tailwindcss": "^4.3.0",
