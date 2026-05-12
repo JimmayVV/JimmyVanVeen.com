@@ -19,16 +19,7 @@ export function TopBar() {
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const firstLinkRef = React.useRef<HTMLAnchorElement>(null);
 
-  // Close the mobile sheet whenever the route changes. Stored as "info from
-  // a previous render" per React's docs[1] — setting state during render
-  // (guarded so it only fires on actual pathname change) is preferred over
-  // an effect for this kind of cross-render reset, because it avoids the
-  // cascading-render warning the react-hooks/set-state-in-effect rule
-  // (correctly) emits for the effect form. Using useState (not useRef) for
-  // the comparison value is intentional: refs aren't permitted to mutate
-  // during render under the newer react-hooks/refs rule.
-  //
-  // [1] https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  // Reset `open` on route change via "info from previous renders": https://react.dev/reference/react/useState#storing-information-from-previous-renders
   const [prevPathname, setPrevPathname] = React.useState(pathname);
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
