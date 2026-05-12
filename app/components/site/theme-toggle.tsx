@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect -- canonical SSR mount-swap pattern; useSyncExternalStore not worth the rewrite for one post-mount render */
 import * as React from "react";
 
 type Theme = "light" | "dark";
@@ -17,6 +16,7 @@ export function ThemeToggle() {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- canonical SSR mount-swap; not worth a useSyncExternalStore rewrite for one post-mount render
     setMounted(true);
   }, []);
 

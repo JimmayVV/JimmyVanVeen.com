@@ -1,4 +1,8 @@
 {
+  "//pin-notes": {
+    "typescript": "Tilde pin (~6.0.3): typescript-eslint peer dep caps at <6.1.0, so caret would pull 6.1.x and break tsc.",
+    "eslint-plugin-react-hooks": "Caret pin (^7.1.1) since #310; ESLint 10 still blocked by eslint-plugin-react / jsx-a11y peer ranges (see #295)."
+  },
   "private": true,
   "type": "module",
   "engines": {
