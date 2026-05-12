@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect -- canonical SSR mount-swap pattern; useSyncExternalStore not worth the rewrite for one post-mount render */
 import * as React from "react";
 
 type Theme = "light" | "dark";

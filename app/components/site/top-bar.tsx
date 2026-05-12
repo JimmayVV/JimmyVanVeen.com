@@ -19,9 +19,12 @@ export function TopBar() {
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const firstLinkRef = React.useRef<HTMLAnchorElement>(null);
 
-  React.useEffect(() => {
+  // Reset `open` on route change via "info from previous renders": https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  const [prevPathname, setPrevPathname] = React.useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setOpen(false);
-  }, [pathname]);
+  }
 
   // Escape closes the mobile sheet and returns focus to the trigger so
   // keyboard users aren't stranded inside an open menu.
