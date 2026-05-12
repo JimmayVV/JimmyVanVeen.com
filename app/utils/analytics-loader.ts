@@ -100,15 +100,7 @@ export async function withCustomLoaderAnalytics<T>(data: T): Promise<T> {
   return data;
 }
 
-/**
- * Report a background analytics failure via the structured logger.
- *
- * Wrapped in try/catch because both helpers above invoke this in
- * fire-and-forget `.catch()` handlers — if the logger itself fails to
- * resolve (e.g. dynamic import of `logger.client` throws), we must not
- * surface an unhandled promise rejection. The console.warn fallback
- * preserves visibility in that degenerate path.
- */
+// Fire-and-forget; logger try/catch prevents unhandled rejection if `logger.client` import throws.
 async function reportBackgroundAnalyticsFailure(error: unknown): Promise<void> {
   try {
     const logger = await getRouteLogger();
