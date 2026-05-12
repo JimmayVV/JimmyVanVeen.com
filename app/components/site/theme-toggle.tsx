@@ -1,3 +1,13 @@
+/* eslint-disable react-hooks/set-state-in-effect --
+ * `setMounted(true)` in a mount-time effect is the canonical SSR/CSR
+ * hydration pattern: render an aria-hidden placeholder on the server (where
+ * `document` is undefined), then swap in the real toggle once we know the
+ * actual theme class on `<html>`. The rule's warning about cascading renders
+ * is correct in general, but here the second render IS the point — it's how
+ * we avoid a hydration mismatch and a flash of wrong-themed icon. Migrating
+ * to `useSyncExternalStore` would work but is a 20-line rewrite for a single
+ * post-mount re-render; not worth it for this small component.
+ */
 import * as React from "react";
 
 type Theme = "light" | "dark";
