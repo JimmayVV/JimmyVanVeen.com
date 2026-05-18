@@ -92,7 +92,7 @@
     "globals": "^17.6.0",
     "happy-dom": "^20.8.9",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.4",
+    "lint-staged": "^17.0.5",
     "netlify-cli": "^26.0.1",
     "oxlint": "^1.64.0",
     "prettier": "^3.5.3",
