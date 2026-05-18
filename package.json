@@ -94,7 +94,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
     "netlify-cli": "^26.0.1",
-    "oxlint": "^1.64.0",
+    "oxlint": "^1.65.0",
     "prettier": "^3.5.3",
     "react-router-devtools": "^6.2.0",
     "tailwindcss": "^4.3.0",
