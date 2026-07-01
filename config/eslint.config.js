@@ -26,7 +26,7 @@ export default tseslint.config(
     ],
   },
   js.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
   react.configs.flat.recommended,
   react.configs.flat["jsx-runtime"],
   jsxA11y.flatConfigs.recommended,
@@ -103,6 +103,7 @@ export default tseslint.config(
       "@typescript-eslint/restrict-template-expressions": "off", // Allow number/boolean in templates
       "@typescript-eslint/no-base-to-string": "off", // Allow FormData stringification
       "@typescript-eslint/no-non-null-assertion": "off", // Sometimes needed for type narrowing
+      "@typescript-eslint/require-await": "off", // clientLoader/action + provider interfaces are async by contract
 
       // React specific
       "react/prop-types": "off", // Using TypeScript
@@ -115,6 +116,12 @@ export default tseslint.config(
   },
   {
     files: ["**/*.js", "**/*.mjs"],
+    ...tseslint.configs.disableTypeChecked,
+  },
+  {
+    // Tests legitimately use `any`, casts, and mocks; type-aware rules
+    // (no-unsafe-*, etc.) add noise, not safety, here.
+    files: ["**/*.test.{ts,tsx}", "e2e/**/*.ts"],
     ...tseslint.configs.disableTypeChecked,
   },
 );

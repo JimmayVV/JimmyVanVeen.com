@@ -58,14 +58,17 @@ export async function action({ request }: ActionFunctionArgs) {
       return Response.json({ error: "Request too large" }, { status: 413 });
     }
 
-    const body = await request.json();
+    const body: unknown = await request.json();
 
     // Validate input structure
     if (!body || typeof body !== "object") {
       return Response.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const { event, properties = {} } = body;
+    const { event, properties = {} } = body as {
+      event?: unknown;
+      properties?: Record<string, unknown>;
+    };
 
     // Validate event name
     if (!event || typeof event !== "string") {
