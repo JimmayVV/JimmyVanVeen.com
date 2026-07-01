@@ -1,10 +1,14 @@
 import nodemailer from "nodemailer";
 
+function envString(name: string): string {
+  return process.env[name] ?? "";
+}
+
 const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE as string,
+  service: envString("EMAIL_SERVICE"),
   auth: {
-    user: process.env.EMAIL_ADDRESS as string,
-    pass: process.env.EMAIL_APP_PASSWORD as string,
+    user: envString("EMAIL_ADDRESS"),
+    pass: envString("EMAIL_APP_PASSWORD"),
   },
 });
 
@@ -21,7 +25,7 @@ export async function sendMail({
 }) {
   const mailOptions = {
     from: "contact@jimmyvanveen.com",
-    to: process.env.EMAIL_ADDRESS as string,
+    to: envString("EMAIL_ADDRESS"),
     subject: "New Message from JimmyVanVeen.com",
     text: `
 			Name: ${name}

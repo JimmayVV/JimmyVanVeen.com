@@ -143,13 +143,16 @@ export class GoatCounterProvider
     }
 
     // Extract pageview data from event properties
+    const asString = (value: unknown): string | undefined =>
+      typeof value === "string" ? value : undefined;
+
     const pageViewData: PageViewData = {
-      path: (event.properties.page_path as string) || "/",
-      url: (event.properties.page_location as string) || "",
-      title: (event.properties.page_title as string) || "",
-      referrer: event.properties.page_referrer as string | undefined,
+      path: asString(event.properties.page_path) || "/",
+      url: asString(event.properties.page_location) || "",
+      title: asString(event.properties.page_title) || "",
+      referrer: asString(event.properties.page_referrer),
       timestamp:
-        (event.properties.timestamp as string) || new Date().toISOString(),
+        asString(event.properties.timestamp) || new Date().toISOString(),
     };
 
     await this.trackPageView(pageViewData, context);

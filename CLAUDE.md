@@ -127,6 +127,21 @@ All environment variables are properly typed in `app/vite-env.d.ts` for TypeScri
 
 ## Key Patterns
 
+### TypeScript Conventions
+
+- **Never use `as` type assertions.** They are banned in this project — an
+  `as` assertion tells the compiler to trust you instead of proving the type,
+  which is exactly where runtime bugs hide. Instead:
+  - Narrow with a **type guard** (`function isX(v: unknown): v is X`)
+  - **Validate/parse** untyped input (e.g. `request.json()`, `formData.get`,
+    `process.env`) at the boundary before use
+  - Use **`satisfies`** to check a value against a type without widening it
+  - `as const` is fine — it is a const assertion, not a type assertion
+- Enforcement is layered: an ESLint rule
+  (`@typescript-eslint/consistent-type-assertions`) fails CI, and a Claude Code
+  PreToolUse hook (`.claude/hooks/no-as-assertion.mjs`) blocks edits that
+  introduce one.
+
 ### Component Organization
 
 - Editorial design system lives in `app/app.css` (CSS custom properties + scoped class system)
