@@ -1,5 +1,6 @@
 import { redirect } from "react-router";
 
+import { isRecord } from "~/utils/is-record";
 import { sendMail } from "~/utils/mail";
 
 import type { Route } from "./+types/email";
@@ -18,10 +19,15 @@ export async function action({ request }: Route.ActionArgs) {
 
   const formData = await request.formData();
 
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const phone = formData.get("phone") as string;
-  const message = formData.get("message") as string;
+  const field = (key: string): string => {
+    const value = formData.get(key);
+    return typeof value === "string" ? value : "";
+  };
+
+  const name = field("name");
+  const email = field("email");
+  const phone = field("phone");
+  const message = field("message");
   const captcha = formData.get("captcha");
 
   // Ping the google recaptcha verify API to verify the captcha code you received
@@ -36,7 +42,8 @@ export async function action({ request }: Route.ActionArgs) {
     },
   );
 
-  const data = (await response.json()) as { success: boolean };
+  const result: unknown = await response.json();
+  const captchaVerified = isRecord(result) && result.success === true;
 
   /**
    * The structure of response from the veirfy API is
@@ -57,12 +64,12 @@ export async function action({ request }: Route.ActionArgs) {
     message: !message ? "Message is required" : null,
   };
 
-  if (Object.values(fieldErrors).some(Boolean) || !data.success) {
+  if (Object.values(fieldErrors).some(Boolean) || !captchaVerified) {
     return {
       success: false,
       fieldErrors,
       fields,
-      error: !data.success
+      error: !captchaVerified
         ? "Unproccesable request, Invalid captcha code"
         : undefined,
     };

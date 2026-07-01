@@ -14,7 +14,10 @@ const requestHandler = createRequestHandler(
 );
 
 export default async (request: Request, context: Context) => {
-  return requestHandler(request, context as unknown as AppLoadContext);
+  // AppLoadContext augments Context with an index signature; a fresh object
+  // literal satisfies that structurally without a type assertion.
+  const loadContext: AppLoadContext = { ...context };
+  return requestHandler(request, loadContext);
 };
 
 export const config: Config = {

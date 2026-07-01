@@ -110,6 +110,13 @@ export default tseslint.config(
       "react/react-in-jsx-scope": "off", // React 17+ JSX transform
       "react/jsx-uses-react": "off", // React 17+ JSX transform
 
+      // Ban `as` type assertions (allow `as const`). Prove types with type
+      // guards / validation / `satisfies` instead of asserting them.
+      "@typescript-eslint/consistent-type-assertions": [
+        "error",
+        { assertionStyle: "never" },
+      ],
+
       // Prettier integration
       "prettier/prettier": "error",
     },
@@ -123,5 +130,22 @@ export default tseslint.config(
     // (no-unsafe-*, etc.) add noise, not safety, here.
     files: ["**/*.test.{ts,tsx}", "e2e/**/*.ts"],
     ...tseslint.configs.disableTypeChecked,
+  },
+  {
+    // TODO(#381): migrate test/e2e `as` assertions to @total-typescript/
+    // shoehorn, then remove this exemption so the ban is project-wide.
+    files: ["**/*.test.{ts,tsx}", "e2e/**/*.ts"],
+    rules: {
+      "@typescript-eslint/consistent-type-assertions": "off",
+    },
+  },
+  {
+    // TODO(#382): the generic blob/memory cache asserts `data as T` because a
+    // cached value's runtime type is erased. Removing these needs a validator
+    // passed per cache call; deferred to a focused refactor.
+    files: ["app/utils/contentful-cache.ts"],
+    rules: {
+      "@typescript-eslint/consistent-type-assertions": "off",
+    },
   },
 );

@@ -11,6 +11,7 @@ import { ReadingProgress } from "~/components/blog/reading-progress";
 import { Plate } from "~/components/site/plate";
 import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
+import { isRecord } from "~/utils/is-record";
 import { readingStats } from "~/utils/reading-time";
 
 import type { Route } from "./+types/$slug";
@@ -98,9 +99,11 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
               // syntax-highlighting support and we can drop the
               // SyntaxHighlighter component entirely.
               pre({ children, ...props }) {
-                if (React.isValidElement(children)) {
-                  const childProps = children.props as Record<string, unknown>;
-                  const className = childProps.className;
+                if (
+                  React.isValidElement(children) &&
+                  isRecord(children.props)
+                ) {
+                  const className = children.props.className;
                   if (
                     typeof className === "string" &&
                     /language-/.test(className)

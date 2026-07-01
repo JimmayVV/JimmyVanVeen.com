@@ -3,6 +3,7 @@ import { type ActionFunctionArgs } from "react-router";
 import { createGoatCounterProvider } from "~/utils/analytics/providers/goatcounter";
 import { registry } from "~/utils/analytics/providers/registry";
 import type { AnalyticsEvent, ServerContext } from "~/utils/analytics/types";
+import { isRecord } from "~/utils/is-record";
 
 // Initialize providers on first load
 let hasInitialized = false;
@@ -61,17 +62,15 @@ export async function action({ request }: ActionFunctionArgs) {
     const body: unknown = await request.json();
 
     // Validate input structure
-    if (!body || typeof body !== "object") {
+    if (!isRecord(body)) {
       return Response.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const { event, properties = {} } = body as {
-      event?: unknown;
-      properties?: Record<string, unknown>;
-    };
+    const event = body.event;
+    const properties = body.properties ?? {};
 
     // Validate event name
-    if (!event || typeof event !== "string") {
+    if (typeof event !== "string" || event.length === 0) {
       return Response.json(
         { error: "Event name is required and must be a string" },
         { status: 400 },
@@ -90,10 +89,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     // Validate properties object
-    if (
-      properties &&
-      (typeof properties !== "object" || Array.isArray(properties))
-    ) {
+    if (!isRecord(properties)) {
       return Response.json(
         { error: "Properties must be an object" },
         { status: 400 },
@@ -318,13 +314,11 @@ function sanitizeProperties(
       return value.slice(0, 10).map((item) => sanitizeValue(item, depth + 1));
     }
 
-    if (typeof value === "object") {
+    if (isRecord(value)) {
       const sanitized: Record<string, unknown> = {};
       let count = 0;
 
-      for (const [key, val] of Object.entries(
-        value as Record<string, unknown>,
-      )) {
+      for (const [key, val] of Object.entries(value)) {
         if (count >= MAX_PROPERTIES) break;
 
         // Sanitize key names
@@ -343,7 +337,8 @@ function sanitizeProperties(
   }
 
   try {
-    return sanitizeValue(properties, 0) as Record<string, unknown>;
+    const sanitized = sanitizeValue(properties, 0);
+    return isRecord(sanitized) ? sanitized : null;
   } catch (error) {
     console.error("Error sanitizing properties:", error);
     return null;
