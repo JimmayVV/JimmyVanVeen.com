@@ -5,7 +5,6 @@ import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import babel from "vite-plugin-babel";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 const ReactCompilerConfig = {
   target: "19",
@@ -14,7 +13,7 @@ const ReactCompilerConfig = {
 export default defineConfig({
   plugins: [
     babel({
-      filter: /\.[jt]sx?$/,
+      include: /\.[jt]sx?$/,
       babelConfig: {
         presets: ["@babel/preset-typescript"],
         plugins: [["babel-plugin-react-compiler", ReactCompilerConfig]],
@@ -23,11 +22,15 @@ export default defineConfig({
     tailwindcss(),
     reactRouterDevTools(),
     reactRouter(),
-    tsconfigPaths(),
     netlifyReactRouter(),
   ],
   envPrefix: "JVV",
   envDir: "./config/env",
+  resolve: {
+    // Vite 8 resolves tsconfig `paths` (the `~/*` alias) natively,
+    // replacing the vite-tsconfig-paths plugin.
+    tsconfigPaths: true,
+  },
   ssr: {
     // react-syntax-highlighter and refractor ship CJS dists that
     // require ESM-only deps at runtime, which crashes Node-runtime
