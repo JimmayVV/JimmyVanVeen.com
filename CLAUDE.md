@@ -46,6 +46,30 @@ npm start
 
 **Quality Gates**: All CI checks must pass before merging to main.
 
+## Dependency & Lockfile Hygiene
+
+Hard-won lessons — follow these to avoid green-locally / red-in-CI loops:
+
+- **Regenerate `package-lock.json` with the pinned Node/npm, not whatever is
+  newest locally.** CI and Netlify build on **Node 22 (npm 10)** — the version
+  in `.nvmrc` / `netlify.toml`. A newer npm (e.g. 11) dedupes transitive deps
+  differently and writes a lock that npm 10's `npm ci` rejects with
+  `Missing: <pkg> from lock file` — which surfaces as a CI "Install
+  dependencies" failure _and_ a Netlify deploy-preview failure, while
+  `npm install`/`npm ci` still pass locally on the newer npm. Before touching
+  the lockfile: `nvm use` (reads `.nvmrc` → 22), or run `npx npm@10 install`.
+  Sanity-check with `npx npm@10 ci --dry-run` before pushing.
+- **A broken lock can poison Netlify's build cache.** If a bad lock was pushed
+  once, later good pushes may still fail install because Netlify reuses the
+  cached state. Fix: **Clear cache and deploy** in the Netlify UI (or the
+  `createSiteBuild` API with `clear_cache: true`), then re-trigger the preview.
+- **Fetch before branching.** Dependabot auto-merges advance `origin/main`
+  between sessions; branch from an up-to-date `main` so the inherited lockfile
+  is current.
+- **`npm run lint` runs `react-router typegen` first.** Type-aware ESLint needs
+  the generated route types (`.react-router/types`); without them every route
+  file trips `no-unsafe-*`. Keep the typegen prefix on the `lint` script.
+
 ## Architecture
 
 ### Tech Stack
