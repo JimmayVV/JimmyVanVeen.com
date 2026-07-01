@@ -92,15 +92,19 @@ We chose Vite as our build tool and development server.
 export default defineConfig({
   plugins: [
     reactRouter(),
-    tsconfigPaths(),
     babel({
-      filter: /\.[jt]sx?$/,
+      include: /\.[jt]sx?$/,
       babelConfig: {
         presets: ["@babel/preset-typescript"],
         plugins: ["babel-plugin-react-compiler"],
       },
     }),
   ],
+  // Vite 8 resolves tsconfig `paths` (the `~/*` alias) natively, replacing
+  // the vite-tsconfig-paths plugin.
+  resolve: {
+    tsconfigPaths: true,
+  },
 });
 ```
 
@@ -137,9 +141,11 @@ export default defineConfig({
 ## Plugin Ecosystem Used
 
 1. **@netlify/vite-plugin-react-router**: React Router integration
-2. **vite-tsconfig-paths**: Path alias support
-3. **vite-plugin-babel**: React Compiler support
-4. **@tailwindcss/vite**: Tailwind CSS v4
+2. **vite-plugin-babel**: React Compiler support
+3. **@tailwindcss/vite**: Tailwind CSS v4
+
+Path aliases (`~/*`) are resolved by Vite 8's native `resolve.tsconfigPaths`,
+so no `vite-tsconfig-paths` plugin is needed.
 
 ## Developer Experience
 
