@@ -45,17 +45,55 @@ if (Array.isArray(input.edits)) {
 }
 if (chunks.length === 0) process.exit(0);
 
-// A type assertion is ` as <Type>` where <Type> is not `const`. Allow
-// import/export aliases (`import x as y`) which live on import/export lines.
-const ASSERTION = /\bas\s+(?!const\b)[A-Za-z_{([<]/;
+// A type assertion is `<expr> as <Type>` (not `as const`). Require an
+// expression-ending char before `as` so ordinary prose ("known as X",
+// "such as Y") doesn't match, and only scan code — comments and string /
+// template contents are stripped first so a comment like `// treat as JSON`
+// or a string like "logged in as admin" can't false-positive. This is a
+// best-effort early warning; the ESLint rule is the authoritative check.
+const ASSERTION = /[\w$)\]]\s+as\s+(?!const\b)[A-Za-z_{([<]/;
 
-const offenders = [];
-for (const chunk of chunks) {
-  for (const line of chunk.split("\n")) {
-    if (/^\s*(import|export)\b/.test(line)) continue; // skip module aliases
-    if (ASSERTION.test(line)) offenders.push(line.trim());
+function scanForAssertions(chunk) {
+  const found = [];
+  let inBlockComment = false;
+  let inTemplate = false;
+  for (const original of chunk.split("\n")) {
+    let line = original;
+    if (inBlockComment) {
+      const end = line.indexOf("*/");
+      if (end === -1) continue;
+      line = line.slice(end + 2);
+      inBlockComment = false;
+    }
+    if (inTemplate) {
+      const end = line.indexOf("`");
+      if (end === -1) continue;
+      line = line.slice(end + 1);
+      inTemplate = false;
+    }
+    line = line.replace(/\/\*[^]*?\*\//g, " "); // inline block comments
+    const openBlock = line.indexOf("/*");
+    if (openBlock !== -1) {
+      inBlockComment = true;
+      line = line.slice(0, openBlock);
+    }
+    line = line.replace(/\/\/.*$/, ""); // line comment
+    line = line
+      .replace(/'(?:\\.|[^'\\])*'/g, "''")
+      .replace(/"(?:\\.|[^"\\])*"/g, '""')
+      .replace(/`(?:\\.|[^`\\])*`/g, "``"); // complete strings/templates
+    const openTemplate = line.indexOf("`"); // unterminated template
+    if (openTemplate !== -1) {
+      inTemplate = true;
+      line = line.slice(0, openTemplate);
+    }
+    if (/^\s*(import|export)\b/.test(line)) continue; // module aliases
+    if (ASSERTION.test(line)) found.push(original.trim());
   }
+  return found;
 }
+
+const offenders = chunks.flatMap(scanForAssertions);
 
 if (offenders.length > 0) {
   const sample = offenders.slice(0, 5).join("\n  ");
