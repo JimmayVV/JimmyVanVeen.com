@@ -66,9 +66,6 @@ Hard-won lessons — follow these to avoid green-locally / red-in-CI loops:
 - **Fetch before branching.** Dependabot auto-merges advance `origin/main`
   between sessions; branch from an up-to-date `main` so the inherited lockfile
   is current.
-- **`npm run lint` runs `react-router typegen` first.** Type-aware ESLint needs
-  the generated route types (`.react-router/types`); without them every route
-  file trips `no-unsafe-*`. Keep the typegen prefix on the `lint` script.
 
 ## Architecture
 
