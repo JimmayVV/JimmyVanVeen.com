@@ -139,7 +139,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
             <Await resolve={repos} errorElement={<ProjectsError />}>
               {(resolvedRepos) => (
                 <div>
-                  {resolvedRepos.slice(0, 4).map((repo: Repository) => (
+                  {resolvedRepos.map((repo: Repository) => (
                     <ProjectRow
                       key={repo.id}
                       title={repo.name}
