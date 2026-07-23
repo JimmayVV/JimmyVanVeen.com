@@ -45,8 +45,18 @@ Two facts discovered during planning reshaped the approach (all versions as of
 ## Decision
 
 Adopt the **oxc toolchain** (oxlint + oxfmt + tsgolint) on **TypeScript 7** and
-**Node 24 / npm 12**, at maximal strictness, landed as **one PR** structured in
-verifiable layers.
+**Node 24** (with the npm it bundles — see note), at maximal strictness, landed
+as **one PR** structured in verifiable layers.
+
+> **npm 12 note (2026-07-23):** The original ask named npm 12, but **no Node
+> release bundles npm 12** — even Node 26.5.0 (2026-07-08) ships npm 11.17.0 —
+> and corepack deliberately will not shim the bare `npm` command (only
+> `corepack npm …` reaches it). Chasing npm 12 would mean a per-environment
+> global install and a lockfile regenerated in npm 12's format, i.e. _more_
+> drift surface, against the "robust CI" goal. Decision: **stay on the npm
+> bundled with Node 24 (11.x)**. `.nvmrc` then drives Node _and_ npm from one
+> file, and the existing lockfile stays valid (no regeneration). Revisit if/when
+> a Node release bundles npm 12.
 
 1. **Linter:** replace ESLint + typescript-eslint entirely with **oxlint** +
    **tsgolint** type-aware linting. Delete `eslint`, `@eslint/js`,
@@ -72,14 +82,13 @@ verifiable layers.
    for expected-type-error tests; `@total-typescript/shoehorn`
    (`fromPartial`/`fromAny`) for partial mocks; a justified
    `// oxlint-disable-next-line` with a reason for the rare unavoidable case.
-6. **Version single source of truth:** adopt **corepack** with
-   `"packageManager": "npm@12.x"` in `package.json` (also how npm 12 is
-   obtained, since it isn't bundled). Make **`.nvmrc` the sole Node pin** —
-   `actions/setup-node` and Netlify both read it — and delete the hardcoded
-   `NODE_VERSION` in `netlify.toml` and the Node version in `ci.yml`; `engines`
-   mirrors it behind a tiny CI drift-check. Add an **`allowScripts` allowlist**
-   (`npm approve-scripts`) for `esbuild`, `oxlint`, and `tsgolint` native
-   binaries, which npm 12 blocks by default.
+6. **Version single source of truth:** make **`.nvmrc` the sole Node pin** —
+   `actions/setup-node` (via `node-version-file`) and Netlify both read it, and
+   it fixes the bundled npm too — then delete the hardcoded `NODE_VERSION` in
+   `netlify.toml` and the Node version in `ci.yml`; `engines` requires
+   `>=24.15.0`. No corepack, no `packageManager` pin, no lockfile regeneration
+   (npm stays on the bundled 11.x, so the existing lockfile remains valid). npm
+   11 runs install scripts by default, so no `allowScripts` allowlist is needed.
 7. **Latest of the whole stack:** three breaking majors — **TypeScript 6→7**,
    **React Router 7→8** (baselines already met: Node 22+, React 19+, Vite 8,
    ESM; migrate via the `v8_*` future flags then bump to 8.3.0), **nodemailer
@@ -88,7 +97,7 @@ verifiable layers.
    (`EnvironmentTeardownError` — an un-awaited async log in the analytics tests)
    and add `retry: 1` as a backstop; (b) run **Playwright E2E on PRs against the
    Netlify deploy preview**; (c) add **`npm run verify`** (+ optional
-   `pre-push`) that runs the exact CI suite through the corepack-pinned tools so
+   `pre-push`) that runs the exact CI suite through the lockfile-pinned tools so
    "green local" structurally means "green CI."
 
 ## Rationale
@@ -102,13 +111,13 @@ verifiable layers.
   linting _and_ TS 7, no dual-version hack.
 - Strict superset + project-wide `any`/`as` ban delivers the exact strictness
   asked for, with `@ts-expect-error`/shoehorn keeping tests expressible.
-- corepack single source of truth makes version drift — the root cause of every
-  past CI failure — structurally impossible.
+- `.nvmrc` single source of truth (Node + its bundled npm) makes version drift
+  — the root cause of every past CI failure — structurally impossible.
 
 ### Cons
 
-- Bleeding edge: oxfmt is pre-1.0 (beta); tsgolint stabilised only 2026-07-22;
-  npm 12 is days old. Expect rough edges.
+- Bleeding edge: oxfmt is pre-1.0 (beta); tsgolint stabilised only 2026-07-22.
+  Expect rough edges.
 - One-time migration cost: fix all new strict-flag errors, migrate test `as`
   usages to shoehorn, re-express the ESLint config as `.oxlintrc.json`.
 - Three breaking majors in one PR raises blast radius (mitigated by layered
@@ -146,22 +155,22 @@ verifiable layers.
 
 ### What We Sacrificed
 
-- Maturity/stability of the tooling (pre-1.0 oxfmt, brand-new tsgolint/npm 12)
-  and a chunk of one-time migration effort.
+- Maturity/stability of the tooling (pre-1.0 oxfmt, brand-new tsgolint) and a
+  chunk of one-time migration effort.
 
 ## Dependencies
 
 - ADR 01 (TypeScript), ADR 03 (Vite), ADR 04 (React Router v7), ADR 10 (ESLint &
   Prettier — superseded), ADR 12 (CI/CD).
 - External: oxlint ≥ type-aware-stable, tsgolint (tracks TS 7.0.2), oxfmt beta,
-  npm 12, Node 24, React Router 8.3.0.
+  Node 24 (bundled npm 11.x), React Router 8.3.0.
 
 ## Implementation Notes
 
 Single PR, committed in verifiable layers (each green locally before the next):
 
-1. **Version SSOT** — corepack `packageManager`, `.nvmrc` sole pin, delete
-   duplicate Node pins, `allowScripts` allowlist → Node 24 + npm 12.
+1. **Version SSOT** — `.nvmrc` sole pin (Node 24 + its bundled npm 11.x), delete
+   duplicate Node pins in `netlify.toml`/`ci.yml`, `engines` `>=24.15.0`.
 2. **Toolchain swap** — ESLint→oxlint+tsgolint, Prettier→oxfmt, at _current_
    strictness (prove the tools before cranking rules). `npx @oxlint/migrate`
    from the flat config as a starting point.
@@ -186,8 +195,8 @@ independent of the linter).
   unsupported strict flag in `tsconfig` so `tsc` still enforces it; note it.
 - **oxlint rule coverage gaps** vs eslint-plugin-react: fill via oxlint's JS
   plugin shim where it matters.
-- **npm 12 allowScripts** silently skipping binary postinstalls: allowlist
-  esbuild/oxlint/tsgolint up front; `npm run verify` catches a missed one.
+- **oxlint/tsgolint native binaries** failing to fetch on install: `npm run
+verify` (which runs the linter) catches a missing binary before push.
 - **nodemailer 9** breaking the contact form: verify send path before merge.
 - **Pre-1.0 oxfmt**: acceptable given risk budget; Prettier remains the fallback
   formatter it already delegates to.
