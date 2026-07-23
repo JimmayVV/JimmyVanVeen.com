@@ -48,7 +48,7 @@ export const getAllRepositories = async () => {
 // instead, deriving it from the stored identifier when it's a legacy node ID.
 const LEGACY_NODE_ID_PREFIX = "010:Repository";
 
-function databaseIdFromGhId(ghId: string): number | null {
+export function databaseIdFromGhId(ghId: string): number | null {
   // A plain numeric string is already a database ID.
   if (/^\d+$/.test(ghId)) return Number(ghId);
 
@@ -62,16 +62,26 @@ function databaseIdFromGhId(ghId: string): number | null {
   return /^\d+$/.test(digits) ? Number(digits) : null;
 }
 
-export const getRepositoriesByNodeId = async (ghIds: string[]) => {
+/**
+ * Whether a GitHub repo and a Contentful `ghId` refer to the same repository.
+ * Prefers the stable numeric database ID; falls back to a direct node_id
+ * comparison for identifiers we can't resolve to a database ID. Shared by both
+ * the repo lookup and any caller that needs to re-associate a repo with its
+ * Contentful entry, so the two never drift apart.
+ */
+export function repoMatchesGhId(
+  repo: { id: number; node_id: string },
+  ghId: string,
+): boolean {
+  const databaseId = databaseIdFromGhId(ghId);
+  return databaseId !== null ? repo.id === databaseId : repo.node_id === ghId;
+}
+
+export const getRepositoriesByGhId = async (ghIds: string[]) => {
   const repos = await getAllRepositories();
 
   return ghIds
-    .map((ghId) => {
-      const databaseId = databaseIdFromGhId(ghId);
-      return repos.find((repo) =>
-        databaseId !== null ? repo.id === databaseId : repo.node_id === ghId,
-      );
-    })
+    .map((ghId) => repos.find((repo) => repoMatchesGhId(repo, ghId)))
     .filter((each) => each !== undefined);
 };
 
