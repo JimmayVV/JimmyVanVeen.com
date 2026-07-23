@@ -126,16 +126,14 @@ export default tseslint.config(
     ...tseslint.configs.disableTypeChecked,
   },
   {
-    // Tests legitimately use `any`, casts, and mocks; type-aware rules
-    // (no-unsafe-*, etc.) add noise, not safety, here.
+    // Tests legitimately use `any`, casts, and mocks, so the type-aware rules
+    // (no-unsafe-*, etc.) and the `as` ban add noise, not safety, here.
+    // TODO(#381): migrate test/e2e `as` assertions to @total-typescript/
+    // shoehorn, then drop the consistent-type-assertions override below.
     files: ["**/*.test.{ts,tsx}", "e2e/**/*.ts"],
     ...tseslint.configs.disableTypeChecked,
-  },
-  {
-    // TODO(#381): migrate test/e2e `as` assertions to @total-typescript/
-    // shoehorn, then remove this exemption so the ban is project-wide.
-    files: ["**/*.test.{ts,tsx}", "e2e/**/*.ts"],
     rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
       "@typescript-eslint/consistent-type-assertions": "off",
     },
   },

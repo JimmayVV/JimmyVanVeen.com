@@ -13,3 +13,5 @@
 
 # Implementation plans (kept locally for context, not committed)
 /Plans/
+.atrium/
+.mcp.json

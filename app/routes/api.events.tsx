@@ -287,10 +287,6 @@ function getClientIP(request: Request): string {
 function sanitizeProperties(
   properties: Record<string, unknown>,
 ): Record<string, unknown> | null {
-  if (!properties || typeof properties !== "object") {
-    return {};
-  }
-
   function sanitizeValue(value: unknown, depth: number): unknown {
     if (depth >= MAX_PROPERTY_DEPTH) {
       return "[Object too deep]";
