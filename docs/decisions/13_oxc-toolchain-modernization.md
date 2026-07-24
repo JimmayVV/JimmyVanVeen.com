@@ -22,6 +22,8 @@ Supersedes **ADR 10 (ESLint & Prettier)**. Amends **ADR 01 (TypeScript)** and
   wasn't done to keep this PR's blast radius sane. Production code is fully strict.
 - RR8 needed `--legacy-peer-deps` (framework major bump) and a `server/app.ts`
   RouterContextProvider + server-build boundary fix.
+- **E2E-on-PR (item 8b) deferred** — the Playwright `test-e2e` job stays gated to
+  `main` for now; running it on PRs against the deploy preview is a fast-follow.
 
 ## Context
 
