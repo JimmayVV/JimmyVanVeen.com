@@ -1,8 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-  "plugins": ["import", "react", "typescript", "unicorn", "oxc"],
+  "plugins": ["import", "react", "jsx-a11y", "typescript", "unicorn", "oxc"],
+  "categories": {
+    "correctness": "error"
+  },
   "rules": {
-    "no-unused-vars": [
+    "no-unused-vars": "off",
+    "typescript/no-unused-vars": [
       "error",
       {
         "argsIgnorePattern": "^_",
@@ -11,7 +15,47 @@
         "destructuredArrayIgnorePattern": "^_",
         "ignoreRestSiblings": true
       }
-    ]
+    ],
+    "typescript/no-explicit-any": "error",
+    "typescript/consistent-type-assertions": ["error", { "assertionStyle": "never" }],
+
+    "typescript/no-base-to-string": "off",
+    "typescript/no-unnecessary-condition": "off",
+    "typescript/restrict-template-expressions": "off",
+    "typescript/strict-boolean-expressions": "off",
+    "typescript/only-throw-error": "off",
+    "typescript/require-await": "off",
+    "typescript/no-non-null-assertion": "off"
   },
+  "overrides": [
+    {
+      "files": ["**/*.js", "**/*.cjs", "**/*.mjs"],
+      "rules": {
+        "typescript/await-thenable": "off",
+        "typescript/no-floating-promises": "off",
+        "typescript/no-misused-promises": "off",
+        "typescript/no-implied-eval": "off",
+        "typescript/no-for-in-array": "off",
+        "typescript/no-unnecessary-type-assertion": "off",
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off"
+      }
+    },
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/e2e/**"],
+      "rules": {
+        "typescript/consistent-type-assertions": "off"
+      }
+    },
+    {
+      "files": ["**/contentful-cache.ts"],
+      "rules": {
+        "typescript/consistent-type-assertions": "off"
+      }
+    }
+  ],
   "ignorePatterns": ["build/", ".react-router/", "node_modules/", "public/build/"]
 }

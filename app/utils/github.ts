@@ -69,10 +69,7 @@ export function databaseIdFromGhId(ghId: string): number | null {
  * the repo lookup and any caller that needs to re-associate a repo with its
  * Contentful entry, so the two never drift apart.
  */
-export function repoMatchesGhId(
-  repo: { id: number; node_id: string },
-  ghId: string,
-): boolean {
+export function repoMatchesGhId(repo: { id: number; node_id: string }, ghId: string): boolean {
   const databaseId = databaseIdFromGhId(ghId);
   return databaseId !== null ? repo.id === databaseId : repo.node_id === ghId;
 }

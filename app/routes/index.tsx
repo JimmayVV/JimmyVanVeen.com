@@ -29,9 +29,7 @@ export async function loader() {
         .map((p) => p.fields.ghId),
     );
     const repositories: Repository[] = repos.map((repo) => {
-      const project = projects.find((p) =>
-        repoMatchesGhId(repo, p.fields.ghId),
-      );
+      const project = projects.find((p) => repoMatchesGhId(repo, p.fields.ghId));
       const screenshot =
         project?.fields.screenshot && "fields" in project.fields.screenshot
           ? project.fields.screenshot.fields.file?.url
