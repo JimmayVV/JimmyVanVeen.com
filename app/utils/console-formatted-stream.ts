@@ -91,7 +91,7 @@ export class ConsoleFormattedStream {
     const msgCss = this.css.msg;
     const srcCss = this.css.src;
 
-    const levelName = nameFromLevel[rec.level];
+    const levelName = nameFromLevel[rec.level] ?? "info";
 
     let consoleMethod:
       | typeof console.log

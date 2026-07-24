@@ -3,12 +3,12 @@ import { Octokit as createOctokit } from "@octokit/rest";
 
 const Octokit = createOctokit.plugin(throttling);
 
-const isDisabled = process.env.DISABLE_GITHUB_INTEGRATION === "true";
+const isDisabled = process.env["DISABLE_GITHUB_INTEGRATION"] === "true";
 
 const octokit = isDisabled
   ? null
   : new Octokit({
-      auth: process.env.GITHUB_TOKEN,
+      auth: process.env["GITHUB_TOKEN"],
       throttle: {
         onRateLimit: (retryAfter, options) => {
           console.warn(

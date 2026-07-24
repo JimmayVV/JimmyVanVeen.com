@@ -23,7 +23,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     return await getCachedBlogPostBySlug(slug);
   } catch (error) {
     console.error("Failed to load blog post", { slug, error });
-    return redirect("/blog", { status: 302 });
+    throw redirect("/blog", { status: 302 });
   }
 }
 
@@ -90,7 +90,7 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
               // SyntaxHighlighter component entirely.
               pre({ children, ...props }) {
                 if (React.isValidElement(children) && isRecord(children.props)) {
-                  const className = children.props.className;
+                  const className = children.props["className"];
                   if (typeof className === "string" && /language-/.test(className)) {
                     return <>{children}</>;
                   }

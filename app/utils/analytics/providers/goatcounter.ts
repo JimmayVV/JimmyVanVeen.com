@@ -22,11 +22,11 @@ interface GoatCounterHit {
   /** Event marker (true for custom events, omit for pageviews) */
   event?: boolean;
   /** Referrer URL */
-  ref?: string;
+  ref?: string | undefined;
   /** Screen size (width,height) */
-  size?: string;
+  size?: string | undefined;
   /** Session identifier for unique visitor tracking */
-  session?: string;
+  session?: string | undefined;
 }
 
 /**
@@ -42,14 +42,14 @@ export class GoatCounterProvider extends BaseProvider implements AnalyticsProvid
   private siteCode: string | null = null;
   private apiToken: string | null = null;
 
-  async initialize(config: {
+  override async initialize(config: {
     credentials: Record<string, string>;
     debug?: boolean;
   }): Promise<void> {
     await super.initialize(config);
 
-    this.siteCode = config.credentials.GOATCOUNTER_SITE_CODE || null;
-    this.apiToken = config.credentials.GOATCOUNTER_API_TOKEN || null;
+    this.siteCode = config.credentials["GOATCOUNTER_SITE_CODE"] || null;
+    this.apiToken = config.credentials["GOATCOUNTER_API_TOKEN"] || null;
 
     // Validate site code format (alphanumeric, hyphens, underscores)
     if (this.siteCode && !/^[a-zA-Z0-9_-]+$/.test(this.siteCode)) {
@@ -70,7 +70,7 @@ export class GoatCounterProvider extends BaseProvider implements AnalyticsProvid
     }
   }
 
-  isConfigured(): boolean {
+  override isConfigured(): boolean {
     return !!(this.siteCode && this.apiToken);
   }
 
@@ -131,11 +131,11 @@ export class GoatCounterProvider extends BaseProvider implements AnalyticsProvid
       typeof value === "string" ? value : undefined;
 
     const pageViewData: PageViewData = {
-      path: asString(event.properties.page_path) || "/",
-      url: asString(event.properties.page_location) || "",
-      title: asString(event.properties.page_title) || "",
-      referrer: asString(event.properties.page_referrer),
-      timestamp: asString(event.properties.timestamp) || new Date().toISOString(),
+      path: asString(event.properties["page_path"]) || "/",
+      url: asString(event.properties["page_location"]) || "",
+      title: asString(event.properties["page_title"]) || "",
+      referrer: asString(event.properties["page_referrer"]),
+      timestamp: asString(event.properties["timestamp"]) || new Date().toISOString(),
     };
 
     await this.trackPageView(pageViewData, context);

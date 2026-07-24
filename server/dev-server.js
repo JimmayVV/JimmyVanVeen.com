@@ -6,7 +6,7 @@ import { createServer } from "vite";
 // Load environment variables from config/env directory
 config({ path: "../config/env/.env" });
 
-const PORT = Number.parseInt(process.env.PORT || "3000");
+const PORT = Number.parseInt(process.env["PORT"] || "3000");
 
 const app = express();
 app.disable("x-powered-by");

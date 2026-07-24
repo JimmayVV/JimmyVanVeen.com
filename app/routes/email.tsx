@@ -32,7 +32,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   // Ping the google recaptcha verify API to verify the captcha code you received
   const response = await fetch(
-    `https://www.google.com/recaptcha/api/siteverify?secret=${String(process.env.RECAPTCHA_SECRET_KEY)}&response=${String(captcha ?? "")}`,
+    `https://www.google.com/recaptcha/api/siteverify?secret=${String(process.env["RECAPTCHA_SECRET_KEY"])}&response=${String(captcha ?? "")}`,
 
     {
       headers: {
@@ -43,7 +43,7 @@ export async function action({ request }: Route.ActionArgs) {
   );
 
   const result: unknown = await response.json();
-  const captchaVerified = isRecord(result) && result.success === true;
+  const captchaVerified = isRecord(result) && result["success"] === true;
 
   /**
    * The structure of response from the veirfy API is

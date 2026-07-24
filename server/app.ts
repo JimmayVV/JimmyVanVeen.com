@@ -3,7 +3,18 @@ import { createRequestHandler, RouterContextProvider } from "react-router";
 import type { Config, Context } from "@netlify/functions";
 
 const requestHandler = createRequestHandler(
-  () => import("virtual:react-router/server-build"),
+  async () => {
+    const build = await import("virtual:react-router/server-build");
+    // React Router 8's generated `virtual:react-router/server-build` types a few
+    // required ServerBuild fields as `| undefined`. Fill in the router defaults at
+    // this boundary (rather than asserting) so the build satisfies ServerBuild.
+    return {
+      ...build,
+      basename: build.basename ?? "/",
+      unstable_getCriticalCss: build.unstable_getCriticalCss ?? (() => undefined),
+      allowedActionOrigins: build.allowedActionOrigins ?? false,
+    };
+  },
   import.meta.env.MODE,
 );
 

@@ -27,10 +27,10 @@ export type ProjectFieldsSkeleton = Contentful.EntrySkeletonType<
   "project"
 >;
 
-const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID ?? "";
-const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN ?? "";
-const CONTENTFUL_PREVIEW_TOKEN = process.env.CONTENTFUL_PREVIEW_TOKEN ?? "";
-const CONTENTFUL_PREVIEW = process.env.CONTENTFUL_PREVIEW === "true";
+const CONTENTFUL_SPACE_ID = process.env["CONTENTFUL_SPACE_ID"] ?? "";
+const CONTENTFUL_ACCESS_TOKEN = process.env["CONTENTFUL_ACCESS_TOKEN"] ?? "";
+const CONTENTFUL_PREVIEW_TOKEN = process.env["CONTENTFUL_PREVIEW_TOKEN"] ?? "";
+const CONTENTFUL_PREVIEW = process.env["CONTENTFUL_PREVIEW"] === "true";
 
 const activeToken = CONTENTFUL_PREVIEW ? CONTENTFUL_PREVIEW_TOKEN : CONTENTFUL_ACCESS_TOKEN;
 
@@ -99,10 +99,12 @@ export const getBlogPostBySlug = async (slug: string) => {
     throw new Error("More than one blog post found with that slug");
   }
 
-  // Check that a blog post was returned
-  if (items.length === 0) {
+  // Check that a blog post was returned (narrows away `undefined` from the
+  // indexed access under noUncheckedIndexedAccess)
+  const post = items[0];
+  if (!post) {
     throw new Error("No blog post found with that slug");
   }
 
-  return items[0];
+  return post;
 };

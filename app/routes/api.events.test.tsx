@@ -30,7 +30,7 @@ describe("Analytics API Route", () => {
     return new Request("https://test.com/api/events", {
       method,
       headers: requestHeaders,
-      body: body ? JSON.stringify(body) : undefined,
+      body: body ? JSON.stringify(body) : null,
     });
   };
 
@@ -162,7 +162,7 @@ describe("Analytics API Route", () => {
       }
 
       // Last request should be rate limited
-      const lastResponse = responses[responses.length - 1];
+      const lastResponse = responses[responses.length - 1]!;
       expect(lastResponse.status).toBe(429);
 
       const data = await lastResponse.json();

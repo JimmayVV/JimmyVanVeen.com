@@ -40,7 +40,7 @@ test.describe("Analytics E2E Tests", () => {
 
     const pageViewEvent = analyticsRequests.find((req) => req.event === "page_view");
     expect(pageViewEvent).toBeDefined();
-    expect(pageViewEvent?.properties.page_path).toBe("/");
+    expect(pageViewEvent?.properties["page_path"]).toBe("/");
   });
 
   test("should persist client ID across page navigations", async ({ page }) => {
@@ -82,7 +82,7 @@ test.describe("Analytics E2E Tests", () => {
       const request = route.request();
       const postData = request.postDataJSON();
 
-      if (postData && postData.event === "page_view") {
+      if (postData?.event === "page_view") {
         capturedEvent = postData as Record<string, unknown>;
       }
 
@@ -98,7 +98,7 @@ test.describe("Analytics E2E Tests", () => {
 
     expect(capturedEvent).toBeDefined();
     expect(capturedEvent).toHaveProperty("properties");
-    expect(capturedEvent!.properties).toMatchObject({
+    expect(capturedEvent!["properties"]).toMatchObject({
       page_url: expect.stringContaining("/"),
       page_title: expect.any(String),
       timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),

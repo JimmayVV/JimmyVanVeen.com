@@ -1,8 +1,6 @@
 import { getStore } from "@netlify/blobs";
-import type { Entry } from "contentful";
 
 import * as contentful from "./contentful";
-import type { BlogPostSkeleton, ProjectFieldsSkeleton } from "./contentful";
 
 interface CacheEntry<T> {
   data: T;
@@ -15,16 +13,18 @@ interface CacheConfig {
   store: string;
 }
 
-const isDevelopment = process.env.NODE_ENV === "development";
-const isNetlifyBuild = process.env.NETLIFY === "true";
-const hasNetlifyBlobsConfig = !!(process.env.NETLIFY_SITE_ID && process.env.NETLIFY_AUTH_TOKEN);
+const isDevelopment = process.env["NODE_ENV"] === "development";
+const isNetlifyBuild = process.env["NETLIFY"] === "true";
+const hasNetlifyBlobsConfig = !!(
+  process.env["NETLIFY_SITE_ID"] && process.env["NETLIFY_AUTH_TOKEN"]
+);
 
 // Check if we're in Netlify build process
 const isBuildTime = isNetlifyBuild;
 
 // Control whether to fetch fresh data at runtime
 // When true, will only use cached data (no API calls)
-const DISABLE_RUNTIME_FETCH = process.env.DISABLE_CONTENTFUL_RUNTIME === "true";
+const DISABLE_RUNTIME_FETCH = process.env["DISABLE_CONTENTFUL_RUNTIME"] === "true";
 
 // In-memory cache for development
 // Using unknown because this is a generic cache that stores different types
@@ -33,12 +33,12 @@ const memoryCache = new Map<string, CacheEntry<unknown>>();
 
 // Build-time data cache (populated during build, used at runtime if DISABLE_RUNTIME_FETCH is true)
 const BUILD_TIME_DATA: {
-  blogPosts?: Entry<BlogPostSkeleton, undefined, string>[];
-  projects?: Entry<ProjectFieldsSkeleton, undefined, string>[];
+  blogPosts?: Awaited<ReturnType<typeof contentful.getAllBlogPosts>>;
+  projects?: Awaited<ReturnType<typeof contentful.getProjects>>;
   timestamp?: string;
 } = {};
 
-const CACHE_CONFIG: Record<string, CacheConfig> = {
+const CACHE_CONFIG = {
   projects: {
     ttl: isDevelopment ? 30 * 1000 : 5 * 60 * 1000, // 30s dev, 5min prod
     store: "contentful-projects",
@@ -51,7 +51,7 @@ const CACHE_CONFIG: Record<string, CacheConfig> = {
     ttl: isDevelopment ? 60 * 1000 : 10 * 60 * 1000, // 1min dev, 10min prod
     store: "contentful-blog-post",
   },
-};
+} satisfies Record<string, CacheConfig>;
 
 async function getCachedData<T>(
   key: string,
@@ -70,7 +70,7 @@ async function getCachedData<T>(
     // Try to get cached data with metadata
     const cached = await store.getWithMetadata(key, { type: "json" });
 
-    if (cached && cached.data) {
+    if (cached?.data) {
       const entry = cached.data as CacheEntry<T>;
       const now = Date.now();
       const age = now - entry.timestamp;
@@ -107,7 +107,7 @@ async function getCachedData<T>(
       metadata: {
         cachedAt: new Date().toISOString(),
         ttl: config.ttl,
-        environment: process.env.NODE_ENV,
+        environment: process.env["NODE_ENV"],
       },
     });
 

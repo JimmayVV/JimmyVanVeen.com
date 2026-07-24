@@ -25,7 +25,7 @@ export async function loader() {
     const projects = await getCachedProjects();
     const repos = await getRepositoriesByGhId(
       projects
-        .sort((a, b) => Number(a.fields.priority) - Number(b.fields.priority))
+        .toSorted((a, b) => Number(a.fields.priority) - Number(b.fields.priority))
         .map((p) => p.fields.ghId),
     );
     const repositories: Repository[] = repos.map((repo) => {

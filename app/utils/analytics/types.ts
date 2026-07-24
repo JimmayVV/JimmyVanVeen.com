@@ -27,7 +27,7 @@ export interface PageViewData {
   /** Page title from document.title */
   title: string;
   /** Referrer URL if available */
-  referrer?: string;
+  referrer?: string | undefined;
   /** ISO 8601 timestamp */
   timestamp: string;
 }

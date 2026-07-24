@@ -19,10 +19,10 @@ async function initializeProviders() {
   if (goatcounter) {
     await goatcounter.initialize({
       credentials: {
-        GOATCOUNTER_SITE_CODE: process.env.GOATCOUNTER_SITE_CODE || "",
-        GOATCOUNTER_API_TOKEN: process.env.GOATCOUNTER_API_TOKEN || "",
+        GOATCOUNTER_SITE_CODE: process.env["GOATCOUNTER_SITE_CODE"] || "",
+        GOATCOUNTER_API_TOKEN: process.env["GOATCOUNTER_API_TOKEN"] || "",
       },
-      debug: process.env.GOATCOUNTER_DEBUG === "true",
+      debug: process.env["GOATCOUNTER_DEBUG"] === "true",
     });
 
     if (goatcounter.isConfigured()) {
@@ -64,8 +64,8 @@ export async function action({ request }: ActionFunctionArgs) {
       return Response.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const event = body.event;
-    const properties = body.properties ?? {};
+    const event = body["event"];
+    const properties = body["properties"] ?? {};
 
     // Validate event name
     if (typeof event !== "string" || event.length === 0) {
@@ -228,7 +228,7 @@ async function isRateLimited(clientIP: string): Promise<boolean> {
   if (rateLimitMap.size > RATE_LIMIT_MAX_ENTRIES) {
     // Keep only recent entries
     const sortedEntries = Array.from(rateLimitMap.entries())
-      .sort((a, b) => b[1].resetTime - a[1].resetTime)
+      .toSorted((a, b) => b[1].resetTime - a[1].resetTime)
       .slice(0, RATE_LIMIT_TRIM_TO);
     rateLimitMap.clear();
     sortedEntries.forEach(([k, v]) => rateLimitMap.set(k, v));
