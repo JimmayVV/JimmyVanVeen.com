@@ -7,7 +7,7 @@ import type { loader as rootLoader } from "~/root";
 import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 import { formatPostDate } from "~/utils/format-post-date";
-import { getRepositoriesByNodeId } from "~/utils/github";
+import { getRepositoriesByGhId, repoMatchesGhId } from "~/utils/github";
 
 import type { Route } from "./+types/index";
 
@@ -23,13 +23,15 @@ interface Repository {
 export async function loader() {
   async function getData() {
     const projects = await getCachedProjects();
-    const repos = await getRepositoriesByNodeId(
+    const repos = await getRepositoriesByGhId(
       projects
         .sort((a, b) => Number(a.fields.priority) - Number(b.fields.priority))
         .map((p) => p.fields.ghId),
     );
     const repositories: Repository[] = repos.map((repo) => {
-      const project = projects.find((p) => p.fields.ghId === repo.node_id);
+      const project = projects.find((p) =>
+        repoMatchesGhId(repo, p.fields.ghId),
+      );
       const screenshot =
         project?.fields.screenshot && "fields" in project.fields.screenshot
           ? project.fields.screenshot.fields.file?.url
@@ -139,7 +141,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
             <Await resolve={repos} errorElement={<ProjectsError />}>
               {(resolvedRepos) => (
                 <div>
-                  {resolvedRepos.slice(0, 4).map((repo: Repository) => (
+                  {resolvedRepos.map((repo: Repository) => (
                     <ProjectRow
                       key={repo.id}
                       title={repo.name}
