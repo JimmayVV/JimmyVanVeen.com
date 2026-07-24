@@ -82,9 +82,7 @@ describe("contentful client config", () => {
 
     const mod = await importContentful();
 
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("CONTENTFUL_PREVIEW=true"),
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("CONTENTFUL_PREVIEW=true"));
     expect(createClient).not.toHaveBeenCalled();
     expect(mod.isContentfulConfigured()).toBe(false);
   });

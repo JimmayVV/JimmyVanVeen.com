@@ -69,9 +69,7 @@ export async function action({ request }: Route.ActionArgs) {
       success: false,
       fieldErrors,
       fields,
-      error: !captchaVerified
-        ? "Unproccesable request, Invalid captcha code"
-        : undefined,
+      error: !captchaVerified ? "Unproccesable request, Invalid captcha code" : undefined,
     };
   }
 

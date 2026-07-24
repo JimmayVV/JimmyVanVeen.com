@@ -112,10 +112,7 @@ export default tseslint.config(
 
       // Ban `as` type assertions (allow `as const`). Prove types with type
       // guards / validation / `satisfies` instead of asserting them.
-      "@typescript-eslint/consistent-type-assertions": [
-        "error",
-        { assertionStyle: "never" },
-      ],
+      "@typescript-eslint/consistent-type-assertions": ["error", { assertionStyle: "never" }],
 
       // Prettier integration
       "prettier/prettier": "error",

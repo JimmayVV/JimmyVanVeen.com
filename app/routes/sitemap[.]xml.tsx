@@ -20,10 +20,7 @@ export async function loader() {
   try {
     // Skip blog posts if recently failed to avoid repeated API calls
     let blogPosts = null;
-    if (
-      !lastBlogPostsFailure ||
-      Date.now() - lastBlogPostsFailure > FAILURE_CACHE_DURATION
-    ) {
+    if (!lastBlogPostsFailure || Date.now() - lastBlogPostsFailure > FAILURE_CACHE_DURATION) {
       try {
         // Use cached blog posts to avoid hitting Contentful rate limits
         blogPosts = await getCachedBlogPosts();

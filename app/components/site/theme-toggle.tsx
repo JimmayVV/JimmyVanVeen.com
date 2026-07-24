@@ -31,8 +31,7 @@ export function ThemeToggle() {
     }
   }
 
-  const label =
-    theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+  const label = theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
   if (!mounted) {
     // The placeholder is intentionally non-functional and reserves
@@ -54,13 +53,7 @@ export function ThemeToggle() {
   }
 
   return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      onClick={toggle}
-      className="blog-toggle"
-    >
+    <button type="button" aria-label={label} title={label} onClick={toggle} className="blog-toggle">
       {theme === "dark" ? <SunIcon /> : <MoonIcon />}
     </button>
   );

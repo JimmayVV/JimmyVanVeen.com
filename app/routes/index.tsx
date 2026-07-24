@@ -72,17 +72,13 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
   return (
     <main className="home-cover">
       <div className="home-text">
-        <div className="home-dateline">
-          Jimmy Van Veen · Web engineer · Greater Boston
-        </div>
+        <div className="home-dateline">Jimmy Van Veen · Web engineer · Greater Boston</div>
         <h1 className="home-title">
-          I build software, write down what I learn, and race cars on the
-          internet.
+          I build software, write down what I learn, and race cars on the internet.
         </h1>
         <p className="home-dek">
-          A working portfolio &mdash; projects I&rsquo;ve shipped, notes from
-          the workshop, and the occasional lap at Talladega. The interesting
-          stuff is in the writing.
+          A working portfolio &mdash; projects I&rsquo;ve shipped, notes from the workshop, and the
+          occasional lap at Talladega. The interesting stuff is in the writing.
         </p>
       </div>
 
@@ -109,13 +105,9 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
               {recentPosts.map((post) => (
                 <li className="blog-index-row" key={post.slug}>
                   <Link to={`/blog/${post.slug}`} prefetch="intent">
-                    <div className="meta">
-                      {formatPostDate(post.publishDate)}
-                    </div>
+                    <div className="meta">{formatPostDate(post.publishDate)}</div>
                     <h3 className="title">{post.title}</h3>
-                    {post.description ? (
-                      <p className="dek">{post.description}</p>
-                    ) : null}
+                    {post.description ? <p className="dek">{post.description}</p> : null}
                   </Link>
                 </li>
               ))}
@@ -182,11 +174,7 @@ function SiteFooter() {
         <a href="https://github.com/JimmayVV" target="_blank" rel="noreferrer">
           GitHub
         </a>
-        <a
-          href="https://bsky.app/profile/jimmyvanveen.com"
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a href="https://bsky.app/profile/jimmyvanveen.com" target="_blank" rel="noreferrer">
           Bluesky
         </a>
         <Link to="/privacy" prefetch="intent">
@@ -202,8 +190,7 @@ export function ErrorBoundary() {
     <main className="home-cover">
       <h1 className="home-title">Something went wrong</h1>
       <p className="home-dek">
-        An unexpected error occurred while loading the home page. Try
-        refreshing.
+        An unexpected error occurred while loading the home page. Try refreshing.
       </p>
     </main>
   );

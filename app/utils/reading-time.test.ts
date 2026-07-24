@@ -14,9 +14,7 @@ describe("readingStats", () => {
   });
 
   it("counts plain prose words", () => {
-    const { words } = readingStats(
-      "the quick brown fox jumps over the lazy dog",
-    );
+    const { words } = readingStats("the quick brown fox jumps over the lazy dog");
     expect(words).toBe(9);
   });
 
@@ -40,16 +38,12 @@ describe("readingStats", () => {
   });
 
   it("preserves link text but drops URLs", () => {
-    const { words } = readingStats(
-      "See [the docs](https://example.com/foo) for more",
-    );
+    const { words } = readingStats("See [the docs](https://example.com/foo) for more");
     expect(words).toBe(5); // See, the, docs, for, more
   });
 
   it("does not split hyphenated words", () => {
-    const { words } = readingStats(
-      "self-contained well-written runtime-only code",
-    );
+    const { words } = readingStats("self-contained well-written runtime-only code");
     expect(words).toBe(4);
   });
 
@@ -60,18 +54,14 @@ describe("readingStats", () => {
   });
 
   it("strips ATX heading markers without dropping the heading text", () => {
-    const md = ["# Title here", "## Subheading text", "### Smaller one"].join(
-      "\n",
-    );
+    const md = ["# Title here", "## Subheading text", "### Smaller one"].join("\n");
     const { words } = readingStats(md);
     // Title, here, Subheading, text, Smaller, one
     expect(words).toBe(6);
   });
 
   it("strips numbered list markers", () => {
-    const md = ["1. first item", "2. second item", "12. twelfth item"].join(
-      "\n",
-    );
+    const md = ["1. first item", "2. second item", "12. twelfth item"].join("\n");
     const { words } = readingStats(md);
     expect(words).toBe(6);
   });

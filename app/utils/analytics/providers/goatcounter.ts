@@ -7,12 +7,7 @@
  *
  * API Documentation: https://www.goatcounter.com/api
  */
-import type {
-  AnalyticsEvent,
-  AnalyticsProvider,
-  PageViewData,
-  ServerContext,
-} from "../types";
+import type { AnalyticsEvent, AnalyticsProvider, PageViewData, ServerContext } from "../types";
 import { BaseProvider } from "./base";
 
 /**
@@ -41,10 +36,7 @@ interface GoatCounterPayload {
   hits: GoatCounterHit[];
 }
 
-export class GoatCounterProvider
-  extends BaseProvider
-  implements AnalyticsProvider
-{
+export class GoatCounterProvider extends BaseProvider implements AnalyticsProvider {
   readonly name = "goatcounter";
 
   private siteCode: string | null = null;
@@ -74,9 +66,7 @@ export class GoatCounterProvider
     if (this.siteCode && this.apiToken) {
       this.debug("GoatCounter provider initialized successfully");
     } else {
-      this.debug(
-        "GoatCounter provider initialized but missing credentials - tracking disabled",
-      );
+      this.debug("GoatCounter provider initialized but missing credentials - tracking disabled");
     }
   }
 
@@ -84,10 +74,7 @@ export class GoatCounterProvider
     return !!(this.siteCode && this.apiToken);
   }
 
-  async trackPageView(
-    data: PageViewData,
-    _context?: ServerContext,
-  ): Promise<void> {
+  async trackPageView(data: PageViewData, _context?: ServerContext): Promise<void> {
     if (!this.isConfigured()) {
       this.debug("Skipping page view - provider not configured");
       return;
@@ -124,10 +111,7 @@ export class GoatCounterProvider
     });
   }
 
-  async trackEvent(
-    event: AnalyticsEvent,
-    context?: ServerContext,
-  ): Promise<void> {
+  async trackEvent(event: AnalyticsEvent, context?: ServerContext): Promise<void> {
     if (!this.isConfigured()) {
       this.debug(`Skipping event '${event.event}' - provider not configured`);
       return;
@@ -151,8 +135,7 @@ export class GoatCounterProvider
       url: asString(event.properties.page_location) || "",
       title: asString(event.properties.page_title) || "",
       referrer: asString(event.properties.page_referrer),
-      timestamp:
-        asString(event.properties.timestamp) || new Date().toISOString(),
+      timestamp: asString(event.properties.timestamp) || new Date().toISOString(),
     };
 
     await this.trackPageView(pageViewData, context);

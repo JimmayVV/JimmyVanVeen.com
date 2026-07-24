@@ -17,9 +17,7 @@ interface CacheConfig {
 
 const isDevelopment = process.env.NODE_ENV === "development";
 const isNetlifyBuild = process.env.NETLIFY === "true";
-const hasNetlifyBlobsConfig = !!(
-  process.env.NETLIFY_SITE_ID && process.env.NETLIFY_AUTH_TOKEN
-);
+const hasNetlifyBlobsConfig = !!(process.env.NETLIFY_SITE_ID && process.env.NETLIFY_AUTH_TOKEN);
 
 // Check if we're in Netlify build process
 const isBuildTime = isNetlifyBuild;
@@ -80,17 +78,13 @@ async function getCachedData<T>(
       // Return cached data if still fresh
       if (age < config.ttl) {
         console.log(
-          `[Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${
-            config.ttl / 1000
-          }s)`,
+          `[Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
         );
         return entry.data;
       }
 
       console.log(
-        `[Cache EXPIRED] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${
-          config.ttl / 1000
-        }s)`,
+        `[Cache EXPIRED] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
       );
     }
   } catch (error) {
@@ -140,17 +134,13 @@ async function getCachedDataMemory<T>(
     // Return cached data if still fresh
     if (age < config.ttl) {
       console.log(
-        `[Memory Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${
-          config.ttl / 1000
-        }s)`,
+        `[Memory Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
       );
       return cached.data as T;
     }
 
     console.log(
-      `[Memory Cache EXPIRED] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${
-        config.ttl / 1000
-      }s)`,
+      `[Memory Cache EXPIRED] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
     );
   }
 
@@ -184,18 +174,12 @@ export async function getCachedProjects() {
 
   // At runtime, check if we should use build-time data
   if (DISABLE_RUNTIME_FETCH && BUILD_TIME_DATA.projects) {
-    console.log(
-      "[Runtime] Using build-time cached projects (runtime fetch disabled)",
-    );
+    console.log("[Runtime] Using build-time cached projects (runtime fetch disabled)");
     return BUILD_TIME_DATA.projects;
   }
 
   // Otherwise use normal caching behavior
-  return getCachedData(
-    "all-projects",
-    CACHE_CONFIG.projects,
-    contentful.getProjects,
-  );
+  return getCachedData("all-projects", CACHE_CONFIG.projects, contentful.getProjects);
 }
 
 /**
@@ -213,18 +197,12 @@ export async function getCachedBlogPosts() {
 
   // At runtime, check if we should use build-time data
   if (DISABLE_RUNTIME_FETCH && BUILD_TIME_DATA.blogPosts) {
-    console.log(
-      "[Runtime] Using build-time cached blog posts (runtime fetch disabled)",
-    );
+    console.log("[Runtime] Using build-time cached blog posts (runtime fetch disabled)");
     return BUILD_TIME_DATA.blogPosts;
   }
 
   // Otherwise use normal caching behavior
-  return getCachedData(
-    "all-blog-posts",
-    CACHE_CONFIG.blogPosts,
-    contentful.getAllBlogPosts,
-  );
+  return getCachedData("all-blog-posts", CACHE_CONFIG.blogPosts, contentful.getAllBlogPosts);
 }
 
 /**
@@ -239,9 +217,7 @@ export async function getCachedBlogPostBySlug(slug: string) {
 
     const post = posts?.find((p) => p.fields?.slug === slug);
     if (post) {
-      console.log(
-        `[${isBuildTime ? "Build Time" : "Runtime"}] Found blog post: ${slug}`,
-      );
+      console.log(`[${isBuildTime ? "Build Time" : "Runtime"}] Found blog post: ${slug}`);
       return post;
     }
     throw new Error(`Blog post not found: ${slug}`);
@@ -266,9 +242,7 @@ export async function clearAllCaches() {
   }
 
   // Clear Netlify Blobs for production
-  const stores = Object.values(CACHE_CONFIG).map((config) =>
-    getStore(config.store),
-  );
+  const stores = Object.values(CACHE_CONFIG).map((config) => getStore(config.store));
 
   const results = await Promise.allSettled(
     stores.map(async (store) => {

@@ -157,9 +157,7 @@ describe("Analytics API Route", () => {
       // Send 61 requests (exceeds 60 per minute limit)
       const responses = [];
       for (let i = 0; i < 61; i++) {
-        const response = await action(
-          mockArgs(createRequestWithIP("192.168.1.100")),
-        );
+        const response = await action(mockArgs(createRequestWithIP("192.168.1.100")));
         responses.push(response);
       }
 

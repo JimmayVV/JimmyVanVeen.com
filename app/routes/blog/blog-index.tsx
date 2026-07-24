@@ -32,8 +32,8 @@ export default function BlogIndex() {
     <main className="blog-page">
       <h1 className="blog-index-intro">Notes &amp; field reports.</h1>
       <p className="blog-index-dek">
-        Things I&rsquo;ve learned the slow way — written down so the next person
-        (or future me) finds them faster.
+        Things I&rsquo;ve learned the slow way — written down so the next person (or future me)
+        finds them faster.
       </p>
       <div className="blog-index-rule" />
 
@@ -42,13 +42,9 @@ export default function BlogIndex() {
           {posts.map((blog) => (
             <li className="blog-index-row" key={blog.sys.id}>
               <Link to={`./${blog.fields.slug}`} prefetch="intent">
-                <div className="meta">
-                  {formatPostDate(blog.fields.publishDate)}
-                </div>
+                <div className="meta">{formatPostDate(blog.fields.publishDate)}</div>
                 <h2 className="title">{blog.fields.title}</h2>
-                {blog.fields.description ? (
-                  <p className="dek">{blog.fields.description}</p>
-                ) : null}
+                {blog.fields.description ? <p className="dek">{blog.fields.description}</p> : null}
               </Link>
             </li>
           ))}
@@ -59,9 +55,8 @@ export default function BlogIndex() {
             <>
               <h3>Contentful not configured</h3>
               <p>
-                Set <code>CONTENTFUL_SPACE_ID</code> and{" "}
-                <code>CONTENTFUL_ACCESS_TOKEN</code> in the environment to load
-                posts.
+                Set <code>CONTENTFUL_SPACE_ID</code> and <code>CONTENTFUL_ACCESS_TOKEN</code> in the
+                environment to load posts.
               </p>
             </>
           ) : (

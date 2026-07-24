@@ -28,9 +28,7 @@ async function initializeProviders() {
     if (goatcounter.isConfigured()) {
       console.log("GoatCounter analytics configured and ready");
     } else {
-      console.log(
-        "GoatCounter environment variables not configured - analytics will be disabled",
-      );
+      console.log("GoatCounter environment variables not configured - analytics will be disabled");
     }
   }
 }
@@ -90,19 +88,13 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Validate properties object
     if (!isRecord(properties)) {
-      return Response.json(
-        { error: "Properties must be an object" },
-        { status: 400 },
-      );
+      return Response.json({ error: "Properties must be an object" }, { status: 400 });
     }
 
     // Sanitize properties - limit depth and size
     const sanitizedProperties = sanitizeProperties(properties);
     if (!sanitizedProperties) {
-      return Response.json(
-        { error: "Properties object too complex or large" },
-        { status: 400 },
-      );
+      return Response.json({ error: "Properties object too complex or large" }, { status: 400 });
     }
 
     // Get client info from headers
@@ -284,9 +276,7 @@ function getClientIP(request: Request): string {
   return request.headers.get("x-real-ip") || "unknown";
 }
 
-function sanitizeProperties(
-  properties: Record<string, unknown>,
-): Record<string, unknown> | null {
+function sanitizeProperties(properties: Record<string, unknown>): Record<string, unknown> | null {
   if (!properties || typeof properties !== "object") {
     return {};
   }
@@ -322,9 +312,7 @@ function sanitizeProperties(
         if (count >= MAX_PROPERTIES) break;
 
         // Sanitize key names
-        const sanitizedKey = key
-          .replace(/[^a-zA-Z0-9_]/g, "_")
-          .substring(0, 50);
+        const sanitizedKey = key.replace(/[^a-zA-Z0-9_]/g, "_").substring(0, 50);
         if (sanitizedKey.length > 0) {
           sanitized[sanitizedKey] = sanitizeValue(val, depth + 1);
           count++;

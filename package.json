@@ -1,13 +1,6 @@
 {
-  "//pin-notes": {
-    "typescript": "Tilde pin (~6.0.3): typescript-eslint peer dep caps at <6.1.0, so caret would pull 6.1.x and break tsc.",
-    "eslint-plugin-react-hooks": "Caret pin (^7.1.1) since #310; ESLint 10 still blocked by eslint-plugin-react / jsx-a11y peer ranges (see #295)."
-  },
   "private": true,
   "type": "module",
-  "engines": {
-    "node": ">=24.15.0"
-  },
   "scripts": {
     "build": "react-router build",
     "build:no-fetch": "cross-env DISABLE_CONTENTFUL_RUNTIME=true react-router build",
@@ -27,16 +20,6 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:all": "npm run test && npm run test:e2e"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx,mjs,cjs}": [
-      "oxlint -c ./config/oxlintrc.json --tsconfig=./tsconfig.json --fix",
-      "eslint -c ./config/eslint.config.js --fix",
-      "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write"
-    ],
-    "*.{json,md,mdx,css,yml,yaml}": [
-      "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write"
-    ]
   },
   "dependencies": {
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
@@ -94,7 +77,9 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.8",
     "netlify-cli": "^26.1.0",
-    "oxlint": "^1.73.0",
+    "oxfmt": "^0.59.0",
+    "oxlint": "^1.74.0",
+    "oxlint-tsgolint": "^0.25.0",
     "prettier": "^3.9.5",
     "react-router-devtools": "^6.2.1",
     "tailwindcss": "^4.3.1",
@@ -106,5 +91,22 @@
   },
   "overrides": {
     "prismjs": ">=1.30.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "oxlint -c ./config/oxlintrc.json --tsconfig=./tsconfig.json --fix",
+      "eslint -c ./config/eslint.config.js --fix",
+      "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write"
+    ],
+    "*.{json,md,mdx,css,yml,yaml}": [
+      "prettier --config ./config/prettier.config.mjs --ignore-path ./config/.prettierignore --write"
+    ]
+  },
+  "engines": {
+    "node": ">=24.15.0"
+  },
+  "//pin-notes": {
+    "typescript": "Tilde pin (~6.0.3): typescript-eslint peer dep caps at <6.1.0, so caret would pull 6.1.x and break tsc.",
+    "eslint-plugin-react-hooks": "Caret pin (^7.1.1) since #310; ESLint 10 still blocked by eslint-plugin-react / jsx-a11y peer ranges (see #295)."
   }
 }

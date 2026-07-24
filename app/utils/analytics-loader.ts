@@ -6,9 +6,7 @@ import type { ClientLoaderFunctionArgs } from "react-router";
 let analyticsModule: typeof import("~/utils/analytics.client") | null = null;
 
 // Lazy-load logger to avoid SSR issues
-let routeLogger: ReturnType<
-  typeof import("~/utils/logger.client").getLogger
-> | null = null;
+let routeLogger: ReturnType<typeof import("~/utils/logger.client").getLogger> | null = null;
 
 async function getRouteLogger() {
   if (!routeLogger) {
@@ -59,9 +57,7 @@ export async function trackPageView(): Promise<void> {
       DNT: navigator.doNotTrack,
       envVar: import.meta.env?.JVV_ANALYTICS_ENABLED,
       // Only log browser type in production, not full user agent for privacy
-      browserInfo: import.meta.env.PROD
-        ? "browser-detected"
-        : navigator.userAgent.substring(0, 50),
+      browserInfo: import.meta.env.PROD ? "browser-detected" : navigator.userAgent.substring(0, 50),
     };
     logger.debug({ debugInfo }, "Analytics debug info");
 
@@ -78,9 +74,7 @@ export async function trackPageView(): Promise<void> {
  * Helper function to track analytics and call server loader
  * This preserves type inference by not wrapping the entire function
  */
-export async function withServerLoaderAnalytics(
-  args: ClientLoaderFunctionArgs,
-) {
+export async function withServerLoaderAnalytics(args: ClientLoaderFunctionArgs) {
   const result = await args.serverLoader();
 
   // Track page view in background to not block the loader

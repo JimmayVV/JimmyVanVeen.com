@@ -110,12 +110,8 @@ describe("Analytics Client", () => {
       await analytics.page("/page1");
       await analytics.page("/page2");
 
-      const call1 = JSON.parse(
-        (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
-      );
-      const call2 = JSON.parse(
-        (fetch as ReturnType<typeof vi.fn>).mock.calls[1][1].body,
-      );
+      const call1 = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+      const call2 = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[1][1].body);
 
       expect(call1.properties.client_id).toBeDefined();
       expect(call2.properties.client_id).toBeDefined();

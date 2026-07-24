@@ -37,9 +37,7 @@ describe("Analytics Loader", () => {
 
       // Mock the logger.client module to throw if accessed during SSR
       vi.doMock("./logger.client", () => {
-        throw new Error(
-          "logger.client should not be imported at top-level during SSR",
-        );
+        throw new Error("logger.client should not be imported at top-level during SSR");
       });
 
       // Import the module - this should NOT throw because logger is lazy-loaded

@@ -38,9 +38,7 @@ test.describe("Analytics E2E Tests", () => {
     // Should have tracked page view
     expect(analyticsRequests.length).toBeGreaterThan(0);
 
-    const pageViewEvent = analyticsRequests.find(
-      (req) => req.event === "page_view",
-    );
+    const pageViewEvent = analyticsRequests.find((req) => req.event === "page_view");
     expect(pageViewEvent).toBeDefined();
     expect(pageViewEvent?.properties.page_path).toBe("/");
   });

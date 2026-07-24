@@ -13,10 +13,5 @@
       }
     ]
   },
-  "ignorePatterns": [
-    "build/",
-    ".react-router/",
-    "node_modules/",
-    "public/build/"
-  ]
+  "ignorePatterns": ["build/", ".react-router/", "node_modules/", "public/build/"]
 }
