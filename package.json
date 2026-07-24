@@ -31,7 +31,7 @@
     "@react-router/node": "^8.3.0",
     "@react-router/serve": "^8.3.0",
     "browser-bunyan": "^1.8.0",
-    "contentful": "^11.12.5",
+    "contentful": "^11.12.7",
     "date-fns": "^4.4.0",
     "isbot": "^5.2.0",
     "nodemailer": "^9.0.3",
