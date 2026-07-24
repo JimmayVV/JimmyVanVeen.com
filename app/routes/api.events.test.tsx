@@ -1,3 +1,5 @@
+import { fromPartial } from "@total-typescript/shoehorn";
+import { type RouterContextProvider } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { __resetForTesting, action } from "./api.events";
@@ -9,11 +11,13 @@ describe("Analytics API Route", () => {
 
     // Reset fetch mock
     vi.clearAllMocks();
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: async () => "",
-    } as Response);
+    global.fetch = vi.fn().mockResolvedValue(
+      fromPartial<Response>({
+        ok: true,
+        status: 200,
+        text: async () => "",
+      }),
+    );
   });
 
   const createMockRequest = (
@@ -39,7 +43,7 @@ describe("Analytics API Route", () => {
     url: new URL(request.url),
     pattern: "/api/events",
     params: {},
-    context: {} as never,
+    context: fromPartial<RouterContextProvider>({}),
   });
 
   describe("Request Validation", () => {
@@ -130,11 +134,13 @@ describe("Analytics API Route", () => {
 
   describe("Analytics API Errors", () => {
     it("should handle API errors gracefully", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-        text: async () => "Analytics Server Error",
-      } as Response);
+      global.fetch = vi.fn().mockResolvedValue(
+        fromPartial<Response>({
+          ok: false,
+          status: 500,
+          text: async () => "Analytics Server Error",
+        }),
+      );
 
       const request = createMockRequest("POST", {
         event: "page_view",

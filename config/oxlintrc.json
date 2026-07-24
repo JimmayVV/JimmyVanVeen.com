@@ -63,10 +63,8 @@
       }
     },
     {
-      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/e2e/**"],
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/e2e/**", "config/test/**"],
       "rules": {
-        "typescript/consistent-type-assertions": "off",
-        "typescript/no-unsafe-type-assertion": "off",
         "typescript/no-unnecessary-type-assertion": "off",
         "typescript/await-thenable": "off",
         "typescript/no-floating-promises": "off",
@@ -80,13 +78,6 @@
         "typescript/no-unsafe-return": "off",
         "typescript/no-base-to-string": "off",
         "typescript/unbound-method": "off"
-      }
-    },
-    {
-      "files": ["**/contentful-cache.ts"],
-      "rules": {
-        "typescript/consistent-type-assertions": "off",
-        "typescript/no-unsafe-type-assertion": "off"
       }
     }
   ],
