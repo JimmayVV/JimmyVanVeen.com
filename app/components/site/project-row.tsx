@@ -19,9 +19,7 @@ export function ProjectRow({
   const showScreenshot = screenshotUrl != null && targetUrl != null;
 
   return (
-    <article
-      className={`project-row${showScreenshot ? " has-screenshot" : ""}`}
-    >
+    <article className={`project-row${showScreenshot ? " has-screenshot" : ""}`}>
       {showScreenshot ? (
         <a
           href={targetUrl}

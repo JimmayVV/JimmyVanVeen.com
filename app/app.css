@@ -4,11 +4,9 @@
 
 @theme {
   /* Editorial typography (site-wide) */
-  --font-display:
-    Newsreader, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-display: Newsreader, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-display-italic: Fraunces, Newsreader, Georgia, serif;
-  --font-serif:
-    "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-serif: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Menlo, monospace;
 }
 
@@ -255,8 +253,7 @@ a[target="_blank"]::after {
 .blog-page {
   max-width: 84ch;
   margin: 0 auto;
-  padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 5vw, 3rem)
-    clamp(3rem, 8vw, 6rem);
+  padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 5vw, 3rem) clamp(3rem, 8vw, 6rem);
 }
 
 @media (min-width: 1100px) {
@@ -977,8 +974,7 @@ a[target="_blank"]::after {
 .home-cover {
   max-width: 72ch;
   margin: 0 auto;
-  padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 5vw, 3rem)
-    clamp(3rem, 8vw, 6rem);
+  padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 5vw, 3rem) clamp(3rem, 8vw, 6rem);
 }
 
 .home-dateline {

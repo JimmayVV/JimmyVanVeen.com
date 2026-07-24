@@ -39,8 +39,8 @@ npm start
 **GitHub Actions** automatically validates all code changes:
 
 - **Triggers**: Every push to `main` and all pull requests
-- **Pipeline**: ESLint → Prettier → TypeScript → Build
-- **Environment**: Node.js v20 with test configuration
+- **Pipeline**: oxlint (type-aware) → oxfmt → TypeScript → Build
+- **Environment**: Node.js 24 (from `.nvmrc`) with test configuration
 - **Dependabot**: Weekly dependency updates with auto-merge for patch/minor
   versions
 
@@ -51,14 +51,17 @@ npm start
 Hard-won lessons — follow these to avoid green-locally / red-in-CI loops:
 
 - **Regenerate `package-lock.json` with the pinned Node/npm, not whatever is
-  newest locally.** CI and Netlify build on **Node 22 (npm 10)** — the version
-  in `.nvmrc` / `netlify.toml`. A newer npm (e.g. 11) dedupes transitive deps
-  differently and writes a lock that npm 10's `npm ci` rejects with
+  newest locally.** CI and Netlify build on **Node 24 (npm 11)** — the version
+  in `.nvmrc` (the single source of truth; `netlify.toml` and `ci.yml` derive
+  from it). Using a different npm major dedupes transitive deps differently and
+  writes a lock the pinned npm's `npm ci` can reject with
   `Missing: <pkg> from lock file` — which surfaces as a CI "Install
   dependencies" failure _and_ a Netlify deploy-preview failure, while
-  `npm install`/`npm ci` still pass locally on the newer npm. Before touching
-  the lockfile: `nvm use` (reads `.nvmrc` → 22), or run `npx npm@10 install`.
-  Sanity-check with `npx npm@10 ci --dry-run` before pushing.
+  `npm install`/`npm ci` still pass locally on the other npm. Before touching
+  the lockfile: `nvm use` (reads `.nvmrc` → 24) so you're on the bundled npm 11.
+  Sanity-check with `npm ci` before pushing. (The oxc toolchain and React
+  Router 8 currently require `npm install --legacy-peer-deps`; `npm ci` from the
+  committed lockfile works without the flag.)
 - **A broken lock can poison Netlify's build cache.** If a bad lock was pushed
   once, later good pushes may still fail install because Netlify reuses the
   cached state. Fix: **Clear cache and deploy** in the Netlify UI (or the
@@ -137,8 +140,8 @@ All environment variables are properly typed in `app/vite-env.d.ts` for TypeScri
     `process.env`) at the boundary before use
   - Use **`satisfies`** to check a value against a type without widening it
   - `as const` is fine — it is a const assertion, not a type assertion
-- Enforcement is layered: an ESLint rule
-  (`@typescript-eslint/consistent-type-assertions`) fails CI, and a Claude Code
+- Enforcement is layered: an oxlint rule
+  (`typescript/consistent-type-assertions`) fails CI, and a Claude Code
   PreToolUse hook (`.claude/hooks/no-as-assertion.mjs`) blocks edits that
   introduce one.
 

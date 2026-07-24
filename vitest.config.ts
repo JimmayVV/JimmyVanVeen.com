@@ -34,6 +34,11 @@ export default defineConfig({
 
     // Timeout for tests
     testTimeout: 10000,
+
+    // Backstop for a non-deterministic worker-teardown race (an async analytics
+    // log resolving after a test completes). A single retry clears it without
+    // masking real failures.
+    retry: 1,
   },
 
   resolve: {

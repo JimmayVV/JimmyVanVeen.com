@@ -27,14 +27,12 @@ export type ProjectFieldsSkeleton = Contentful.EntrySkeletonType<
   "project"
 >;
 
-const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID ?? "";
-const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN ?? "";
-const CONTENTFUL_PREVIEW_TOKEN = process.env.CONTENTFUL_PREVIEW_TOKEN ?? "";
-const CONTENTFUL_PREVIEW = process.env.CONTENTFUL_PREVIEW === "true";
+const CONTENTFUL_SPACE_ID = process.env["CONTENTFUL_SPACE_ID"] ?? "";
+const CONTENTFUL_ACCESS_TOKEN = process.env["CONTENTFUL_ACCESS_TOKEN"] ?? "";
+const CONTENTFUL_PREVIEW_TOKEN = process.env["CONTENTFUL_PREVIEW_TOKEN"] ?? "";
+const CONTENTFUL_PREVIEW = process.env["CONTENTFUL_PREVIEW"] === "true";
 
-const activeToken = CONTENTFUL_PREVIEW
-  ? CONTENTFUL_PREVIEW_TOKEN
-  : CONTENTFUL_ACCESS_TOKEN;
+const activeToken = CONTENTFUL_PREVIEW ? CONTENTFUL_PREVIEW_TOKEN : CONTENTFUL_ACCESS_TOKEN;
 
 if (CONTENTFUL_PREVIEW && CONTENTFUL_PREVIEW_TOKEN.length === 0) {
   console.warn(
@@ -42,16 +40,13 @@ if (CONTENTFUL_PREVIEW && CONTENTFUL_PREVIEW_TOKEN.length === 0) {
   );
 }
 
-const hasContentfulEnv =
-  CONTENTFUL_SPACE_ID.length > 0 && activeToken.length > 0;
+const hasContentfulEnv = CONTENTFUL_SPACE_ID.length > 0 && activeToken.length > 0;
 
 const client = hasContentfulEnv
   ? Contentful.createClient({
       space: CONTENTFUL_SPACE_ID,
       accessToken: activeToken,
-      host: CONTENTFUL_PREVIEW
-        ? "preview.contentful.com"
-        : "cdn.contentful.com",
+      host: CONTENTFUL_PREVIEW ? "preview.contentful.com" : "cdn.contentful.com",
     })
   : null;
 
@@ -65,10 +60,9 @@ export const isContentfulConfigured = () => hasContentfulEnv;
  */
 export const getProjects = async () => {
   if (!client) return [];
-  const { items } =
-    await client.withoutUnresolvableLinks.getEntries<ProjectFieldsSkeleton>({
-      content_type: "project",
-    });
+  const { items } = await client.withoutUnresolvableLinks.getEntries<ProjectFieldsSkeleton>({
+    content_type: "project",
+  });
 
   return items;
 };
@@ -78,10 +72,9 @@ export const getProjects = async () => {
  */
 export const getAllBlogPosts = async () => {
   if (!client) return [];
-  const { items } =
-    await client.withoutUnresolvableLinks.getEntries<BlogPostSkeleton>({
-      content_type: "blogPost",
-    });
+  const { items } = await client.withoutUnresolvableLinks.getEntries<BlogPostSkeleton>({
+    content_type: "blogPost",
+  });
 
   return items;
 };
@@ -96,21 +89,22 @@ export const getAllBlogPosts = async () => {
  */
 export const getBlogPostBySlug = async (slug: string) => {
   if (!client) throw new Error("Contentful environment not configured");
-  const { items } =
-    await client.withoutUnresolvableLinks.getEntries<BlogPostSkeleton>({
-      content_type: "blogPost",
-      "fields.slug[match]": slug,
-    });
+  const { items } = await client.withoutUnresolvableLinks.getEntries<BlogPostSkeleton>({
+    content_type: "blogPost",
+    "fields.slug[match]": slug,
+  });
 
   // Check that only one blog post was returned
   if (items.length > 1) {
     throw new Error("More than one blog post found with that slug");
   }
 
-  // Check that a blog post was returned
-  if (items.length === 0) {
+  // Check that a blog post was returned (narrows away `undefined` from the
+  // indexed access under noUncheckedIndexedAccess)
+  const post = items[0];
+  if (!post) {
     throw new Error("No blog post found with that slug");
   }
 
-  return items[0];
+  return post;
 };

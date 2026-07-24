@@ -124,9 +124,7 @@ export function useSidebar() {
 ```tsx
 // Strict prop typing
 interface ButtonProps
-  extends
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
@@ -203,12 +201,7 @@ export function ContactForm() {
 
   return (
     <Form method="post">
-      <Input
-        name="email"
-        type="email"
-        required
-        aria-invalid={errors.email ? "true" : undefined}
-      />
+      <Input name="email" type="email" required aria-invalid={errors.email ? "true" : undefined} />
       {errors.email && <ErrorMessage />}
       <Button type="submit">Send</Button>
     </Form>

@@ -23,7 +23,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     return await getCachedBlogPostBySlug(slug);
   } catch (error) {
     console.error("Failed to load blog post", { slug, error });
-    return redirect("/blog", { status: 302 });
+    throw redirect("/blog", { status: 302 });
   }
 }
 
@@ -43,8 +43,7 @@ export function ErrorBoundary() {
     <main className="blog-page">
       <h1 className="error-title">Couldn&rsquo;t load that post</h1>
       <p className="error-body">
-        Something went wrong fetching this post. The post index has the latest
-        list either way.
+        Something went wrong fetching this post. The post index has the latest list either way.
       </p>
       <Link to="/blog" className="blog-back-link" prefetch="intent">
         ← All posts
@@ -69,21 +68,12 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
           readingMinutes={minutes}
         />
 
-        <article
-          className="prose-editorial"
-          data-long={long ? "true" : undefined}
-        >
+        <article className="prose-editorial" data-long={long ? "true" : undefined}>
           <ReactMarkdown
             components={{
               img({ src, alt, title }) {
                 if (!src || typeof src !== "string") return null;
-                return (
-                  <Plate
-                    src={src}
-                    alt={alt ?? ""}
-                    caption={title ?? undefined}
-                  />
-                );
+                return <Plate src={src} alt={alt ?? ""} caption={title ?? undefined} />;
               },
               // ReactMarkdown wraps fenced code in <pre> by default. We
               // also have <SyntaxHighlighter PreTag="pre"> rendering its
@@ -99,15 +89,9 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
               // syntax-highlighting support and we can drop the
               // SyntaxHighlighter component entirely.
               pre({ children, ...props }) {
-                if (
-                  React.isValidElement(children) &&
-                  isRecord(children.props)
-                ) {
-                  const className = children.props.className;
-                  if (
-                    typeof className === "string" &&
-                    /language-/.test(className)
-                  ) {
+                if (React.isValidElement(children) && isRecord(children.props)) {
+                  const className = children.props["className"];
+                  if (typeof className === "string" && /language-/.test(className)) {
                     return <>{children}</>;
                   }
                 }

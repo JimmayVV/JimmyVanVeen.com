@@ -4,9 +4,9 @@ import { beforeEach, vi } from "vitest";
 // Mock environment variables for testing
 beforeEach(() => {
   // Mock process.env for server-side tests
-  process.env.GA4_MEASUREMENT_ID = "G-TEST123456";
-  process.env.GA4_API_SECRET = "test_api_secret_key_123456";
-  process.env.GA4_DEBUG = "false";
+  process.env["GA4_MEASUREMENT_ID"] = "G-TEST123456";
+  process.env["GA4_API_SECRET"] = "test_api_secret_key_123456";
+  process.env["GA4_DEBUG"] = "false";
 
   // Mock import.meta.env for client-side tests
   vi.stubGlobal("import.meta", {
@@ -34,7 +34,7 @@ const localStorageMock = (() => {
       return value !== undefined ? value : null;
     },
     setItem: (key: string, value: string): void => {
-      store[key] = String(value);
+      store[key] = value;
     },
     removeItem: (key: string): void => {
       delete store[key];
@@ -60,7 +60,7 @@ const sessionStorageMock = (() => {
       return value !== undefined ? value : null;
     },
     setItem: (key: string, value: string): void => {
-      store[key] = String(value);
+      store[key] = value;
     },
     removeItem: (key: string): void => {
       delete store[key];

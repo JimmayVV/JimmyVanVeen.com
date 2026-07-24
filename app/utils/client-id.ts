@@ -33,7 +33,7 @@ export function isValidClientId(clientId: string): boolean {
   if (parts.length < 2) return false;
 
   // Check if first part looks like a timestamp
-  const timestamp = parseInt(parts[0]);
+  const timestamp = parseInt(parts[0] ?? "");
   if (isNaN(timestamp) || timestamp < 1000000000000) return false; // After 2001
 
   return true;

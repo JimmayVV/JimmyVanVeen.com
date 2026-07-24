@@ -1,11 +1,7 @@
 // Client-side analytics service with vendor-agnostic interface
 import { generateClientId } from "./client-id";
 import { analyticsLogger } from "./logger.client";
-import {
-  getStorageItem,
-  removeStorageItem,
-  setStorageItem,
-} from "./storage.client";
+import { getStorageItem, removeStorageItem, setStorageItem } from "./storage.client";
 
 export interface AnalyticsEvent {
   event: string;
@@ -30,10 +26,7 @@ class ClientAnalytics implements AnalyticsService {
     this.isEnabled = this.checkIfEnabled();
   }
 
-  async track(
-    event: string,
-    properties: Record<string, unknown> = {},
-  ): Promise<void> {
+  async track(event: string, properties: Record<string, unknown> = {}): Promise<void> {
     analyticsLogger.debug(
       {
         event,
@@ -50,10 +43,7 @@ class ClientAnalytics implements AnalyticsService {
         optOut: this.isOptedOut(),
         envDisabled: import.meta.env.JVV_ANALYTICS_ENABLED === "false",
       };
-      analyticsLogger.debug(
-        { event, disabledReasons },
-        "Analytics disabled, skipping event",
-      );
+      analyticsLogger.debug({ event, disabledReasons }, "Analytics disabled, skipping event");
       return;
     }
 
@@ -81,9 +71,7 @@ class ClientAnalytics implements AnalyticsService {
           event: payload.event,
           propertiesCount: Object.keys(payload.properties || {}).length,
           // Don't log full payload in production for privacy
-          hasClientId: !!(
-            payload.properties && "client_id" in payload.properties
-          ),
+          hasClientId: !!(payload.properties && "client_id" in payload.properties),
         },
         "Sending payload to server",
       );
@@ -94,10 +82,7 @@ class ClientAnalytics implements AnalyticsService {
     }
   }
 
-  async page(
-    page?: string,
-    properties: Record<string, unknown> = {},
-  ): Promise<void> {
+  async page(page?: string, properties: Record<string, unknown> = {}): Promise<void> {
     const pagePath = page || window.location.pathname;
 
     await this.track("page_view", {
@@ -118,10 +103,7 @@ class ClientAnalytics implements AnalyticsService {
       body: JSON.stringify(payload),
     });
 
-    analyticsLogger.debug(
-      { status: response.status },
-      "Server response received",
-    );
+    analyticsLogger.debug({ status: response.status }, "Server response received");
 
     if (!response.ok) {
       throw new Error(`Analytics API error: ${response.status}`);
@@ -138,9 +120,7 @@ class ClientAnalytics implements AnalyticsService {
       // Try to store the new client ID
       const success = setStorageItem(key, clientId);
       if (!success) {
-        analyticsLogger.warn(
-          "Unable to persist client ID, using session-only tracking",
-        );
+        analyticsLogger.warn("Unable to persist client ID, using session-only tracking");
       }
     }
 

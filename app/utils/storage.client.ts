@@ -9,10 +9,7 @@ export interface StorageOptions {
  * Safely gets a value from storage with fallback chain:
  * localStorage → sessionStorage → fallbackValue
  */
-export function getStorageItem(
-  key: string,
-  options: StorageOptions = {},
-): string | null {
+export function getStorageItem(key: string, options: StorageOptions = {}): string | null {
   const { fallbackToSession = true, fallbackValue = null } = options;
 
   // Try localStorage first
@@ -40,11 +37,7 @@ export function getStorageItem(
  * Safely sets a value in storage with fallback chain:
  * localStorage → sessionStorage → silent failure
  */
-export function setStorageItem(
-  key: string,
-  value: string,
-  options: StorageOptions = {},
-): boolean {
+export function setStorageItem(key: string, value: string, options: StorageOptions = {}): boolean {
   const { fallbackToSession = true } = options;
 
   // Try localStorage first
@@ -72,10 +65,7 @@ export function setStorageItem(
  * Safely removes a value from storage with fallback chain:
  * localStorage → sessionStorage → silent failure
  */
-export function removeStorageItem(
-  key: string,
-  options: StorageOptions = {},
-): boolean {
+export function removeStorageItem(key: string, options: StorageOptions = {}): boolean {
   const { fallbackToSession = true } = options;
   let success = false;
 

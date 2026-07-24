@@ -107,7 +107,7 @@ describe("GoatCounter Provider", () => {
         }),
       );
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
       const payload = JSON.parse(callArgs[1].body);
 
       expect(payload.hits).toHaveLength(1);
@@ -169,7 +169,7 @@ describe("GoatCounter Provider", () => {
 
       await provider.trackPageView(pageData);
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
       const payload = JSON.parse(callArgs[1].body);
 
       expect(payload.hits[0].ref).toBe("https://www.google.com/search");
@@ -197,7 +197,7 @@ describe("GoatCounter Provider", () => {
 
       expect(fetch).toHaveBeenCalled();
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
       const payload = JSON.parse(callArgs[1].body);
 
       expect(payload.hits[0]).toMatchObject({
@@ -232,7 +232,7 @@ describe("GoatCounter Provider", () => {
 
       expect(fetch).toHaveBeenCalled();
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
       const payload = JSON.parse(callArgs[1].body);
 
       expect(payload.hits[0].path).toBe("/minimal");

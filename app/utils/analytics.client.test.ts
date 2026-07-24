@@ -52,7 +52,7 @@ describe("Analytics Client", () => {
     it("should track page views with default path", async () => {
       await analytics.page();
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
       const payload = JSON.parse(callArgs[1].body);
 
       expect(payload.event).toBe("page_view");
@@ -63,7 +63,7 @@ describe("Analytics Client", () => {
     it("should track page views with custom path", async () => {
       await analytics.page("/custom-page", { utm_source: "test" });
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
       const payload = JSON.parse(callArgs[1].body);
 
       expect(payload.event).toBe("page_view");
@@ -110,12 +110,8 @@ describe("Analytics Client", () => {
       await analytics.page("/page1");
       await analytics.page("/page2");
 
-      const call1 = JSON.parse(
-        (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
-      );
-      const call2 = JSON.parse(
-        (fetch as ReturnType<typeof vi.fn>).mock.calls[1][1].body,
-      );
+      const call1 = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[0]![1].body);
+      const call2 = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[1]![1].body);
 
       expect(call1.properties.client_id).toBeDefined();
       expect(call2.properties.client_id).toBeDefined();

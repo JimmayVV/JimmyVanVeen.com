@@ -19,18 +19,16 @@ async function initializeProviders() {
   if (goatcounter) {
     await goatcounter.initialize({
       credentials: {
-        GOATCOUNTER_SITE_CODE: process.env.GOATCOUNTER_SITE_CODE || "",
-        GOATCOUNTER_API_TOKEN: process.env.GOATCOUNTER_API_TOKEN || "",
+        GOATCOUNTER_SITE_CODE: process.env["GOATCOUNTER_SITE_CODE"] || "",
+        GOATCOUNTER_API_TOKEN: process.env["GOATCOUNTER_API_TOKEN"] || "",
       },
-      debug: process.env.GOATCOUNTER_DEBUG === "true",
+      debug: process.env["GOATCOUNTER_DEBUG"] === "true",
     });
 
     if (goatcounter.isConfigured()) {
       console.log("GoatCounter analytics configured and ready");
     } else {
-      console.log(
-        "GoatCounter environment variables not configured - analytics will be disabled",
-      );
+      console.log("GoatCounter environment variables not configured - analytics will be disabled");
     }
   }
 }
@@ -66,8 +64,8 @@ export async function action({ request }: ActionFunctionArgs) {
       return Response.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const event = body.event;
-    const properties = body.properties ?? {};
+    const event = body["event"];
+    const properties = body["properties"] ?? {};
 
     // Validate event name
     if (typeof event !== "string" || event.length === 0) {
@@ -90,19 +88,13 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Validate properties object
     if (!isRecord(properties)) {
-      return Response.json(
-        { error: "Properties must be an object" },
-        { status: 400 },
-      );
+      return Response.json({ error: "Properties must be an object" }, { status: 400 });
     }
 
     // Sanitize properties - limit depth and size
     const sanitizedProperties = sanitizeProperties(properties);
     if (!sanitizedProperties) {
-      return Response.json(
-        { error: "Properties object too complex or large" },
-        { status: 400 },
-      );
+      return Response.json({ error: "Properties object too complex or large" }, { status: 400 });
     }
 
     // Get client info from headers
@@ -236,7 +228,7 @@ async function isRateLimited(clientIP: string): Promise<boolean> {
   if (rateLimitMap.size > RATE_LIMIT_MAX_ENTRIES) {
     // Keep only recent entries
     const sortedEntries = Array.from(rateLimitMap.entries())
-      .sort((a, b) => b[1].resetTime - a[1].resetTime)
+      .toSorted((a, b) => b[1].resetTime - a[1].resetTime)
       .slice(0, RATE_LIMIT_TRIM_TO);
     rateLimitMap.clear();
     sortedEntries.forEach(([k, v]) => rateLimitMap.set(k, v));
@@ -284,9 +276,7 @@ function getClientIP(request: Request): string {
   return request.headers.get("x-real-ip") || "unknown";
 }
 
-function sanitizeProperties(
-  properties: Record<string, unknown>,
-): Record<string, unknown> | null {
+function sanitizeProperties(properties: Record<string, unknown>): Record<string, unknown> | null {
   if (!properties || typeof properties !== "object") {
     return {};
   }
@@ -322,9 +312,7 @@ function sanitizeProperties(
         if (count >= MAX_PROPERTIES) break;
 
         // Sanitize key names
-        const sanitizedKey = key
-          .replace(/[^a-zA-Z0-9_]/g, "_")
-          .substring(0, 50);
+        const sanitizedKey = key.replace(/[^a-zA-Z0-9_]/g, "_").substring(0, 50);
         if (sanitizedKey.length > 0) {
           sanitized[sanitizedKey] = sanitizeValue(val, depth + 1);
           count++;

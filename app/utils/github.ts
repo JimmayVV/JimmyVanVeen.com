@@ -3,12 +3,12 @@ import { Octokit as createOctokit } from "@octokit/rest";
 
 const Octokit = createOctokit.plugin(throttling);
 
-const isDisabled = process.env.DISABLE_GITHUB_INTEGRATION === "true";
+const isDisabled = process.env["DISABLE_GITHUB_INTEGRATION"] === "true";
 
 const octokit = isDisabled
   ? null
   : new Octokit({
-      auth: process.env.GITHUB_TOKEN,
+      auth: process.env["GITHUB_TOKEN"],
       throttle: {
         onRateLimit: (retryAfter, options) => {
           console.warn(
@@ -69,10 +69,7 @@ export function databaseIdFromGhId(ghId: string): number | null {
  * the repo lookup and any caller that needs to re-associate a repo with its
  * Contentful entry, so the two never drift apart.
  */
-export function repoMatchesGhId(
-  repo: { id: number; node_id: string },
-  ghId: string,
-): boolean {
+export function repoMatchesGhId(repo: { id: number; node_id: string }, ghId: string): boolean {
   const databaseId = databaseIdFromGhId(ghId);
   return databaseId !== null ? repo.id === databaseId : repo.node_id === ghId;
 }

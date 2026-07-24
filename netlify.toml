@@ -2,9 +2,8 @@
 command = "npm run build"
 publish = "build/client"
 
-[build.environment]
-# Node 22 (LTS) — Vite 8 requires Node >=20.19 || >=22.12
-NODE_VERSION = "22"
+# Node version lives solely in .nvmrc (Netlify reads it), which also fixes the
+# bundled npm. No NODE_VERSION here on purpose — one source of truth.
 
 [dev]
 command = "npm run dev"

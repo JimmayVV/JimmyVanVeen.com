@@ -1,8 +1,6 @@
 import { getStore } from "@netlify/blobs";
-import type { Entry } from "contentful";
 
 import * as contentful from "./contentful";
-import type { BlogPostSkeleton, ProjectFieldsSkeleton } from "./contentful";
 
 interface CacheEntry<T> {
   data: T;
@@ -15,10 +13,10 @@ interface CacheConfig {
   store: string;
 }
 
-const isDevelopment = process.env.NODE_ENV === "development";
-const isNetlifyBuild = process.env.NETLIFY === "true";
+const isDevelopment = process.env["NODE_ENV"] === "development";
+const isNetlifyBuild = process.env["NETLIFY"] === "true";
 const hasNetlifyBlobsConfig = !!(
-  process.env.NETLIFY_SITE_ID && process.env.NETLIFY_AUTH_TOKEN
+  process.env["NETLIFY_SITE_ID"] && process.env["NETLIFY_AUTH_TOKEN"]
 );
 
 // Check if we're in Netlify build process
@@ -26,7 +24,7 @@ const isBuildTime = isNetlifyBuild;
 
 // Control whether to fetch fresh data at runtime
 // When true, will only use cached data (no API calls)
-const DISABLE_RUNTIME_FETCH = process.env.DISABLE_CONTENTFUL_RUNTIME === "true";
+const DISABLE_RUNTIME_FETCH = process.env["DISABLE_CONTENTFUL_RUNTIME"] === "true";
 
 // In-memory cache for development
 // Using unknown because this is a generic cache that stores different types
@@ -35,12 +33,12 @@ const memoryCache = new Map<string, CacheEntry<unknown>>();
 
 // Build-time data cache (populated during build, used at runtime if DISABLE_RUNTIME_FETCH is true)
 const BUILD_TIME_DATA: {
-  blogPosts?: Entry<BlogPostSkeleton, undefined, string>[];
-  projects?: Entry<ProjectFieldsSkeleton, undefined, string>[];
+  blogPosts?: Awaited<ReturnType<typeof contentful.getAllBlogPosts>>;
+  projects?: Awaited<ReturnType<typeof contentful.getProjects>>;
   timestamp?: string;
 } = {};
 
-const CACHE_CONFIG: Record<string, CacheConfig> = {
+const CACHE_CONFIG = {
   projects: {
     ttl: isDevelopment ? 30 * 1000 : 5 * 60 * 1000, // 30s dev, 5min prod
     store: "contentful-projects",
@@ -53,7 +51,7 @@ const CACHE_CONFIG: Record<string, CacheConfig> = {
     ttl: isDevelopment ? 60 * 1000 : 10 * 60 * 1000, // 1min dev, 10min prod
     store: "contentful-blog-post",
   },
-};
+} satisfies Record<string, CacheConfig>;
 
 async function getCachedData<T>(
   key: string,
@@ -72,7 +70,7 @@ async function getCachedData<T>(
     // Try to get cached data with metadata
     const cached = await store.getWithMetadata(key, { type: "json" });
 
-    if (cached && cached.data) {
+    if (cached?.data) {
       const entry = cached.data as CacheEntry<T>;
       const now = Date.now();
       const age = now - entry.timestamp;
@@ -80,17 +78,13 @@ async function getCachedData<T>(
       // Return cached data if still fresh
       if (age < config.ttl) {
         console.log(
-          `[Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${
-            config.ttl / 1000
-          }s)`,
+          `[Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
         );
         return entry.data;
       }
 
       console.log(
-        `[Cache EXPIRED] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${
-          config.ttl / 1000
-        }s)`,
+        `[Cache EXPIRED] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
       );
     }
   } catch (error) {
@@ -113,7 +107,7 @@ async function getCachedData<T>(
       metadata: {
         cachedAt: new Date().toISOString(),
         ttl: config.ttl,
-        environment: process.env.NODE_ENV,
+        environment: process.env["NODE_ENV"],
       },
     });
 
@@ -140,17 +134,13 @@ async function getCachedDataMemory<T>(
     // Return cached data if still fresh
     if (age < config.ttl) {
       console.log(
-        `[Memory Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${
-          config.ttl / 1000
-        }s)`,
+        `[Memory Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
       );
       return cached.data as T;
     }
 
     console.log(
-      `[Memory Cache EXPIRED] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${
-        config.ttl / 1000
-      }s)`,
+      `[Memory Cache EXPIRED] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
     );
   }
 
@@ -184,18 +174,12 @@ export async function getCachedProjects() {
 
   // At runtime, check if we should use build-time data
   if (DISABLE_RUNTIME_FETCH && BUILD_TIME_DATA.projects) {
-    console.log(
-      "[Runtime] Using build-time cached projects (runtime fetch disabled)",
-    );
+    console.log("[Runtime] Using build-time cached projects (runtime fetch disabled)");
     return BUILD_TIME_DATA.projects;
   }
 
   // Otherwise use normal caching behavior
-  return getCachedData(
-    "all-projects",
-    CACHE_CONFIG.projects,
-    contentful.getProjects,
-  );
+  return getCachedData("all-projects", CACHE_CONFIG.projects, contentful.getProjects);
 }
 
 /**
@@ -213,18 +197,12 @@ export async function getCachedBlogPosts() {
 
   // At runtime, check if we should use build-time data
   if (DISABLE_RUNTIME_FETCH && BUILD_TIME_DATA.blogPosts) {
-    console.log(
-      "[Runtime] Using build-time cached blog posts (runtime fetch disabled)",
-    );
+    console.log("[Runtime] Using build-time cached blog posts (runtime fetch disabled)");
     return BUILD_TIME_DATA.blogPosts;
   }
 
   // Otherwise use normal caching behavior
-  return getCachedData(
-    "all-blog-posts",
-    CACHE_CONFIG.blogPosts,
-    contentful.getAllBlogPosts,
-  );
+  return getCachedData("all-blog-posts", CACHE_CONFIG.blogPosts, contentful.getAllBlogPosts);
 }
 
 /**
@@ -239,9 +217,7 @@ export async function getCachedBlogPostBySlug(slug: string) {
 
     const post = posts?.find((p) => p.fields?.slug === slug);
     if (post) {
-      console.log(
-        `[${isBuildTime ? "Build Time" : "Runtime"}] Found blog post: ${slug}`,
-      );
+      console.log(`[${isBuildTime ? "Build Time" : "Runtime"}] Found blog post: ${slug}`);
       return post;
     }
     throw new Error(`Blog post not found: ${slug}`);
@@ -266,9 +242,7 @@ export async function clearAllCaches() {
   }
 
   // Clear Netlify Blobs for production
-  const stores = Object.values(CACHE_CONFIG).map((config) =>
-    getStore(config.store),
-  );
+  const stores = Object.values(CACHE_CONFIG).map((config) => getStore(config.store));
 
   const results = await Promise.allSettled(
     stores.map(async (store) => {

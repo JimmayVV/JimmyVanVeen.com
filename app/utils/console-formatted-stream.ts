@@ -91,7 +91,7 @@ export class ConsoleFormattedStream {
     const msgCss = this.css.msg;
     const srcCss = this.css.src;
 
-    const levelName = nameFromLevel[rec.level];
+    const levelName = nameFromLevel[rec.level] ?? "info";
 
     let consoleMethod:
       | typeof console.log
@@ -115,9 +115,7 @@ export class ConsoleFormattedStream {
 
     const childName = rec.component || rec.module || rec.childName;
 
-    const loggerName = childName
-      ? `${rec.name}${divider}${childName}`
-      : rec.name;
+    const loggerName = childName ? `${rec.name}${divider}${childName}` : rec.name;
 
     const leadingPadding = rec.level <= INFO ? "  " : "";
 
@@ -146,9 +144,7 @@ export class ConsoleFormattedStream {
     const lastLine = amountOfData > 0 ? "\n" : "";
 
     const logArgs = [];
-    logArgs.push(
-      `%c%s %c(%s): %c%s: %c%s ${rec.src ? "\n%c%s" + lastLine : lastLine}`,
-    );
+    logArgs.push(`%c%s %c(%s): %c%s: %c%s ${rec.src ? "\n%c%s" + lastLine : lastLine}`);
     logArgs.push(levelCss);
     logArgs.push(formattedLevelName);
     logArgs.push(this.css.date);

@@ -1,7 +1,7 @@
 interface PlateProps {
   src: string;
   alt: string;
-  caption?: string;
+  caption?: string | undefined;
   credit?: string;
   className?: string;
   width?: number;

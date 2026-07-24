@@ -7,12 +7,7 @@ interface PostHeroProps {
   readingMinutes?: number;
 }
 
-export function PostHero({
-  title,
-  publishDate,
-  description,
-  readingMinutes,
-}: PostHeroProps) {
+export function PostHero({ title, publishDate, description, readingMinutes }: PostHeroProps) {
   const date = formatPostDate(publishDate);
   const meta = readingMinutes ? `${date} · ${readingMinutes} min read` : date;
 

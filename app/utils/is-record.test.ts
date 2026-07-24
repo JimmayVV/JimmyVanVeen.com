@@ -29,7 +29,7 @@ describe("isRecord", () => {
   it("narrows so property access is type-safe", () => {
     const value: unknown = { name: "x" };
     if (isRecord(value)) {
-      expect(typeof value.name).toBe("string");
+      expect(typeof value["name"]).toBe("string");
     }
   });
 });

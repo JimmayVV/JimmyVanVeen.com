@@ -4,9 +4,7 @@
 // Development: DEBUG and all levels for comprehensive debugging
 // Override: Set JVV_ANALYTICS_DEBUG=true in production env to temporarily enable debug logs
 const logLevel =
-  import.meta.env.PROD && import.meta.env.JVV_ANALYTICS_DEBUG !== "true"
-    ? "warn"
-    : "debug";
+  import.meta.env.PROD && import.meta.env.JVV_ANALYTICS_DEBUG !== "true" ? "warn" : "debug";
 
 interface Logger {
   debug: (data: unknown, message?: string) => void;
@@ -89,8 +87,7 @@ if (typeof window !== "undefined") {
 
 // Fallback logger for SSR or if bunyan fails to load
 function createFallbackLogger(moduleName = "jimmyvanveen.com"): Logger {
-  const shouldLog =
-    logLevel === "debug" || import.meta.env.JVV_ANALYTICS_DEBUG === "true";
+  const shouldLog = logLevel === "debug" || import.meta.env.JVV_ANALYTICS_DEBUG === "true";
 
   return {
     debug: (data: unknown, message?: string) => {
