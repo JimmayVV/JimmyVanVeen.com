@@ -7,6 +7,22 @@ Proposed (planned 2026-07-23)
 Supersedes **ADR 10 (ESLint & Prettier)**. Amends **ADR 01 (TypeScript)** and
 **ADR 12 (GitHub Actions CI/CD)**.
 
+## As-built deviations (2026-07-24)
+
+- **Preview pins** (sandbox registry frozen ~3 days behind): `oxlint@1.74`,
+  `oxlint-tsgolint@0.25`, `oxfmt@0.59`, `react-router@8.2.0`. Bump to stable
+  (`oxlint-tsgolint@7.0.x`, `oxfmt@0.60`, `react-router@8.3.0`) on a live registry.
+- **npm 11** (bundled with Node 24) rather than npm 12 — no Node release bundles
+  npm 12 (see npm 12 note below).
+- **oxlint `pedantic` left off**, not error/warn — its pedantic set bundles
+  counterproductive rules (`prefer-readonly-parameter-types`, `no-inline-comments`,
+  `max-lines-per-function`). Error tier = correctness + suspicious + perf + all
+  type-aware + the any/as bans; `nursery` = warn.
+- **Test `as`/type-aware exemption kept (#381 deferred)** — the shoehorn migration
+  wasn't done to keep this PR's blast radius sane. Production code is fully strict.
+- RR8 needed `--legacy-peer-deps` (framework major bump) and a `server/app.ts`
+  RouterContextProvider + server-build boundary fix.
+
 ## Context
 
 The stack is healthy but the toolchain is mid-generation: ESLint 9 +
