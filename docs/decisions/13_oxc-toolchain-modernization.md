@@ -2,7 +2,9 @@
 
 ## Status
 
-Proposed (planned 2026-07-23)
+Accepted (built and merged 2026-07-24). The **Decision** section below records the
+original plan; see **As-built deviations** for what actually shipped (npm 11, RR
+8.2.0/preview pins, `pedantic` off, test `as` exemption kept, E2E-on-PR deferred).
 
 Supersedes **ADR 10 (ESLint & Prettier)**. Amends **ADR 01 (TypeScript)** and
 **ADR 12 (GitHub Actions CI/CD)**.
@@ -204,7 +206,9 @@ independent of the linter).
 
 - `npm run verify` reproduces CI exactly; no green-local/red-CI divergence.
 - Lint wall-clock materially lower than the ESLint baseline.
-- Zero `any` / raw `as` in the codebase (tests included), enforced in CI.
+- Zero `any` / raw `as` in **production** code, enforced in CI (the one
+  documented exception is `contentful-cache.ts`'s generic-cache cast, #382).
+  Tests keep the `as` exemption until #381.
 - `tsc` (TS 7) passes with the full strict superset.
 
 ## Risks and Mitigation
