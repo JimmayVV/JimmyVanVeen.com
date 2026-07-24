@@ -1,3 +1,5 @@
+import { fetchBody } from "../../config/test/mock-fetch";
+import { fromPartial } from "@total-typescript/shoehorn";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { analytics } from "./analytics.client";
@@ -19,11 +21,13 @@ describe("Analytics Client", () => {
 
     // Reset fetch mock
     vi.clearAllMocks();
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({ success: true }),
-    } as Response);
+    global.fetch = vi.fn().mockResolvedValue(
+      fromPartial<Response>({
+        ok: true,
+        status: 200,
+        json: async () => ({ success: true }),
+      }),
+    );
 
     // Mock document and window properties
     Object.defineProperty(document, "title", {
@@ -52,8 +56,7 @@ describe("Analytics Client", () => {
     it("should track page views with default path", async () => {
       await analytics.page();
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
-      const payload = JSON.parse(callArgs[1].body);
+      const payload = fetchBody(0);
 
       expect(payload.event).toBe("page_view");
       expect(payload.properties.page_path).toBe("/page");
@@ -63,8 +66,7 @@ describe("Analytics Client", () => {
     it("should track page views with custom path", async () => {
       await analytics.page("/custom-page", { utm_source: "test" });
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
-      const payload = JSON.parse(callArgs[1].body);
+      const payload = fetchBody(0);
 
       expect(payload.event).toBe("page_view");
       expect(payload.properties.page_path).toBe("/custom-page");
@@ -97,10 +99,12 @@ describe("Analytics Client", () => {
     });
 
     it("should handle server errors gracefully", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-      } as Response);
+      global.fetch = vi.fn().mockResolvedValue(
+        fromPartial<Response>({
+          ok: false,
+          status: 500,
+        }),
+      );
 
       // Should not throw error
       await expect(analytics.page()).resolves.toBeUndefined();
@@ -110,8 +114,8 @@ describe("Analytics Client", () => {
       await analytics.page("/page1");
       await analytics.page("/page2");
 
-      const call1 = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[0]![1].body);
-      const call2 = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[1]![1].body);
+      const call1 = fetchBody(0);
+      const call2 = fetchBody(1);
 
       expect(call1.properties.client_id).toBeDefined();
       expect(call2.properties.client_id).toBeDefined();

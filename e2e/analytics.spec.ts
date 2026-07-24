@@ -51,7 +51,7 @@ test.describe("Analytics E2E Tests", () => {
       const postData = request.postDataJSON();
 
       if (postData?.properties?.client_id) {
-        clientIds.push(postData.properties.client_id as string);
+        clientIds.push(String(postData.properties.client_id));
       }
 
       await route.fulfill({
@@ -83,7 +83,7 @@ test.describe("Analytics E2E Tests", () => {
       const postData = request.postDataJSON();
 
       if (postData?.event === "page_view") {
-        capturedEvent = postData as Record<string, unknown>;
+        capturedEvent = postData;
       }
 
       await route.fulfill({
@@ -202,7 +202,7 @@ test.describe("Analytics E2E Tests", () => {
       const postData = request.postDataJSON();
 
       if (postData?.properties?.client_id) {
-        clientId = postData.properties.client_id as string;
+        clientId = String(postData.properties.client_id);
       }
 
       await route.fulfill({
@@ -250,7 +250,7 @@ test.describe("Analytics E2E Tests", () => {
       const postData = request.postDataJSON();
 
       if (postData?.event === "page_view" && postData?.properties?.page_path) {
-        pageViews.push(postData.properties.page_path as string);
+        pageViews.push(String(postData.properties.page_path));
       }
 
       await route.fulfill({

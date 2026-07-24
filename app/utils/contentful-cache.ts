@@ -1,6 +1,7 @@
 import { getStore } from "@netlify/blobs";
 
 import * as contentful from "./contentful";
+import { isRecord } from "./is-record";
 
 interface CacheEntry<T> {
   data: T;
@@ -12,6 +13,25 @@ interface CacheConfig {
   ttl: number;
   store: string;
 }
+
+// A cached value's runtime type is erased once it round-trips through JSON /
+// Netlify Blobs, so reads validate the wrapper shape with this guard and the
+// payload with a caller-supplied `isValid` predicate — no `as` assertion.
+function isCacheEntry(value: unknown): value is CacheEntry<unknown> {
+  return isRecord(value) && "data" in value && typeof value["timestamp"] === "number";
+}
+
+type Guard<T> = (value: unknown) => value is T;
+
+// Shallow type guards for the cached payloads. The predicate return type is a
+// deliberate contract (the Contentful shape is validated at fetch time), which
+// is the sanctioned alternative to an `as` assertion for erased runtime types.
+type Projects = Awaited<ReturnType<typeof contentful.getProjects>>;
+type BlogPosts = Awaited<ReturnType<typeof contentful.getAllBlogPosts>>;
+type BlogPost = Awaited<ReturnType<typeof contentful.getBlogPostBySlug>>;
+const isProjects = (value: unknown): value is Projects => Array.isArray(value);
+const isBlogPosts = (value: unknown): value is BlogPosts => Array.isArray(value);
+const isBlogPost = (value: unknown): value is BlogPost => isRecord(value);
 
 const isDevelopment = process.env["NODE_ENV"] === "development";
 const isNetlifyBuild = process.env["NETLIFY"] === "true";
@@ -57,10 +77,11 @@ async function getCachedData<T>(
   key: string,
   config: CacheConfig,
   fetcher: () => Promise<T>,
+  isValid: Guard<T>,
 ): Promise<T> {
   // Use in-memory cache for development if Netlify Blobs not configured
   if (isDevelopment && !hasNetlifyBlobsConfig) {
-    return getCachedDataMemory(key, config, fetcher);
+    return getCachedDataMemory(key, config, fetcher, isValid);
   }
 
   // Use Netlify Blobs for production or if configured
@@ -70,13 +91,13 @@ async function getCachedData<T>(
     // Try to get cached data with metadata
     const cached = await store.getWithMetadata(key, { type: "json" });
 
-    if (cached?.data) {
-      const entry = cached.data as CacheEntry<T>;
+    if (isCacheEntry(cached?.data)) {
+      const entry = cached.data;
       const now = Date.now();
       const age = now - entry.timestamp;
 
-      // Return cached data if still fresh
-      if (age < config.ttl) {
+      // Return cached data if still fresh and the payload matches its type
+      if (age < config.ttl && isValid(entry.data)) {
         console.log(
           `[Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
         );
@@ -123,6 +144,7 @@ async function getCachedDataMemory<T>(
   key: string,
   config: CacheConfig,
   fetcher: () => Promise<T>,
+  isValid: Guard<T>,
 ): Promise<T> {
   // Check memory cache
   const cached = memoryCache.get(key);
@@ -131,12 +153,12 @@ async function getCachedDataMemory<T>(
     const now = Date.now();
     const age = now - cached.timestamp;
 
-    // Return cached data if still fresh
-    if (age < config.ttl) {
+    // Return cached data if still fresh and the payload matches its type
+    if (age < config.ttl && isValid(cached.data)) {
       console.log(
         `[Memory Cache HIT] ${key} (age: ${Math.round(age / 1000)}s, ttl: ${config.ttl / 1000}s)`,
       );
-      return cached.data as T;
+      return cached.data;
     }
 
     console.log(
@@ -179,7 +201,7 @@ export async function getCachedProjects() {
   }
 
   // Otherwise use normal caching behavior
-  return getCachedData("all-projects", CACHE_CONFIG.projects, contentful.getProjects);
+  return getCachedData("all-projects", CACHE_CONFIG.projects, contentful.getProjects, isProjects);
 }
 
 /**
@@ -202,7 +224,12 @@ export async function getCachedBlogPosts() {
   }
 
   // Otherwise use normal caching behavior
-  return getCachedData("all-blog-posts", CACHE_CONFIG.blogPosts, contentful.getAllBlogPosts);
+  return getCachedData(
+    "all-blog-posts",
+    CACHE_CONFIG.blogPosts,
+    contentful.getAllBlogPosts,
+    isBlogPosts,
+  );
 }
 
 /**
@@ -224,8 +251,11 @@ export async function getCachedBlogPostBySlug(slug: string) {
   }
 
   // Otherwise use normal caching behavior
-  return getCachedData(`blog-post-${slug}`, CACHE_CONFIG.blogPost, () =>
-    contentful.getBlogPostBySlug(slug),
+  return getCachedData(
+    `blog-post-${slug}`,
+    CACHE_CONFIG.blogPost,
+    () => contentful.getBlogPostBySlug(slug),
+    isBlogPost,
   );
 }
 

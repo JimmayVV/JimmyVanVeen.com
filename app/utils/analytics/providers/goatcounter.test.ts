@@ -1,3 +1,5 @@
+import { fetchBody } from "../../../../config/test/mock-fetch";
+import { fromPartial } from "@total-typescript/shoehorn";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AnalyticsEvent, PageViewData } from "../types";
@@ -17,11 +19,13 @@ describe("GoatCounter Provider", () => {
   beforeEach(() => {
     provider = new GoatCounterProvider();
     vi.clearAllMocks();
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: async () => "",
-    } as Response);
+    global.fetch = vi.fn().mockResolvedValue(
+      fromPartial<Response>({
+        ok: true,
+        status: 200,
+        text: async () => "",
+      }),
+    );
   });
 
   describe("Initialization", () => {
@@ -107,8 +111,7 @@ describe("GoatCounter Provider", () => {
         }),
       );
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
-      const payload = JSON.parse(callArgs[1].body);
+      const payload = fetchBody(0);
 
       expect(payload.hits).toHaveLength(1);
       expect(payload.hits[0]).toMatchObject({
@@ -141,11 +144,13 @@ describe("GoatCounter Provider", () => {
     });
 
     it("should handle API errors gracefully", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-        text: async () => "Internal Server Error",
-      } as Response);
+      global.fetch = vi.fn().mockResolvedValue(
+        fromPartial<Response>({
+          ok: false,
+          status: 500,
+          text: async () => "Internal Server Error",
+        }),
+      );
 
       const pageData: PageViewData = {
         path: "/test",
@@ -169,8 +174,7 @@ describe("GoatCounter Provider", () => {
 
       await provider.trackPageView(pageData);
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
-      const payload = JSON.parse(callArgs[1].body);
+      const payload = fetchBody(0);
 
       expect(payload.hits[0].ref).toBe("https://www.google.com/search");
     });
@@ -197,8 +201,7 @@ describe("GoatCounter Provider", () => {
 
       expect(fetch).toHaveBeenCalled();
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
-      const payload = JSON.parse(callArgs[1].body);
+      const payload = fetchBody(0);
 
       expect(payload.hits[0]).toMatchObject({
         path: "/blog/post",
@@ -232,8 +235,7 @@ describe("GoatCounter Provider", () => {
 
       expect(fetch).toHaveBeenCalled();
 
-      const callArgs = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
-      const payload = JSON.parse(callArgs[1].body);
+      const payload = fetchBody(0);
 
       expect(payload.hits[0].path).toBe("/minimal");
     });

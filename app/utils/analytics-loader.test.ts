@@ -1,3 +1,4 @@
+import { fromPartial } from "@total-typescript/shoehorn";
 // Import types for proper mocking
 import type { ClientLoaderFunctionArgs } from "react-router";
 
@@ -260,9 +261,9 @@ describe("Analytics Loader", () => {
 
       const { withServerLoaderAnalytics } = await import("./analytics-loader");
 
-      const args = {
+      const args = fromPartial<ClientLoaderFunctionArgs>({
         serverLoader: mockServerLoader,
-      } as unknown as ClientLoaderFunctionArgs;
+      });
 
       const result = await withServerLoaderAnalytics(args);
 
@@ -300,9 +301,9 @@ describe("Analytics Loader", () => {
 
       const { withServerLoaderAnalytics } = await import("./analytics-loader");
 
-      const args = {
+      const args = fromPartial<ClientLoaderFunctionArgs>({
         serverLoader: mockServerLoader,
-      } as unknown as ClientLoaderFunctionArgs;
+      });
 
       // Should return server loader result even if analytics fails
       const result = await withServerLoaderAnalytics(args);
@@ -445,9 +446,9 @@ describe("Analytics Loader", () => {
       const { withAnalytics } = await import("./analytics-loader");
       const clientLoader = withAnalytics();
 
-      const args = {
+      const args = fromPartial<ClientLoaderFunctionArgs>({
         serverLoader: mockServerLoader,
-      } as unknown as ClientLoaderFunctionArgs;
+      });
 
       const result = await clientLoader(args);
 
