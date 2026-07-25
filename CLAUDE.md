@@ -89,7 +89,7 @@ Hard-won lessons — follow these to avoid green-locally / red-in-CI loops:
 - `app/components/blog/` - Blog-specific components (post hero/footer, theme toggle, reading progress)
 - `app/components/site/` - Site chrome (TopBar, Plate, ProjectRow)
 - `server/app.ts` - Netlify Functions entry point
-- `config/` - Configuration files (eslint, prettier, env, build scripts)
+- `config/` - Configuration files (oxlint, env, test setup)
 
 ### Data Flow
 
