@@ -92,8 +92,9 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Only run E2E tests on main branch, not on PRs
-    if: github.ref == 'refs/heads/main'
+    # Runs on PRs as well as main: Playwright drives a local production build
+    # (see playwright.config.ts webServer), so it needs no deploy preview and
+    # stays deterministic. Catching E2E regressions pre-merge is the point.
     needs: build
 
     steps:
@@ -112,12 +113,16 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      # The build/serve env (DISABLE_CONTENTFUL_RUNTIME, JVV_*, …) lives in
+      # playwright.config.ts `webServer.env` rather than here, so running
+      # `npm run test:e2e` locally is identical to running it in CI.
       - name: Run Playwright E2E tests
         run: npm run test:e2e
-        env:
-          # Disable external API calls during E2E tests
-          DISABLE_CONTENTFUL_RUNTIME: true
-          DISABLE_GITHUB_INTEGRATION: true
-          # Provide test values for required environment variables
-          JVV_ALLOW_EMAILS: false
-          JVV_RECAPTCHA_SITE_KEY: test-key
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
