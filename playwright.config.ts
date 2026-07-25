@@ -41,11 +41,30 @@ export default defineConfig({
     },
   ],
 
-  /* Run your local dev server before starting the tests */
+  /* Build and serve the PRODUCTION bundle before starting the tests.
+   *
+   * These specs gate every PR, so they must exercise the artifact that actually
+   * ships — not the Vite dev server, which differs in bundling, SSR entry, and
+   * env handling. `react-router-serve` runs the same `build/server/index.js`
+   * the deploy consumes. The build is only a couple of seconds, so rebuilding
+   * per run is cheaper than reasoning about a stale `build/`.
+   */
   webServer: {
-    command: "npm run dev",
+    command: "npm run build && react-router-serve ./build/server/index.js",
     url: "http://localhost:3000",
-    reuseExistingServer: !process.env["CI"],
+    /* Never reuse a server already on :3000. Reusing would silently hand the
+     * suite a `npm run dev` process — the dev server this config exists to stop
+     * testing against. Failing loudly with "port already used" is the point:
+     * stop your dev server before running e2e locally. */
+    reuseExistingServer: false,
     timeout: 120000,
+    /* Keep external APIs out of E2E: Contentful/GitHub are stubbed off, and the
+     * JVV_* vars must be present at BUILD time since they inline into the client. */
+    env: {
+      DISABLE_CONTENTFUL_RUNTIME: "true",
+      DISABLE_GITHUB_INTEGRATION: "true",
+      JVV_ALLOW_EMAILS: "false",
+      JVV_RECAPTCHA_SITE_KEY: "test-key",
+    },
   },
 });
