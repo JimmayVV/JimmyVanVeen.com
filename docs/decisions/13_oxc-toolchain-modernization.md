@@ -3,25 +3,31 @@
 ## Status
 
 Accepted (built and merged 2026-07-24). The **Decision** section below records the
-original plan; see **As-built deviations** for what actually shipped (npm 11, RR
-8.2.0/preview pins, `pedantic` off, test `as` exemption kept, E2E-on-PR deferred).
+original plan; see **As-built deviations** for what actually shipped (npm 11,
+`pedantic` off, E2E-on-PR deferred). Two initial deviations have since been closed
+out: the preview pins are now on stable (#415) and the test `as` exemption is gone
+(#416), so the `as` ban is project-wide.
 
 Supersedes **ADR 10 (ESLint & Prettier)**. Amends **ADR 01 (TypeScript)** and
 **ADR 12 (GitHub Actions CI/CD)**.
 
 ## As-built deviations (2026-07-24)
 
-- **Preview pins** (sandbox registry frozen ~3 days behind): `oxlint@1.74`,
-  `oxlint-tsgolint@0.25`, `oxfmt@0.59`, `react-router@8.2.0`. Bump to stable
-  (`oxlint-tsgolint@7.0.x`, `oxfmt@0.60`, `react-router@8.3.0`) on a live registry.
+- ~~**Preview pins**~~ **RESOLVED (#415)** — shipped on preview pins because the
+  sandbox registry was frozen ~3 days behind; since bumped to stable on a live
+  registry: `oxlint@1.75`, `oxlint-tsgolint@7.0.2001` (tracks TS 7.0.2),
+  `oxfmt@0.60`, `react-router@8.3.0`. oxfmt 0.60 introduced no reformat churn.
 - **npm 11** (bundled with Node 24) rather than npm 12 — no Node release bundles
   npm 12 (see npm 12 note below).
 - **oxlint `pedantic` left off**, not error/warn — its pedantic set bundles
   counterproductive rules (`prefer-readonly-parameter-types`, `no-inline-comments`,
   `max-lines-per-function`). Error tier = correctness + suspicious + perf + all
   type-aware + the any/as bans; `nursery` = warn.
-- **Test `as`/type-aware exemption kept (#381 deferred)** — the shoehorn migration
-  wasn't done to keep this PR's blast radius sane. Production code is fully strict.
+- ~~**Test `as`/type-aware exemption kept (#381 deferred)**~~ **RESOLVED (#416)** —
+  the exemption was a blast-radius concession in the original PR; the shoehorn
+  migration (#381) and the `contentful-cache` validator swap (#382) have since
+  landed, so the test as-ban carve-out is gone. The `as` ban is now project-wide:
+  zero assertions in production _or_ test code.
 - RR8 needed `--legacy-peer-deps` (framework major bump) and a `server/app.ts`
   RouterContextProvider + server-build boundary fix.
 - **E2E-on-PR (item 8b) deferred** — the Playwright `test-e2e` job stays gated to
