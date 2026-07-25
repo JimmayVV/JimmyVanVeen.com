@@ -3,10 +3,10 @@
 ## Status
 
 Accepted (built and merged 2026-07-24). The **Decision** section below records the
-original plan; see **As-built deviations** for what actually shipped (npm 11,
-`pedantic` off, E2E-on-PR deferred). Two initial deviations have since been closed
-out: the preview pins are now on stable (#415) and the test `as` exemption is gone
-(#416), so the `as` ban is project-wide.
+original plan; see **As-built deviations** for what actually shipped (npm 11 and
+`pedantic` off are the two that remain). The other three deviations have since been
+closed out: the preview pins are on stable (#415), the test `as` exemption is gone
+(#416) so the `as` ban is project-wide, and E2E now runs on every PR.
 
 Supersedes **ADR 10 (ESLint & Prettier)**. Amends **ADR 01 (TypeScript)** and
 **ADR 12 (GitHub Actions CI/CD)**.
@@ -30,8 +30,14 @@ Supersedes **ADR 10 (ESLint & Prettier)**. Amends **ADR 01 (TypeScript)** and
   zero assertions in production _or_ test code.
 - RR8 needed `--legacy-peer-deps` (framework major bump) and a `server/app.ts`
   RouterContextProvider + server-build boundary fix.
-- **E2E-on-PR (item 8b) deferred** — the Playwright `test-e2e` job stays gated to
-  `main` for now; running it on PRs against the deploy preview is a fast-follow.
+- ~~**E2E-on-PR (item 8b) deferred**~~ **RESOLVED** — `test-e2e` no longer gates on
+  `main`; it runs on every PR. It drives a **local production build** via
+  `react-router-serve` (see `playwright.config.ts` `webServer`) rather than the
+  Netlify deploy preview: same pre-merge signal, but deterministic and with no
+  wait-for-Netlify step, third-party action, or extra secrets. This also fixed E2E
+  previously running against the Vite **dev** server, which is not the artifact
+  that ships. Trade-off accepted: Netlify-specific SSR/Functions behaviour is still
+  only exercised post-merge.
 
 ## Context
 
