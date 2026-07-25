@@ -52,7 +52,11 @@ export default defineConfig({
   webServer: {
     command: "npm run build && react-router-serve ./build/server/index.js",
     url: "http://localhost:3000",
-    reuseExistingServer: !process.env["CI"],
+    /* Never reuse a server already on :3000. Reusing would silently hand the
+     * suite a `npm run dev` process — the dev server this config exists to stop
+     * testing against. Failing loudly with "port already used" is the point:
+     * stop your dev server before running e2e locally. */
+    reuseExistingServer: false,
     timeout: 120000,
     /* Keep external APIs out of E2E: Contentful/GitHub are stubbed off, and the
      * JVV_* vars must be present at BUILD time since they inline into the client. */

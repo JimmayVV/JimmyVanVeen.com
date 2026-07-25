@@ -95,6 +95,10 @@ jobs:
     # Runs on PRs as well as main: Playwright drives a local production build
     # (see playwright.config.ts webServer), so it needs no deploy preview and
     # stays deterministic. Catching E2E regressions pre-merge is the point.
+    #
+    # `needs: build` is a fast-fail gate, not an artifact hand-off — Playwright
+    # rebuilds in-job (~2s) with the E2E env applied, so a broken build fails in
+    # the cheap job before this one spends its 15-minute budget.
     needs: build
 
     steps:
