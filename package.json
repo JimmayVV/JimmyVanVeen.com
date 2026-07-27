@@ -46,7 +46,7 @@
     "@babel/preset-typescript": "^7.29.7",
     "@mjackson/node-fetch-server": "^0.7.0",
     "@netlify/vite-plugin-react-router": "^4.0.0",
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "^1.62.0",
     "@react-router/dev": "^8.3.0",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/dom": "^10.4.1",
