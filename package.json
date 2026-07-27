@@ -62,7 +62,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
-    "happy-dom": "^20.10.6",
+    "happy-dom": "^20.11.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.8",
     "netlify-cli": "^26.1.0",
