@@ -65,7 +65,7 @@
     "happy-dom": "^20.11.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
-    "netlify-cli": "^26.1.0",
+    "netlify-cli": "^27.1.1",
     "oxfmt": "^0.63.0",
     "oxlint": "^1.78.0",
     "oxlint-tsgolint": "^7.0.2001",
