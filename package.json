@@ -72,10 +72,10 @@
     "react-router-devtools": "^6.2.3",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
-    "vite": "^8.2.1",
+    "vite": "^8.2.2",
     "vite-node": "^6.0.0",
     "vite-plugin-babel": "^1.7.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "overrides": {
     "prismjs": ">=1.30.0"
