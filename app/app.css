@@ -697,8 +697,15 @@ a[target="_blank"]::after {
 /* Drop cap on long posts — kept on Fraunces, the one place its character earns it.
    font-style: italic is required because the Google Fonts URL only loads
    Fraunces' italic axis (`ital@1`); without this declaration the browser
-   falls back to Newsreader/Georgia. */
-.prose-editorial[data-long="true"] > p:first-of-type::first-letter {
+   falls back to Newsreader/Georgia.
+
+   first-child, NOT first-of-type. first-of-type matches the first <p> among the
+   children rather than the first child, so a post opening with a code block or
+   an image put the cap on the paragraph *after* it. That paragraph was one line
+   long, the float outlived it, and the following paragraph wrapped around a cap
+   belonging to neither. A post that does not open with prose has no opening line
+   to decorate, and should get no cap. */
+.prose-editorial[data-long="true"] > p:first-child::first-letter {
   font-family: var(--font-display-italic);
   font-style: italic;
   font-variation-settings: "opsz" 144;
@@ -711,7 +718,7 @@ a[target="_blank"]::after {
   color: var(--blog-accent);
 }
 @media (max-width: 640px) {
-  .prose-editorial[data-long="true"] > p:first-of-type::first-letter {
+  .prose-editorial[data-long="true"] > p:first-child::first-letter {
     font-size: 3.6em;
   }
 }
