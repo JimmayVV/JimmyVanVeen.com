@@ -5,6 +5,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import rehypeExternalLinks from "rehype-external-links";
 
+import { CoverageGrid } from "~/components/blog/coverage-grid";
 import { PostFooter } from "~/components/blog/post-footer";
 import { PostHero } from "~/components/blog/post-hero";
 import { ReadingProgress } from "~/components/blog/reading-progress";
@@ -99,6 +100,12 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
               },
               code({ node: _node, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className ?? "");
+                // A `coverage` fence is a figure, not code. Contentful bodies are
+                // plain markdown and raw HTML is stripped, so a fenced block is
+                // the only channel a post has for asking for a custom figure.
+                if (match?.[1] === "coverage") {
+                  return <CoverageGrid source={String(children)} />;
+                }
                 return match ? (
                   <SyntaxHighlighter
                     showLineNumbers

@@ -759,6 +759,14 @@ a[target="_blank"]::after {
     transform: translateY(0);
   }
 }
+/* One mark per item in a ```coverage figure; they fade in on a stagger set
+   inline per mark, so the proportion assembles rather than appearing at once. */
+@keyframes blogCoverageMark {
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes blogRuleGrow {
   to {
     width: 100%;
