@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseCoverage, scatter } from "./coverage-grid";
+import { MAX_MARKS, marksFor, parseCoverage, scatter } from "./coverage-grid";
 
 describe("parseCoverage", () => {
   it("reads the documented keys", () => {
@@ -40,5 +40,26 @@ describe("scatter", () => {
     const filled = scatter(262, 45);
     const firstForty = filled.slice(0, 45).filter(Boolean).length;
     expect(firstForty).toBeLessThan(45);
+  });
+});
+
+describe("marksFor", () => {
+  it("returns one mark per item, with stable ids", () => {
+    const marks = marksFor(262, 45);
+    expect(marks).toHaveLength(262);
+    expect(marks?.[0]?.id).toBe("mark-0");
+    expect(marks?.filter((m) => m.on)).toHaveLength(45);
+  });
+
+  it("declines to draw a grid too large to be legible", () => {
+    expect(marksFor(MAX_MARKS + 1, 10)).toBeNull();
+  });
+
+  it("draws right up to the cap", () => {
+    expect(marksFor(MAX_MARKS, 10)).toHaveLength(MAX_MARKS);
+  });
+
+  it("declines an empty set", () => {
+    expect(marksFor(0, 0)).toBeNull();
   });
 });
