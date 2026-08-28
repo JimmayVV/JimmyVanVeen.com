@@ -12,6 +12,11 @@ export const SITE_URL = "https://www.jimmyvanveen.com";
 export const FEED_PATH = "/rss.xml";
 export const FEED_TITLE = "Jimmy Van Veen";
 export const FEED_DESCRIPTION = `${BLOG_TITLE} ${BLOG_TAGLINE}`;
+/**
+ * Newest posts to include. Readers only act on recent items, and every item
+ * carries its full body, so an unbounded feed would grow with the archive.
+ */
+export const FEED_ITEM_LIMIT = 30;
 
 /**
  * The subset of a Contentful blog post the feed needs. Kept structural so the
@@ -165,14 +170,18 @@ function renderItem(post: FeedPost): string {
 
 /**
  * Builds an RSS 2.0 document with full post bodies. Posts are ordered newest
- * first by `publishDate` regardless of the order Contentful returned them.
+ * first by `publishDate` regardless of the order Contentful returned them,
+ * and only the newest `FEED_ITEM_LIMIT` are included.
  * `lastBuildDate` is the newest post's date rather than "now" so an unchanged
  * feed stays byte-identical between fetches.
  */
 export function buildRssFeed(posts: FeedPost[], now: Date = new Date()): string {
-  const ordered = posts.toSorted(
-    (a, b) => (toTimestamp(b.publishDate) ?? -Infinity) - (toTimestamp(a.publishDate) ?? -Infinity),
-  );
+  const ordered = posts
+    .toSorted(
+      (a, b) =>
+        (toTimestamp(b.publishDate) ?? -Infinity) - (toTimestamp(a.publishDate) ?? -Infinity),
+    )
+    .slice(0, FEED_ITEM_LIMIT);
   const newest = ordered[0];
   const lastBuildDate = (newest ? toRfc822(newest.publishDate) : null) ?? now.toUTCString();
 

@@ -38,7 +38,7 @@ export async function loader() {
       priority: string;
     }> = [];
 
-    if (blogPosts && Array.isArray(blogPosts)) {
+    if (blogPosts) {
       try {
         blogPages = blogPosts
           .filter((post) => post && post.fields && post.fields.slug && post.sys)
@@ -75,7 +75,10 @@ ${allPages
     return new Response(sitemap, {
       headers: {
         "Content-Type": "application/xml",
-        "Cache-Control": "public, max-age=3600", // Cache for 1 hour
+        // An hour normally; five minutes while Contentful is unavailable and
+        // the sitemap lists static pages only, so crawlers pick posts back up
+        // soon after it recovers. Same policy as /rss.xml.
+        "Cache-Control": blogPosts ? "public, max-age=3600" : "public, max-age=300",
       },
     });
   } catch (error) {

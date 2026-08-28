@@ -18,7 +18,14 @@ vi.mock("react-dom/server", async (importOriginal) => {
 });
 
 import { isRecord } from "./is-record";
-import { type FeedPost, SITE_URL, absolutize, buildRssFeed, renderBody } from "./rss.server";
+import {
+  FEED_ITEM_LIMIT,
+  type FeedPost,
+  SITE_URL,
+  absolutize,
+  buildRssFeed,
+  renderBody,
+} from "./rss.server";
 
 const post = (overrides: Partial<FeedPost> = {}): FeedPost => ({
   title: "A post",
@@ -118,6 +125,17 @@ describe("buildRssFeed", () => {
     const order = ["new", "mid", "old"].map((slug) => xml.indexOf(`/blog/${slug}</link>`));
     expect(order).toEqual(order.toSorted((a, b) => a - b));
     expect(order.every((i) => i > 0)).toBe(true);
+  });
+
+  it("includes only the newest FEED_ITEM_LIMIT posts", () => {
+    const posts = Array.from({ length: FEED_ITEM_LIMIT + 1 }, (_, i) =>
+      post({ slug: `post-${i}`, publishDate: new Date(Date.UTC(2020, 0, 1 + i)).toISOString() }),
+    );
+    const xml = buildRssFeed(posts);
+
+    expect(xml.split("<item>")).toHaveLength(FEED_ITEM_LIMIT + 1);
+    expect(xml).toContain(`/blog/post-${FEED_ITEM_LIMIT}</link>`);
+    expect(xml).not.toContain("/blog/post-0</link>");
   });
 
   it("uses the newest post's date as lastBuildDate so an unchanged feed is stable", () => {
