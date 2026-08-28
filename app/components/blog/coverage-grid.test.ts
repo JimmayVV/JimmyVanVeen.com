@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { MAX_MARKS, marksFor, parseCoverage, scatter } from "./coverage-grid";
+import { MAX_MARKS, coverageSummary, marksFor, parseCoverage, scatter } from "./coverage-grid";
 
 describe("parseCoverage", () => {
   it("reads the documented keys", () => {
@@ -22,6 +22,17 @@ describe("parseCoverage", () => {
 
   it("survives an empty fence", () => {
     expect(parseCoverage("").total).toBe(0);
+  });
+});
+
+describe("coverageSummary", () => {
+  it("states the proportion with the configured labels", () => {
+    const spec = parseCoverage(
+      "total: 262\nstored: 45\nstoredLabel: in the shared store\nemptyLabel: local only",
+    );
+    expect(coverageSummary(spec)).toBe(
+      "45 of 262 in the shared store; the remaining 217 local only.",
+    );
   });
 });
 

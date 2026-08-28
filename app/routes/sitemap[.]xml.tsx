@@ -1,37 +1,10 @@
-import { getCachedBlogPosts } from "~/utils/contentful-cache";
-
-/**
- * Escapes XML special characters to prevent XML injection
- */
-function escapeXml(unsafe: string): string {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-// Cache blog post failures to avoid repeated API calls
-let lastBlogPostsFailure: number | null = null;
-const FAILURE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+import { getBlogPostsWithBackoff } from "~/utils/blog-posts-with-backoff";
+import { escapeXml } from "~/utils/escape-xml";
 
 export async function loader() {
   try {
-    // Skip blog posts if recently failed to avoid repeated API calls
-    let blogPosts = null;
-    if (!lastBlogPostsFailure || Date.now() - lastBlogPostsFailure > FAILURE_CACHE_DURATION) {
-      try {
-        // Use cached blog posts to avoid hitting Contentful rate limits
-        blogPosts = await getCachedBlogPosts();
-        // Reset failure cache on success
-        lastBlogPostsFailure = null;
-      } catch (blogError) {
-        console.error("Failed to fetch blog posts for sitemap:", blogError);
-        lastBlogPostsFailure = Date.now();
-        // Continue with static pages only
-      }
-    }
+    // Null while Contentful is failing; the sitemap then lists static pages only.
+    const blogPosts = await getBlogPostsWithBackoff();
 
     const baseUrl = "https://www.jimmyvanveen.com";
 
@@ -65,7 +38,7 @@ export async function loader() {
       priority: string;
     }> = [];
 
-    if (blogPosts && Array.isArray(blogPosts)) {
+    if (blogPosts) {
       try {
         blogPages = blogPosts
           .filter((post) => post && post.fields && post.fields.slug && post.sys)
@@ -102,7 +75,10 @@ ${allPages
     return new Response(sitemap, {
       headers: {
         "Content-Type": "application/xml",
-        "Cache-Control": "public, max-age=3600", // Cache for 1 hour
+        // An hour normally; five minutes while Contentful is unavailable and
+        // the sitemap lists static pages only, so crawlers pick posts back up
+        // soon after it recovers. Same policy as /rss.xml.
+        "Cache-Control": blogPosts ? "public, max-age=3600" : "public, max-age=300",
       },
     });
   } catch (error) {

@@ -65,6 +65,17 @@ export default function Route() {
 - Individual post pages with dynamic slugs
 - Files: `app/routes/blog/blog-index.tsx`, `app/routes/blog/$slug.tsx`
 
+### RSS feed (`/rss.xml`)
+
+- Full-text RSS 2.0 feed of the blog, newest post first, bodies rendered from
+  markdown to plain HTML with absolute URLs
+- Resource route: loader only, returns the XML document directly
+- Feed builder lives in `app/utils/rss.server.tsx` (server-only module) and is
+  unit tested with plain post objects
+- Advertised via `<link rel="alternate">` in `app/root.tsx`, the home footer,
+  and the blog index
+- File: `app/routes/rss[.]xml.tsx`
+
 ### Email (`/email`)
 
 - Contact form with server-side email handling

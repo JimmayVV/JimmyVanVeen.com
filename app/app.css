@@ -282,8 +282,25 @@ a[target="_blank"]::after {
   font-size: 1.0625rem;
   line-height: 1.55;
   color: var(--blog-muted);
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   max-width: 52ch;
+}
+.blog-index-feed {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 3rem;
+}
+.blog-index-feed a {
+  color: var(--blog-muted);
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+.blog-index-feed a:hover,
+.blog-index-feed a:focus-visible {
+  color: var(--blog-accent);
 }
 .blog-index-rule {
   height: 1px;
