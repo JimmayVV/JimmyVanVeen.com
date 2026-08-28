@@ -130,9 +130,24 @@ function cdata(html: string): string {
   return `<![CDATA[${html.replace(/]]>/g, "]]]]><![CDATA[>")}]]>`;
 }
 
+/**
+ * One bad body must not take the whole feed down. A post whose markdown fails
+ * to render keeps its title, link, and description; only `content:encoded`
+ * is dropped, and the failure is logged with the slug.
+ */
+function renderBodyOrNull(post: FeedPost, url: string): string | null {
+  try {
+    return renderBody(post.body, url);
+  } catch (error) {
+    console.error(`Failed to render post body for the feed: ${post.slug}`, error);
+    return null;
+  }
+}
+
 function renderItem(post: FeedPost): string {
   const url = `${SITE_URL}/blog/${post.slug}`;
   const pubDate = toRfc822(post.publishDate);
+  const html = renderBodyOrNull(post, url);
   const lines = [
     `    <item>`,
     `      <title>${escapeXml(post.title)}</title>`,
@@ -143,10 +158,8 @@ function renderItem(post: FeedPost): string {
   if (post.author) lines.push(`      <dc:creator>${escapeXml(post.author)}</dc:creator>`);
   if (post.description)
     lines.push(`      <description>${escapeXml(post.description)}</description>`);
-  lines.push(
-    `      <content:encoded>${cdata(renderBody(post.body, url))}</content:encoded>`,
-    `    </item>`,
-  );
+  if (html !== null) lines.push(`      <content:encoded>${cdata(html)}</content:encoded>`);
+  lines.push(`    </item>`);
   return lines.join("\n");
 }
 

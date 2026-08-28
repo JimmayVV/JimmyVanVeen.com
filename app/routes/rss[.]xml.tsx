@@ -8,7 +8,7 @@ import { type FeedPost, buildRssFeed } from "~/utils/rss.server";
  */
 export async function loader() {
   const entries = await getBlogPostsWithBackoff();
-  const degraded = entries === null;
+  let degraded = entries === null;
 
   const posts: FeedPost[] = (entries ?? [])
     .filter(
@@ -24,7 +24,18 @@ export async function loader() {
       author: entry.fields.author ?? undefined,
     }));
 
-  return new Response(buildRssFeed(posts), {
+  let xml: string;
+  try {
+    xml = buildRssFeed(posts);
+  } catch (error) {
+    // Same posture as the sitemap: never answer a feed request with an HTML
+    // error page. An empty channel is still a valid feed a reader can retry.
+    console.error("Failed to build RSS feed:", error);
+    xml = buildRssFeed([]);
+    degraded = true;
+  }
+
+  return new Response(xml, {
     headers: {
       "Content-Type": "application/rss+xml; charset=utf-8",
       // Match the sitemap: an hour normally, five minutes when serving an

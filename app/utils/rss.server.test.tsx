@@ -1,5 +1,23 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+// Let one test make the markdown renderer blow up for a single post without
+// hunting for markdown that actually crashes react-markdown.
+vi.mock("react-dom/server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-dom/server")>();
+  return {
+    ...actual,
+    renderToStaticMarkup: (element: Parameters<typeof actual.renderToStaticMarkup>[0]) => {
+      const props = isRecord(element) ? element["props"] : undefined;
+      const markdown = isRecord(props) ? props["children"] : undefined;
+      if (typeof markdown === "string" && markdown.includes("<<explode>>")) {
+        throw new Error("renderer exploded");
+      }
+      return actual.renderToStaticMarkup(element);
+    },
+  };
+});
+
+import { isRecord } from "./is-record";
 import { type FeedPost, SITE_URL, absolutize, buildRssFeed, renderBody } from "./rss.server";
 
 const post = (overrides: Partial<FeedPost> = {}): FeedPost => ({
@@ -129,6 +147,25 @@ describe("buildRssFeed", () => {
     expect(xml).toContain("<description>a &lt; b</description>");
     expect(xml).toContain("<dc:creator>Jimmy</dc:creator>");
     expect(xml).toContain("<content:encoded><![CDATA[<p>x ]]&gt; y</p>]]></content:encoded>");
+  });
+
+  it("keeps the rest of the feed when one post's body fails to render", () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const xml = buildRssFeed([
+      post({ slug: "fine", body: "Fine." }),
+      post({ slug: "broken", body: "<<explode>>", description: "Still listed." }),
+    ]);
+
+    expect(xml).toContain(`<link>${SITE_URL}/blog/fine</link>`);
+    expect(xml).toContain("<![CDATA[<p>Fine.</p>]]>");
+    expect(xml).toContain(`<link>${SITE_URL}/blog/broken</link>`);
+    expect(xml).toContain("<description>Still listed.</description>");
+    expect(xml.split("<content:encoded>")).toHaveLength(2);
+    expect(consoleError).toHaveBeenCalledWith(
+      "Failed to render post body for the feed: broken",
+      expect.any(Error),
+    );
+    consoleError.mockRestore();
   });
 
   it("uses the post URL as a permalink guid", () => {
