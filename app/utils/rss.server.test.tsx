@@ -108,6 +108,12 @@ describe("buildRssFeed", () => {
     );
   });
 
+  it("treats epoch zero as a real date, not as unparseable", () => {
+    const xml = buildRssFeed([post({ publishDate: "1970-01-01T00:00:00.000Z" })], new Date(1e12));
+    expect(xml).toContain("<pubDate>Thu, 01 Jan 1970 00:00:00 GMT</pubDate>");
+    expect(xml).toContain("<lastBuildDate>Thu, 01 Jan 1970 00:00:00 GMT</lastBuildDate>");
+  });
+
   it("omits pubDate for an unparseable date instead of emitting Invalid Date", () => {
     const xml = buildRssFeed([post({ publishDate: "not a date" })], new Date(0));
     expect(xml).not.toContain("Invalid Date");

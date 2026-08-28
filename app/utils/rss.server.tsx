@@ -35,14 +35,15 @@ export function absolutize(url: string, postUrl: string): string {
   return url;
 }
 
-function toTimestamp(iso: string): number {
+/** `null` for an unparseable date; epoch zero is a real timestamp, not a sentinel. */
+function toTimestamp(iso: string): number | null {
   const t = new Date(iso).getTime();
-  return Number.isNaN(t) ? 0 : t;
+  return Number.isNaN(t) ? null : t;
 }
 
 function toRfc822(iso: string): string | null {
   const t = toTimestamp(iso);
-  return t === 0 ? null : new Date(t).toUTCString();
+  return t === null ? null : new Date(t).toUTCString();
 }
 
 /**
@@ -110,7 +111,9 @@ function renderItem(post: FeedPost): string {
  * feed stays byte-identical between fetches.
  */
 export function buildRssFeed(posts: FeedPost[], now: Date = new Date()): string {
-  const ordered = posts.toSorted((a, b) => toTimestamp(b.publishDate) - toTimestamp(a.publishDate));
+  const ordered = posts.toSorted(
+    (a, b) => (toTimestamp(b.publishDate) ?? -Infinity) - (toTimestamp(a.publishDate) ?? -Infinity),
+  );
   const newest = ordered[0];
   const lastBuildDate = (newest ? toRfc822(newest.publishDate) : null) ?? now.toUTCString();
 
