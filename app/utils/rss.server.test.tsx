@@ -27,6 +27,14 @@ describe("absolutize", () => {
     expect(absolutize("#heading", postUrl)).toBe(`${postUrl}#heading`);
   });
 
+  it("resolves document-relative paths against the post's directory", () => {
+    expect(absolutize("images/foo.png", postUrl)).toBe(`${SITE_URL}/blog/images/foo.png`);
+  });
+
+  it("passes through what the URL parser rejects", () => {
+    expect(absolutize("http://[bad", postUrl)).toBe("http://[bad");
+  });
+
   it("leaves absolute URLs alone", () => {
     expect(absolutize("https://example.com/", postUrl)).toBe("https://example.com/");
   });
@@ -44,6 +52,28 @@ describe("renderBody", () => {
     expect(html).toContain(`href="${SITE_URL}/blog/other"`);
     expect(html).toContain('src="https://images.ctfassets.net/a.png"');
     expect(html).toContain('alt="alt"');
+  });
+
+  it("renders a coverage fence as its summary sentence, not the raw source", () => {
+    const html = renderBody(
+      "Before.\n\n```coverage\ntotal: 262\nstored: 45\nlabel: corpus coverage after 29 days\nstoredLabel: in the shared store\nemptyLabel: local only, never sent\n```\n\nAfter.",
+      postUrl,
+    );
+    expect(html).toContain("<figcaption>corpus coverage after 29 days</figcaption>");
+    expect(html).toContain("<strong>45 / 262</strong>");
+    expect(html).toContain(
+      "45 of 262 in the shared store; the remaining 217 local only, never sent.",
+    );
+    expect(html).not.toContain("language-coverage");
+    expect(html).not.toContain("total: 262");
+    expect(html).toContain("<p>Before.</p>");
+    expect(html).toContain("<p>After.</p>");
+  });
+
+  it("drops an empty coverage fence instead of rendering a figure for nothing", () => {
+    const html = renderBody("```coverage\nlabel: x\n```", postUrl);
+    expect(html).not.toContain("<figure>");
+    expect(html).not.toContain("language-coverage");
   });
 
   it("keeps fenced code as a language-tagged code block", () => {

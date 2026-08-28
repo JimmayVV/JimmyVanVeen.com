@@ -1,6 +1,7 @@
 import { Link, useLoaderData } from "react-router";
 
 import { trackPageView } from "~/utils/analytics-loader";
+import { BLOG_TAGLINE, BLOG_TITLE } from "~/utils/blog-copy";
 import { isContentfulConfigured } from "~/utils/contentful";
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
 import { formatPostDate } from "~/utils/format-post-date";
@@ -30,11 +31,8 @@ export default function BlogIndex() {
 
   return (
     <main className="blog-page">
-      <h1 className="blog-index-intro">Notes &amp; field reports.</h1>
-      <p className="blog-index-dek">
-        Things I&rsquo;ve learned the slow way — written down so the next person (or future me)
-        finds them faster.
-      </p>
+      <h1 className="blog-index-intro">{BLOG_TITLE}</h1>
+      <p className="blog-index-dek">{BLOG_TAGLINE}</p>
       <p className="blog-index-feed">
         <a href="/rss.xml">Subscribe via RSS</a>
       </p>

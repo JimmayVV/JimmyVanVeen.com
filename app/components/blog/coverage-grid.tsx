@@ -104,6 +104,15 @@ export function scatter(total: number, stored: number, seed = 20260728): boolean
   return filled;
 }
 
+/**
+ * The figure as one sentence. Used for the screen-reader text when the grid is
+ * too large to draw, and by the RSS feed, which has no grid at all.
+ */
+export function coverageSummary(spec: CoverageSpec): string {
+  const remainder = spec.total - spec.stored;
+  return `${spec.stored} of ${spec.total} ${spec.storedLabel}; the remaining ${remainder} ${spec.emptyLabel}.`;
+}
+
 export type Mark = { id: string; on: boolean };
 
 /**
@@ -125,7 +134,7 @@ export function CoverageGrid({ source }: { source: string }) {
   const remainder = spec.total - spec.stored;
   const description = marks
     ? `A grid of ${spec.total} marks. ${spec.stored} are filled to show ${spec.storedLabel}; the remaining ${remainder} are empty.`
-    : `${spec.stored} of ${spec.total} ${spec.storedLabel}; the remaining ${remainder} ${spec.emptyLabel}.`;
+    : coverageSummary(spec);
 
   return (
     <figure className="not-prose my-10 rounded border border-neutral-200 bg-white p-5 shadow-sm sm:p-7 dark:border-neutral-800 dark:bg-neutral-900">

@@ -6,6 +6,8 @@ vi.mock("~/utils/contentful-cache", () => ({
   getCachedBlogPosts: () => getCachedBlogPosts(),
 }));
 
+import { __resetBackoffForTesting } from "~/utils/blog-posts-with-backoff";
+
 import { loader } from "./rss[.]xml";
 
 type Entries = Awaited<ReturnType<typeof import("~/utils/contentful-cache").getCachedBlogPosts>>;
@@ -15,6 +17,7 @@ const entry = (fields: Record<string, unknown>) => fromPartial<Entries[number]>(
 describe("/rss.xml", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    __resetBackoffForTesting();
   });
 
   it("serves a full-text feed of the published posts", async () => {

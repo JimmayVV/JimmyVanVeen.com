@@ -1,13 +1,17 @@
+import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ReactMarkdown from "react-markdown";
 
+import { coverageSummary, parseCoverage } from "~/components/blog/coverage-grid";
+
+import { BLOG_TAGLINE, BLOG_TITLE } from "./blog-copy";
 import { escapeXml } from "./escape-xml";
+import { isRecord } from "./is-record";
 
 export const SITE_URL = "https://www.jimmyvanveen.com";
 export const FEED_PATH = "/rss.xml";
 export const FEED_TITLE = "Jimmy Van Veen";
-export const FEED_DESCRIPTION =
-  "Notes & field reports. Things I've learned the slow way, written down so the next person (or future me) finds them faster.";
+export const FEED_DESCRIPTION = `${BLOG_TITLE} ${BLOG_TAGLINE}`;
 
 /**
  * The subset of a Contentful blog post the feed needs. Kept structural so the
@@ -24,18 +28,54 @@ export interface FeedPost {
 
 /**
  * Feed readers fetch the feed from their own servers, so every URL in it has
- * to be absolute. Contentful serves images from a protocol-relative host
- * (`//images.ctfassets.net/...`) and posts link to each other with site-root
- * paths, so both forms are resolved against the canonical origin.
+ * to be absolute. Resolves against the post's canonical URL, which covers
+ * Contentful's protocol-relative image host (`//images.ctfassets.net/...`),
+ * site-root paths, fragments, and document-relative paths alike. Anything
+ * the URL parser rejects is passed through untouched.
  */
 export function absolutize(url: string, postUrl: string): string {
-  if (url.startsWith("//")) return `https:${url}`;
-  if (url.startsWith("#")) return `${postUrl}${url}`;
-  if (url.startsWith("/")) return `${SITE_URL}${url}`;
-  return url;
+  try {
+    return new URL(url, postUrl).href;
+  } catch {
+    return url;
+  }
 }
 
-/** `null` for an unparseable date; epoch zero is a real timestamp, not a sentinel. */
+/**
+ * The source of a ```coverage fence, when `children` is the `<code>` element
+ * react-markdown produced for one; otherwise null.
+ */
+function coverageFence(children: React.ReactNode): string | null {
+  if (!React.isValidElement(children) || !isRecord(children.props)) return null;
+  const className = children.props["className"];
+  if (typeof className !== "string" || !/\blanguage-coverage\b/.test(className)) return null;
+  const source = children.props["children"];
+  if (typeof source === "string") return source;
+  if (Array.isArray(source)) return source.join("");
+  return null;
+}
+
+/**
+ * The feed's stand-in for the site's coverage grid: the same numbers and
+ * labels as one sentence, so a reader sees the claim rather than the fence's
+ * key/value source.
+ */
+function CoverageFigure({ source }: { source: string }) {
+  const spec = parseCoverage(source);
+  if (spec.total <= 0) return null;
+  return (
+    <figure>
+      <figcaption>{spec.label}</figcaption>
+      <p>
+        <strong>
+          {spec.stored} / {spec.total}
+        </strong>{" "}
+        {coverageSummary(spec)}
+      </p>
+    </figure>
+  );
+}
+
 function toTimestamp(iso: string): number | null {
   const t = new Date(iso).getTime();
   return Number.isNaN(t) ? null : t;
@@ -50,12 +90,18 @@ function toRfc822(iso: string): string | null {
  * Renders a post's markdown body to plain HTML for `content:encoded`. The
  * site's custom figure and syntax-highlighting components are deliberately
  * not used: a feed reader wants semantic HTML it can restyle, not the site's
- * DOM. Fenced code stays `<pre><code class="language-x">`.
+ * DOM. Fenced code stays `<pre><code class="language-x">`, except a
+ * `coverage` fence, which is a figure and renders as its summary sentence.
  */
 export function renderBody(markdown: string, postUrl: string): string {
   return renderToStaticMarkup(
     <ReactMarkdown
       components={{
+        pre({ node: _node, children, ...props }) {
+          const fence = coverageFence(children);
+          if (fence !== null) return <CoverageFigure source={fence} />;
+          return <pre {...props}>{children}</pre>;
+        },
         a({ node: _node, href, children, ...props }) {
           const resolved = typeof href === "string" ? absolutize(href, postUrl) : href;
           return (
