@@ -35,6 +35,9 @@ export default function BlogIndex() {
         Things I&rsquo;ve learned the slow way — written down so the next person (or future me)
         finds them faster.
       </p>
+      <p className="blog-index-feed">
+        <a href="/rss.xml">Subscribe via RSS</a>
+      </p>
       <div className="blog-index-rule" />
 
       {hasPosts ? (

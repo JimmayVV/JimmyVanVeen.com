@@ -180,6 +180,7 @@ function SiteFooter() {
         <Link to="/privacy" prefetch="intent">
           Privacy
         </Link>
+        <a href="/rss.xml">RSS</a>
       </div>
     </footer>
   );

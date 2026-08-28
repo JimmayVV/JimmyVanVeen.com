@@ -1,16 +1,5 @@
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
-
-/**
- * Escapes XML special characters to prevent XML injection
- */
-function escapeXml(unsafe: string): string {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
+import { escapeXml } from "~/utils/escape-xml";
 
 // Cache blog post failures to avoid repeated API calls
 let lastBlogPostsFailure: number | null = null;

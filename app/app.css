@@ -285,6 +285,23 @@ a[target="_blank"]::after {
   margin-bottom: 3rem;
   max-width: 52ch;
 }
+.blog-index-feed {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: -2rem 0 2.5rem;
+}
+.blog-index-feed a {
+  color: var(--blog-muted);
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+.blog-index-feed a:hover,
+.blog-index-feed a:focus-visible {
+  color: var(--blog-accent);
+}
 .blog-index-rule {
   height: 1px;
   background: var(--blog-rule);
