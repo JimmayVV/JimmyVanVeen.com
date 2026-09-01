@@ -245,3 +245,17 @@ git checkout -b chore/task-description
 - Ensure branch names align with GitHub issue labels
 - Reference issue numbers in branch names when applicable
 - Use consistent naming that makes work tracking easy
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues (`gh` CLI). Wayfinder maps use
+`wayfinder:*` labels, native sub-issues, and native issue dependencies. See
+`docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context. The glossary is `CONTEXT.md` at the repo root; architecture
+decisions live in `docs/decisions/` (numbered ADRs, template in
+`docs/decisions/00_template.md`).
