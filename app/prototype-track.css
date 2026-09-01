@@ -1,0 +1,237 @@
+/* PROTOTYPE — throwaway. Styles for the home-page track prototype
+   (issue #471). Imported only by app/routes/index.tsx while `?variant=` is
+   in play. Delete with the prototype. */
+
+/* ── shared ── */
+.proto-host .home-section .head {
+  position: relative;
+}
+.proto-host .home-sections {
+  position: relative;
+}
+
+.proto-car {
+  position: absolute;
+  width: clamp(52px, 7vw, 80px);
+  aspect-ratio: 416 / 175;
+  pointer-events: none;
+  user-select: none;
+}
+.proto-car img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: saturate(0.85);
+}
+.dark .proto-car img {
+  filter: saturate(0.85) brightness(0.92);
+}
+
+@keyframes protoFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── A — Rule runner ── */
+.proto-rule-track {
+  container-type: inline-size;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px; /* sit on the rule */
+  height: 0;
+  /* The track, not the car, is the view-timeline subject: view() with no
+     name would use the animated element itself. */
+  view-timeline-name: --proto-rule;
+}
+.proto-rule-car {
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  animation:
+    protoRuleRun linear both,
+    protoFadeIn 400ms ease 300ms both;
+  animation-timeline: --proto-rule, auto;
+  /* 0% = rule enters at viewport bottom; 70% = well before it leaves at top,
+     so cars on rules near the end of the page still finish their run. */
+  animation-range: 0% 70%;
+}
+@keyframes protoRuleRun {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100cqw);
+  }
+}
+@supports not (animation-timeline: view()) {
+  .proto-rule-car {
+    animation:
+      protoRuleRun 2600ms cubic-bezier(0.2, 0.7, 0.2, 1) 600ms both,
+      protoFadeIn 400ms ease 300ms both;
+  }
+}
+
+/* ── B — One long lap ── */
+.proto-lap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  /* The overlay spans the whole sections block; it is the lap's subject. */
+  view-timeline-name: --proto-lap;
+}
+.proto-lap-car {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(44px, 6vw, 64px);
+  color: var(--blog-ink);
+  offset-rotate: auto;
+  offset-distance: 0%;
+  animation:
+    protoLap linear both,
+    protoFadeIn 400ms ease 300ms both;
+  /* Driven by the document scroll. The pixel range is measured alongside
+     the path (sections top at viewport bottom → footer bottom at viewport
+     bottom) and set inline, because view() on an absolutely positioned
+     overlay stayed inactive in Chrome 149 during prototyping. */
+  animation-timeline: scroll(root), auto;
+  /* animation-range is set inline from the measurement. */
+}
+.proto-topdown {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* offset-rotate: auto points +x along the path; the sprite faces +x. */
+}
+.proto-topdown-accent {
+  stroke: var(--blog-accent);
+}
+@keyframes protoLap {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+@supports not (animation-timeline: view()) {
+  .proto-lap-car {
+    animation:
+      protoLap 14s linear 800ms both,
+      protoFadeIn 400ms ease 300ms both;
+  }
+}
+
+/* ── C — Whisper ── */
+.proto-whisper {
+  container-type: inline-size;
+  position: relative;
+  height: 1px;
+  margin: -1rem 0 2.5rem; /* tucks under the dek's bottom margin */
+  max-width: 52ch;
+}
+.proto-whisper-rule {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  width: 0;
+  background: var(--blog-rule);
+  animation: protoRuleGrow 520ms cubic-bezier(0.2, 0.7, 0.2, 1) 200ms forwards;
+}
+@keyframes protoRuleGrow {
+  to {
+    width: 100%;
+  }
+}
+.proto-whisper-car {
+  bottom: 1px;
+  left: 0;
+  transform: translateX(-120%);
+  animation: protoWhisperIn 1500ms cubic-bezier(0.2, 0.7, 0.2, 1) 450ms both;
+}
+@keyframes protoWhisperIn {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(calc(100cqw - 100%));
+  }
+}
+/* The twitch: the first 320px of scroll nudge the parked car forward. */
+.proto-whisper-car img {
+  animation: protoWhisperNudge linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0px 320px;
+}
+@keyframes protoWhisperNudge {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-14px) rotate(-1deg);
+  }
+}
+
+/* ── switcher ── */
+.proto-switcher {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font:
+    500 0.8rem/1 ui-monospace,
+    "JetBrains Mono",
+    monospace;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.35);
+}
+.proto-switcher button {
+  appearance: none;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  width: 1.75rem;
+  height: 1.75rem;
+  cursor: pointer;
+}
+.proto-switcher button:hover {
+  background: rgb(255 255 255 / 0.15);
+}
+
+/* ── reduced motion: park everything at rest ── */
+@media (prefers-reduced-motion: reduce) {
+  .proto-rule-car,
+  .proto-lap-car,
+  .proto-whisper-car,
+  .proto-whisper-car img,
+  .proto-whisper-rule {
+    animation: none;
+  }
+  .proto-rule-car {
+    transform: translateX(calc(100cqw - 100%));
+  }
+  .proto-lap-car {
+    offset-distance: 100%;
+  }
+  .proto-whisper-rule {
+    width: 100%;
+  }
+  .proto-whisper-car {
+    transform: translateX(calc(100cqw - 100%));
+  }
+}

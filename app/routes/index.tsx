@@ -1,6 +1,15 @@
 import * as React from "react";
-import { Await, Link, useRouteLoaderData } from "react-router";
+import { Await, Link, useRouteLoaderData, useSearchParams } from "react-router";
 
+// PROTOTYPE (issue #471) — remove with the prototype branch.
+import { PrototypeSwitcher } from "~/components/prototype/prototype-switcher";
+import {
+  LongLapOverlay,
+  RuleRunnerCar,
+  TRACK_VARIANTS,
+  WhisperTrack,
+  parseTrackVariant,
+} from "~/components/prototype/track-variants";
 import { Plate } from "~/components/site/plate";
 import { ProjectRow } from "~/components/site/project-row";
 import type { loader as rootLoader } from "~/root";
@@ -9,7 +18,47 @@ import { getCachedProjects } from "~/utils/contentful-cache";
 import { formatPostDate } from "~/utils/format-post-date";
 import { getRepositoriesByGhId, repoMatchesGhId } from "~/utils/github";
 
+import protoStyles from "~/prototype-track.css?url";
+
 import type { Route } from "./+types/index";
+
+// PROTOTYPE stylesheet; route-level links merge with root's.
+export const links: Route.LinksFunction = () => [{ rel: "stylesheet", href: protoStyles }];
+
+// PROTOTYPE stand-ins so the rules exist when Contentful/GitHub are stubbed
+// off locally. Only used while `?variant=` is set.
+const PROTOTYPE_POSTS = [
+  {
+    title: "Placeholder: what the pit wall taught me about on-call",
+    description: "Stand-in dek so the Recent writing rule exists in the prototype.",
+    slug: "prototype-one",
+    publishDate: "2026-08-20",
+  },
+  {
+    title: "Placeholder: a second post so the list has height",
+    description: undefined,
+    slug: "prototype-two",
+    publishDate: "2026-07-02",
+  },
+] as const;
+const PROTOTYPE_REPOS: Repository[] = [
+  {
+    name: "placeholder-project",
+    id: -1,
+    homepageUrl: null,
+    description: "Stand-in project row so the Selected work rule has something under it.",
+    url: "https://github.com/JimmayVV",
+    screenshotUrl: null,
+  },
+  {
+    name: "another-placeholder",
+    id: -2,
+    homepageUrl: null,
+    description: "Second stand-in row.",
+    url: "https://github.com/JimmayVV",
+    screenshotUrl: null,
+  },
+];
 
 interface Repository {
   name: string;
@@ -67,10 +116,14 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
   // ({ title, description, slug, publishDate }). If that loader's
   // shape changes, update the "Recent writing" rendering below.
   const rootData = useRouteLoaderData<typeof rootLoader>("root");
-  const recentPosts = (rootData ?? []).slice(0, 3);
+  const [searchParams] = useSearchParams();
+  const variant = parseTrackVariant(searchParams.get("variant"));
+  const sectionsRef = React.useRef<HTMLDivElement>(null);
+  const realPosts = (rootData ?? []).slice(0, 3);
+  const recentPosts = variant && realPosts.length === 0 ? PROTOTYPE_POSTS : realPosts;
 
   return (
-    <main className="home-cover">
+    <main className={`home-cover${variant ? " proto-host" : ""}`}>
       <div className="home-text">
         <div className="home-dateline">Jimmy Van Veen · Web engineer · Greater Boston</div>
         <h1 className="home-title">
@@ -80,6 +133,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
           A working portfolio &mdash; projects I&rsquo;ve shipped, notes from the workshop, and the
           occasional lap at Talladega. The interesting stuff is in the writing.
         </p>
+        {variant === "C" ? <WhisperTrack /> : null}
       </div>
 
       <Plate
@@ -92,7 +146,8 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
         priority
       />
 
-      <div className="home-sections">
+      <div className="home-sections" ref={sectionsRef}>
+        {variant === "B" ? <LongLapOverlay host={sectionsRef} /> : null}
         {recentPosts.length > 0 ? (
           <section className="home-section">
             <div className="head">
@@ -100,6 +155,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
               <Link to="/blog" prefetch="intent" className="see-all">
                 All posts →
               </Link>
+              {variant === "A" ? <RuleRunnerCar /> : null}
             </div>
             <ul className="blog-index-list">
               {recentPosts.map((post) => (
@@ -126,29 +182,33 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
             >
               GitHub →
             </a>
+            {variant === "A" ? <RuleRunnerCar /> : null}
           </div>
           <React.Suspense fallback={<ProjectsFallback />}>
             <Await resolve={repos} errorElement={<ProjectsError />}>
               {(resolvedRepos) => (
                 <div>
-                  {resolvedRepos.map((repo: Repository) => (
-                    <ProjectRow
-                      key={repo.id}
-                      title={repo.name}
-                      description={repo.description}
-                      liveUrl={repo.homepageUrl}
-                      repoUrl={repo.url}
-                      screenshotUrl={repo.screenshotUrl}
-                    />
-                  ))}
+                  {(variant && resolvedRepos.length === 0 ? PROTOTYPE_REPOS : resolvedRepos).map(
+                    (repo: Repository) => (
+                      <ProjectRow
+                        key={repo.id}
+                        title={repo.name}
+                        description={repo.description}
+                        liveUrl={repo.homepageUrl}
+                        repoUrl={repo.url}
+                        screenshotUrl={repo.screenshotUrl}
+                      />
+                    ),
+                  )}
                 </div>
               )}
             </Await>
           </React.Suspense>
         </section>
+        <SiteFooter />
       </div>
 
-      <SiteFooter />
+      {variant ? <PrototypeSwitcher variants={TRACK_VARIANTS} current={variant} /> : null}
     </main>
   );
 }
