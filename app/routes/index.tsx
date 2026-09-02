@@ -1,6 +1,10 @@
 import * as React from "react";
-import { Await, Link, useRouteLoaderData } from "react-router";
+import { Await, Link, useRouteLoaderData, useSearchParams } from "react-router";
 
+// PROTOTYPE (issue #482) — remove with the prototype branch.
+import { InkSceneMount } from "~/components/prototype/ink-scene-mount";
+import { INK_VARIANTS, parseInkVariant } from "~/components/prototype/ink-variants";
+import { PrototypeSwitcher } from "~/components/prototype/prototype-switcher";
 import { Plate } from "~/components/site/plate";
 import { ProjectRow } from "~/components/site/project-row";
 import type { loader as rootLoader } from "~/root";
@@ -9,7 +13,12 @@ import { getCachedProjects } from "~/utils/contentful-cache";
 import { formatPostDate } from "~/utils/format-post-date";
 import { getRepositoriesByGhId, repoMatchesGhId } from "~/utils/github";
 
+import protoStyles from "~/prototype-ink.css?url";
+
 import type { Route } from "./+types/index";
+
+// PROTOTYPE stylesheet; route-level links merge with root's.
+export const links: Route.LinksFunction = () => [{ rel: "stylesheet", href: protoStyles }];
 
 interface Repository {
   name: string;
@@ -68,9 +77,12 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
   // shape changes, update the "Recent writing" rendering below.
   const rootData = useRouteLoaderData<typeof rootLoader>("root");
   const recentPosts = (rootData ?? []).slice(0, 3);
+  const [searchParams] = useSearchParams();
+  const variant = parseInkVariant(searchParams.get("variant"));
 
   return (
-    <main className="home-cover">
+    <main className={`home-cover${variant ? " proto-ink-host" : ""}`}>
+      {variant ? <InkSceneMount variant={variant} /> : null}
       <div className="home-text">
         <div className="home-dateline">Jimmy Van Veen · Web engineer · Greater Boston</div>
         <h1 className="home-title">
@@ -82,15 +94,17 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
         </p>
       </div>
 
-      <Plate
-        className="home-hero-plate"
-        src="/images/talladega_glory.jpg"
-        alt="A pack of stock cars running three-wide down the front stretch at Talladega Superspeedway in iRacing."
-        caption="iRacing — the day job, and the way I spend most evenings"
-        width={1920}
-        height={1080}
-        priority
-      />
+      {variant ? null : (
+        <Plate
+          className="home-hero-plate"
+          src="/images/talladega_glory.jpg"
+          alt="A pack of stock cars running three-wide down the front stretch at Talladega Superspeedway in iRacing."
+          caption="iRacing — the day job, and the way I spend most evenings"
+          width={1920}
+          height={1080}
+          priority
+        />
+      )}
 
       <div className="home-sections">
         {recentPosts.length > 0 ? (
@@ -149,6 +163,7 @@ export default function Index({ loaderData: repos }: Route.ComponentProps) {
       </div>
 
       <SiteFooter />
+      {variant ? <PrototypeSwitcher variants={INK_VARIANTS} current={variant} /> : null}
     </main>
   );
 }

@@ -1,0 +1,109 @@
+/* PROTOTYPE — throwaway. Styles for the ink-dot scene prototype
+   (issue #482). Loaded by app/routes/index.tsx via a route `links` export.
+   Delete with the prototype. */
+
+/* The home page becomes a stacking context; the scene sits at its floor
+   and every content block floats above it. */
+.proto-ink-host {
+  position: relative;
+  isolation: isolate;
+}
+.proto-ink-host > :not(.ink-canvas):not(.ink-poster) {
+  position: relative;
+  z-index: 1;
+}
+
+.ink-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ink-poster {
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  right: 6vw;
+  top: 28vh;
+  width: min(42vw, 540px);
+  opacity: 0.32;
+  filter: saturate(0);
+  transition: opacity 600ms ease;
+}
+.ink-poster img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ink-poster.is-hidden {
+  opacity: 0;
+}
+@media (max-width: 1099px) {
+  .ink-poster {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 30vh;
+    width: min(70vw, 420px);
+    opacity: 0.18;
+  }
+}
+
+/* Without the plate, the desktop grid's "plate" cell is empty; keep the
+   footer from auto-placing into it. */
+@media (min-width: 1100px) {
+  .proto-ink-host > .site-footer {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Without the plate, the hero text keeps its column but breathes. */
+.proto-ink-host .home-text {
+  min-height: 48vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Switcher (same as the earlier prototype) */
+.proto-switcher {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font:
+    500 0.8rem/1 ui-monospace,
+    "JetBrains Mono",
+    monospace;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.35);
+}
+.proto-switcher button {
+  appearance: none;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  width: 1.75rem;
+  height: 1.75rem;
+  cursor: pointer;
+}
+.proto-switcher button:hover {
+  background: rgb(255 255 255 / 0.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-poster {
+    transition: none;
+  }
+}
