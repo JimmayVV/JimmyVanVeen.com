@@ -8,7 +8,7 @@
   position: relative;
   isolation: isolate;
 }
-.proto-ink-host > :not(.ink-canvas):not(.ink-poster) {
+.proto-ink-host > :not(.ink-canvas) {
   position: relative;
   z-index: 1;
 }
@@ -20,36 +20,6 @@
   height: 100%;
   z-index: 0;
   pointer-events: none;
-}
-
-.ink-poster {
-  position: fixed;
-  z-index: 0;
-  pointer-events: none;
-  right: 6vw;
-  top: 28vh;
-  width: min(42vw, 540px);
-  opacity: 0.32;
-  filter: saturate(0);
-  transition: opacity 600ms ease;
-}
-.ink-poster img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.ink-poster.is-hidden {
-  opacity: 0;
-}
-@media (max-width: 1099px) {
-  .ink-poster {
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 30vh;
-    width: min(70vw, 420px);
-    opacity: 0.18;
-  }
 }
 
 /* Without the plate, the desktop grid's "plate" cell is empty; keep the
@@ -100,10 +70,4 @@
 }
 .proto-switcher button:hover {
   background: rgb(255 255 255 / 0.15);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ink-poster {
-    transition: none;
-  }
 }

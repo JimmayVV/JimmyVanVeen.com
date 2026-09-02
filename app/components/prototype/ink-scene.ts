@@ -3,7 +3,7 @@
 // Client-only. This module is reached exclusively through a dynamic
 // `import()` from ink-scene-mount.tsx after hydration, so three.js never
 // enters the SSR bundle. It loads a small meshopt GLB, samples points from
-// its surface, and renders them as ink dots that assemble under the
+// its surface, and renders them as ink dots that assemble beside the
 // headline, turn between poses as the visitor scrolls, and dissolve at the
 // footer. Performance posture follows remix-website PR #501: DPR cap 1.5,
 // device tiering, 30 fps after 5 s idle, pause when hidden.
@@ -13,6 +13,7 @@ import {
   Color,
   Euler,
   Mesh,
+  Object3D,
   PerspectiveCamera,
   Points,
   Quaternion,
@@ -46,11 +47,33 @@ declare global {
 
 export interface MountOptions {
   variant: InkVariant;
-  onFirstFrame: () => void;
+  /** Render one still frame of the assembled car and stop. */
+  reducedMotion: boolean;
 }
 
+/** Where a pose sits horizontally.
+ *  hero: beside the headline column. column: in the gutter to the right of
+ *  the reading column. centre: viewport centre. fraction: `x` is a fraction
+ *  of the visible half-width and `scale` is absolute (mobile). */
+type Anchor = "hero" | "column" | "centre" | "fraction";
+
 interface Pose {
-  /** Position as fractions of the visible half-extents at z = 0. */
+  anchor: Anchor;
+  x: number;
+  y: number;
+  yaw: number;
+  pitch: number;
+  /** For anchored poses, a multiplier on the measured size; else absolute. */
+  scale: number;
+  scatter: number;
+}
+
+interface Placement {
+  x: number;
+  scale: number;
+}
+
+interface Resolved {
   x: number;
   y: number;
   yaw: number;
@@ -69,16 +92,24 @@ const IDLE_AFTER_MS = 5000;
 const SIDE = Math.PI / 2;
 
 const DESKTOP_POSES: readonly Pose[] = [
-  { x: 0.4, y: -0.1, yaw: SIDE, pitch: 0.02, scale: 1.45, scatter: 0 }, // headline
-  { x: 0.6, y: 0.02, yaw: 0.6, pitch: 0.12, scale: 0.95, scatter: 0 }, // recent writing
-  { x: 0.6, y: -0.04, yaw: Math.PI + 0.15, pitch: 0.1, scale: 1.0, scatter: 0 }, // selected work
-  { x: 0.3, y: 0, yaw: Math.PI + 0.9, pitch: 0.2, scale: 1.1, scatter: 1 }, // footer
+  { anchor: "hero", x: 0, y: -0.1, yaw: SIDE, pitch: 0.02, scale: 1, scatter: 0 },
+  { anchor: "column", x: 0, y: 0.02, yaw: 0.6, pitch: 0.12, scale: 1, scatter: 0 },
+  { anchor: "column", x: 0, y: -0.04, yaw: Math.PI + 0.15, pitch: 0.1, scale: 1.05, scatter: 0 },
+  { anchor: "centre", x: 0, y: 0, yaw: Math.PI + 0.9, pitch: 0.2, scale: 1.1, scatter: 1 },
 ];
 const MOBILE_POSES: readonly Pose[] = [
-  { x: 0.05, y: 0.15, yaw: SIDE, pitch: 0.02, scale: 1.25, scatter: 0 },
-  { x: 0.2, y: 0.1, yaw: 0.6, pitch: 0.12, scale: 0.85, scatter: 0 },
-  { x: -0.15, y: 0.05, yaw: Math.PI + 0.15, pitch: 0.1, scale: 0.9, scatter: 0 },
-  { x: 0, y: 0, yaw: Math.PI + 0.9, pitch: 0.2, scale: 1.0, scatter: 1 },
+  { anchor: "fraction", x: 0.05, y: 0.15, yaw: SIDE, pitch: 0.02, scale: 1.25, scatter: 0 },
+  { anchor: "fraction", x: 0.2, y: 0.1, yaw: 0.6, pitch: 0.12, scale: 0.85, scatter: 0 },
+  {
+    anchor: "fraction",
+    x: -0.15,
+    y: 0.05,
+    yaw: Math.PI + 0.15,
+    pitch: 0.1,
+    scale: 0.9,
+    scatter: 0,
+  },
+  { anchor: "fraction", x: 0, y: 0, yaw: Math.PI + 0.9, pitch: 0.2, scale: 1.0, scatter: 1 },
 ];
 
 const VERTEX = /* glsl */ `
@@ -143,6 +174,14 @@ function ease(kind: Easing, t: number): number {
   }
 }
 
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, v));
+}
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
 function isLowTier(): boolean {
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const cores = navigator.hardwareConcurrency <= 4;
@@ -161,7 +200,7 @@ function readInkColor(): Color {
 
 /** Merge every mesh in the glTF scene into one position-only geometry,
  *  centred at the origin with its longest axis scaled to 1. */
-function buildSourceGeometry(root: Scene | Mesh | import("three").Object3D): BufferGeometry {
+function buildSourceGeometry(root: Object3D): BufferGeometry {
   root.updateMatrixWorld(true);
   const parts: BufferGeometry[] = [];
   root.traverse((node) => {
@@ -260,15 +299,17 @@ function measureBeats(): number[] {
   return offsets;
 }
 
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
+function rightEdge(selector: string): number {
+  const el = document.querySelector(selector);
+  return el ? el.getBoundingClientRect().right : 0;
 }
 
 export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions): () => void {
   const config = INK_CONFIG[options.variant];
   const lowTier = isLowTier();
   const pointCount = lowTier ? Math.floor(config.points / 2) : config.points;
-  const finePointer = window.matchMedia("(pointer: fine)").matches && !lowTier;
+  const finePointer =
+    window.matchMedia("(pointer: fine)").matches && !lowTier && !options.reducedMotion;
 
   const stats: InkStats = {
     importedAt: performance.now(),
@@ -321,6 +362,41 @@ export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions):
   let halfH = 1;
   let desktop = window.innerWidth >= DESKTOP_MIN;
   let beats = measureBeats();
+  const placements: Record<Anchor, Placement> = {
+    hero: { x: 0, scale: 1 },
+    column: { x: 0, scale: 1 },
+    centre: { x: 0, scale: 1 },
+    fraction: { x: 0, scale: 1 },
+  };
+
+  /** Pixel centre / length → world x / scale at the z = 0 plane. */
+  function place(centrePx: number, lengthPx: number): Placement {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    return {
+      x: ((centrePx / w) * 2 - 1) * halfW,
+      scale: (lengthPx / h) * 2 * halfH,
+    };
+  }
+
+  function measureLayout() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    // Beside the headline: the car pairs with the text rather than drifting
+    // to the far edge of a wide screen.
+    const textRight = rightEdge(".home-text");
+    const heroRoom = Math.max(0, w - textRight);
+    const heroLen = clamp(0.5 * heroRoom, 280, 0.66 * h);
+    placements.hero = place(textRight + Math.min(heroRoom / 2, heroLen * 0.9), heroLen);
+    // In the gutter to the right of the reading column.
+    const colRight = rightEdge(".home-sections");
+    const colRoom = Math.max(0, w - colRight);
+    const colLen = clamp(0.5 * colRoom, 200, 0.4 * h);
+    // Hug the column: on ultrawide screens the gutter is huge, and the car
+    // should stay near the text rather than at the far edge.
+    placements.column = place(colRight + Math.min(colRoom / 2, colLen * 0.75 + 24), colLen);
+    placements.centre = place(w / 2, clamp(0.35 * w, 260, 0.6 * h));
+  }
 
   function resize() {
     const w = window.innerWidth;
@@ -332,6 +408,7 @@ export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions):
     halfW = halfH * camera.aspect;
     desktop = w >= DESKTOP_MIN;
     beats = measureBeats();
+    measureLayout();
   }
   resize();
 
@@ -352,15 +429,21 @@ export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions):
   let resizeTimer: number | null = null;
   const onResize = () => {
     if (resizeTimer !== null) window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(resize, 120);
+    resizeTimer = window.setTimeout(() => {
+      resize();
+      if (options.reducedMotion) renderStill();
+    }, 120);
   };
-  window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onResize);
-  if (finePointer) window.addEventListener("pointermove", onPointer, { passive: true });
+  if (!options.reducedMotion) {
+    window.addEventListener("scroll", onScroll, { passive: true });
+    if (finePointer) window.addEventListener("pointermove", onPointer, { passive: true });
+  }
 
   const themeObserver = new MutationObserver(() => {
     const u = material.uniforms["uColor"];
     if (u) u.value = readInkColor();
+    if (options.reducedMotion) renderStill();
   });
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
@@ -372,19 +455,47 @@ export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions):
   let scrollSmoothed = scrollTarget;
   let loadStart: number | null = null;
 
-  function poseAt(scroll: number): Pose {
+  function resolve(p: Pose): Resolved {
+    if (p.anchor === "fraction") {
+      return {
+        x: p.x * halfW,
+        y: p.y * halfH,
+        yaw: p.yaw,
+        pitch: p.pitch,
+        scale: p.scale,
+        scatter: p.scatter,
+      };
+    }
+    const pl = placements[p.anchor];
+    return {
+      x: pl.x,
+      y: p.y * halfH,
+      yaw: p.yaw,
+      pitch: p.pitch,
+      scale: pl.scale * p.scale,
+      scatter: p.scatter,
+    };
+  }
+
+  function firstPose(): Pose {
     const table = desktop ? DESKTOP_POSES : MOBILE_POSES;
+    return table[0] ?? DESKTOP_POSES[0]!;
+  }
+
+  function poseAt(scroll: number): Resolved {
+    const table = desktop ? DESKTOP_POSES : MOBILE_POSES;
+    const first = firstPose();
     const segments = Math.min(beats.length, table.length) - 1;
-    if (segments < 1) return table[0] ?? DESKTOP_POSES[0]!;
+    if (segments < 1) return resolve(first);
     let i = 0;
     while (i < segments - 1 && scroll >= (beats[i + 1] ?? Infinity)) i++;
     const start = beats[i] ?? 0;
     const end = beats[i + 1] ?? start + 1;
     const raw = (scroll - start) / (end - start);
-    const a = table[i] ?? table[0]!;
-    const b = table[i + 1] ?? a;
+    const a = resolve(table[i] ?? first);
+    const b = resolve(table[i + 1] ?? table[i] ?? first);
     const t = ease(config.easing, raw);
-    const tc = Math.min(1, Math.max(0, raw));
+    const tc = clamp(raw, 0, 1);
     return {
       x: lerp(a.x, b.x, t),
       y: lerp(a.y, b.y, t),
@@ -395,13 +506,17 @@ export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions):
     };
   }
 
-  function applyPose(p: Pose, now: number) {
+  function applyPose(p: Resolved, now: number, snap: boolean) {
     if (!points) return;
-    points.position.set(p.x * halfW, p.y * halfH, 0);
+    points.position.set(p.x, p.y, 0);
     qa.setFromEuler(euler.set(p.pitch, p.yaw, 0, "YXZ"));
-    qb.copy(points.quaternion);
-    qOut.slerpQuaternions(qb, qa, 0.18);
-    points.quaternion.copy(qOut);
+    if (snap) {
+      points.quaternion.copy(qa);
+    } else {
+      qb.copy(points.quaternion);
+      qOut.slerpQuaternions(qb, qa, 0.18);
+      points.quaternion.copy(qOut);
+    }
     points.scale.setScalar(p.scale);
 
     // load-in
@@ -423,14 +538,22 @@ export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions):
     const uScale = material.uniforms["uScale"];
     if (uScatter) uScatter.value = Math.max(loadScatter, p.scatter);
     if (uOpacity) uOpacity.value = baseOpacity * loadOpacity * (1 - p.scatter * 0.85);
-    if (uScale) uScale.value = 0.6 + p.scale * 0.4;
+    if (uScale) uScale.value = 0.6 + Math.min(1.6, p.scale) * 0.4;
+  }
+
+  /** Reduced motion: one frame of the assembled car at the first pose. */
+  function renderStill() {
+    if (!points) return;
+    loadStart = null;
+    applyPose(resolve(firstPose()), 0, true);
+    renderer.render(scene, camera);
+    if (stats.firstFrameAt === null) stats.firstFrameAt = performance.now();
   }
 
   // ── frame loop with idle governor ──
   let raf = 0;
   let frameIndex = 0;
   let lastFrameAt = 0;
-  let firstFrameReported = false;
 
   function frame(now: number) {
     if (disposed) return;
@@ -444,7 +567,7 @@ export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions):
     scrollSmoothed = lerp(scrollSmoothed, scrollTarget, 0.16);
     const uTime = material.uniforms["uTime"];
     if (uTime) uTime.value = now / 1000;
-    applyPose(poseAt(scrollSmoothed), now);
+    applyPose(poseAt(scrollSmoothed), now, false);
     renderer.render(scene, camera);
     const dt = performance.now() - t0;
     if (lastFrameAt !== 0) {
@@ -452,11 +575,7 @@ export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions):
       if (stats.frames.length > 240) stats.frames.shift();
     }
     lastFrameAt = now;
-    if (!firstFrameReported && points) {
-      firstFrameReported = true;
-      stats.firstFrameAt = performance.now();
-      options.onFirstFrame();
-    }
+    if (stats.firstFrameAt === null && points) stats.firstFrameAt = performance.now();
   }
 
   // ── load the model ──
@@ -472,9 +591,13 @@ export function mountInkScene(canvas: HTMLCanvasElement, options: MountOptions):
       source.dispose();
       points = new Points(geometry, material);
       points.frustumCulled = false;
+      scene.add(points);
+      if (options.reducedMotion) {
+        renderStill();
+        return;
+      }
       const first = poseAt(window.scrollY);
       points.quaternion.setFromEuler(euler.set(first.pitch, first.yaw, 0, "YXZ"));
-      scene.add(points);
       loadStart = performance.now();
       lastInputAt = loadStart;
       raf = window.requestAnimationFrame(frame);
