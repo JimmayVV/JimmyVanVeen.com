@@ -38,11 +38,24 @@ npm start
 
 **GitHub Actions** automatically validates all code changes:
 
+- **Source**: the workflows are thin callers of
+  [JimmayVV/fleet-ci](https://github.com/JimmayVV/fleet-ci) `@v1`. Change
+  policy there, not here; Dependabot bumps the tag.
 - **Triggers**: Every push to `main` and all pull requests
-- **Pipeline**: oxlint (type-aware) → oxfmt → TypeScript → Build
+- **Pipeline**: oxlint (type-aware) → oxfmt → TypeScript → Vitest → Build →
+  Playwright
 - **Environment**: Node.js 24 (from `.nvmrc`) with test configuration
 - **Dependabot**: Weekly dependency updates with auto-merge for patch/minor
-  versions
+  versions; majors get `risk:high`
+
+**Merge policy (risk tiers)**: `risk.yml` labels every PR.
+
+- `risk:low` (docs, tests, config only, under 300 lines) auto-merges on green.
+- `risk:medium` (ordinary source changes) auto-merges on green once the
+  Claude review comment ends with `VERDICT: clean`; findings hold it for a
+  human.
+- `risk:high` (`server/**`, mail/email routes, `netlify.toml`, workflows,
+  600+ lines) always waits for a human review.
 
 **Quality Gates**: All CI checks must pass before merging to main.
 
