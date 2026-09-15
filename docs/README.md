@@ -61,6 +61,12 @@ implementation details.
   quality and formatting
 - [ADR 11: Claude Code](./decisions/11_claude-code.md) - AI-assisted development
   workflow
+- [ADR 12: GitHub Actions CI/CD](./decisions/12_github-actions-ci-cd.md) -
+  Automated validation pipeline
+- [ADR 13: oxc Toolchain Modernization](./decisions/13_oxc-toolchain-modernization.md) -
+  oxlint, oxfmt and TypeScript 7 (supersedes ADR 10)
+- [ADR 14: Turborepo trial](./decisions/14_turborepo-trial.md) - Time-boxed
+  task-caching trial, kept only if median CI time drops
 
 ## Getting Started
 

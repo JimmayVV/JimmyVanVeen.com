@@ -5,6 +5,9 @@
 /.react-router/
 /build/
 
+# Turborepo local cache
+.turbo/
+
 # Playwright output (report + traces/screenshots from failed runs)
 /playwright-report/
 /test-results/

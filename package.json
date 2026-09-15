@@ -2,19 +2,24 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
+    "build": "turbo run build:raw",
+    "build:raw": "react-router build",
     "build:no-fetch": "cross-env DISABLE_CONTENTFUL_RUNTIME=true react-router build",
     "dev": "cross-env NODE_ENV=development node ./server/dev-server.js",
     "start": "netlify serve",
-    "typecheck": "react-router typegen && tsc",
-    "lint": "react-router typegen && oxlint --type-aware -c ./config/oxlintrc.json --tsconfig=./tsconfig.json",
+    "typecheck": "turbo run typecheck:raw",
+    "typecheck:raw": "react-router typegen && tsc",
+    "lint": "turbo run lint:raw",
+    "lint:raw": "react-router typegen && oxlint --type-aware -c ./config/oxlintrc.json --tsconfig=./tsconfig.json",
     "lint:fix": "react-router typegen && oxlint --type-aware -c ./config/oxlintrc.json --tsconfig=./tsconfig.json --fix",
     "lint:fast": "oxlint -c ./config/oxlintrc.json --tsconfig=./tsconfig.json",
     "prepare": "husky",
     "format": "oxfmt .",
-    "format:check": "oxfmt --check .",
+    "format:check": "turbo run format:check:raw",
+    "format:check:raw": "oxfmt --check .",
     "verify": "npm run lint && npm run format:check && npm run typecheck && npm run test",
-    "test": "vitest run",
+    "test": "turbo run test:raw",
+    "test:raw": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
@@ -71,6 +76,7 @@
     "oxlint-tsgolint": "^7.0.2001",
     "react-router-devtools": "^6.2.3",
     "tailwindcss": "^4.3.3",
+    "turbo": "2.10.12",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",
     "vite-node": "^6.0.0",
@@ -88,6 +94,13 @@
     "*.{json,md,mdx,css,yml,yaml}": [
       "oxfmt"
     ]
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "version": "11.x",
+      "onFail": "warn"
+    }
   },
   "engines": {
     "node": ">=24.15.0"

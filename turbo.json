@@ -1,0 +1,32 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "globalDependencies": [".nvmrc", "package.json", "package-lock.json", "tsconfig.json"],
+  "tasks": {
+    "lint:raw": {
+      "inputs": ["app/**", "server/**", "e2e/**", "config/**", "*.config.ts"],
+      "outputs": [],
+      "cache": true
+    },
+    "format:check:raw": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": [],
+      "cache": true
+    },
+    "typecheck:raw": {
+      "inputs": ["app/**", "server/**", "e2e/**", "config/**", "*.config.ts"],
+      "outputs": [],
+      "cache": true
+    },
+    "test:raw": {
+      "inputs": ["app/**", "config/test/**", "vitest.config.ts"],
+      "outputs": [],
+      "cache": true
+    },
+    "build:raw": {
+      "inputs": ["app/**", "server/**", "public/**", "config/**", "*.config.ts", "netlify.toml"],
+      "outputs": ["build/**", ".react-router/**"],
+      "env": ["JVV_*", "NODE_ENV"],
+      "cache": true
+    }
+  }
+}

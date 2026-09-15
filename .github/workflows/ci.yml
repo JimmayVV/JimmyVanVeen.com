@@ -23,6 +23,7 @@ jobs:
       package-manager: npm
       format-check: true
       playwright: true
+      turbo-cache: true
       build-env: |
         JVV_ALLOW_EMAILS=false
         JVV_RECAPTCHA_SITE_KEY=test-key
