@@ -2,6 +2,12 @@
 command = "npm run build"
 publish = "build/client"
 
+# `npm run build` now goes through Turborepo (ADR 14). Netlify starts from a
+# clean checkout every time, so there is never a .turbo cache to hit here —
+# this only silences the first-run telemetry notice.
+[build.environment]
+TURBO_TELEMETRY_DISABLED = "1"
+
 # Node version lives solely in .nvmrc (Netlify reads it), which also fixes the
 # bundled npm. No NODE_VERSION here on purpose — one source of truth.
 
