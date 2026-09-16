@@ -8,8 +8,33 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 import { formatPostDate } from "~/utils/format-post-date";
 import { getRepositoriesByGhId, repoMatchesGhId } from "~/utils/github";
+import { SITE_NAME, SITE_URL, buildMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/index";
+
+export const meta: Route.MetaFunction = () => [
+  ...buildMeta({
+    // Name-forward on purpose: this page's job in a search for "jimmy van
+    // veen" is to say which Jimmy Van Veen it is. Role and location are the
+    // two facts that separate him from the actor, the darts player, and the
+    // notary who share the name.
+    homeTitle: "Jimmy Van Veen — Web Engineer in Greater Boston",
+    description:
+      "Jimmy Van Veen is a web engineer in Greater Boston. A working portfolio — " +
+      "projects I've shipped, notes from the workshop, and the occasional lap at Talladega.",
+    pathname: "/",
+  }),
+  {
+    // Site-name structured data, valid on the domain-root home page only.
+    // Tells Google what to print as the site name instead of deriving it.
+    "script:ld+json": {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: `${SITE_URL}/`,
+    },
+  },
+];
 
 interface Repository {
   name: string;

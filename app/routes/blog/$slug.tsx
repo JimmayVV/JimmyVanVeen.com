@@ -14,8 +14,48 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
 import { isRecord } from "~/utils/is-record";
 import { readingStats } from "~/utils/reading-time";
+import { SITE_NAME, buildMeta, canonicalUrl } from "~/utils/seo";
 
 import type { Route } from "./+types/$slug";
+
+export const meta: Route.MetaFunction = ({ loaderData, params }) => {
+  const pathname = `/blog/${params.slug}`;
+
+  // The redirect branch in the loader means loader data can be absent. A
+  // canonical is still correct; a fabricated title and description would not be.
+  if (!loaderData) {
+    return buildMeta({ title: "Post", pathname });
+  }
+
+  const { title, description, publishDate, author } = loaderData.fields;
+
+  return [
+    ...buildMeta({
+      title,
+      // Contentful's description is rendered as the dek in PostHero. When a
+      // post has none, no description tag is emitted rather than a generic one.
+      description: description || undefined,
+      pathname,
+    }),
+    {
+      // Article has no required properties. Every field here is visible on the
+      // page: the headline and dek in PostHero, the byline and date in its
+      // dateline.
+      "script:ld+json": {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: title,
+        ...(description ? { description } : {}),
+        datePublished: publishDate,
+        author: {
+          "@type": "Person",
+          name: author || SITE_NAME,
+        },
+        mainEntityOfPage: canonicalUrl(pathname),
+      },
+    },
+  ];
+};
 
 export async function loader({ params }: Route.LoaderArgs) {
   const slug: string = params.slug;
@@ -67,6 +107,7 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
           publishDate={blog.fields.publishDate}
           description={blog.fields.description}
           readingMinutes={minutes}
+          author={blog.fields.author}
         />
 
         <article className="prose-editorial" data-long={long ? "true" : undefined}>

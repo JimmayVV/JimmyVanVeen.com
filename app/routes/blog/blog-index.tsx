@@ -5,8 +5,18 @@ import { BLOG_TAGLINE, BLOG_TITLE } from "~/utils/blog-copy";
 import { isContentfulConfigured } from "~/utils/contentful";
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
 import { formatPostDate } from "~/utils/format-post-date";
+import { buildMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/blog-index";
+
+export const meta: Route.MetaFunction = () =>
+  buildMeta({
+    // BLOG_TITLE / BLOG_TAGLINE are the strings rendered as the h1 and dek
+    // below, so the description describes visible content.
+    title: BLOG_TITLE.replace(/\.$/, ""),
+    description: BLOG_TAGLINE,
+    pathname: "/blog",
+  });
 
 export async function loader() {
   const posts = await getCachedBlogPosts();

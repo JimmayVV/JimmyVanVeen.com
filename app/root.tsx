@@ -10,15 +10,18 @@ import {
 
 import { TopBar } from "~/components/site/top-bar";
 import { getCachedBlogPosts } from "~/utils/contentful-cache";
+import { SITE_NAME } from "~/utils/seo";
 
 import type { Route } from "./+types/root";
 import styles from "./app.css?url";
 
-export const meta: Route.MetaFunction = () => [
-  {
-    title: "Jimmy Van Veen",
-  },
-];
+/**
+ * Fallback only. React Router replaces a parent's meta with the child's rather
+ * than merging them, so this applies to nothing as long as every route exports
+ * its own `meta` via `buildMeta`. It exists so a route added without one
+ * degrades to a valid title instead of none — see app/utils/seo.ts.
+ */
+export const meta: Route.MetaFunction = () => [{ title: SITE_NAME }];
 
 export const links: Route.LinksFunction = () => {
   return [
@@ -33,7 +36,7 @@ export const links: Route.LinksFunction = () => {
       href: "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap",
     },
     { rel: "stylesheet", href: styles },
-    { rel: "alternate", type: "application/rss+xml", title: "Jimmy Van Veen", href: "/rss.xml" },
+    { rel: "alternate", type: "application/rss+xml", title: SITE_NAME, href: "/rss.xml" },
   ];
 };
 

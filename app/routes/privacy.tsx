@@ -1,17 +1,15 @@
 import { trackPageView } from "~/utils/analytics-loader";
+import { buildMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/privacy";
 
-export const meta: Route.MetaFunction = () => [
-  {
-    title: "Privacy Policy - Jimmy Van Veen",
-  },
-  {
-    name: "description",
-    content:
-      "Privacy policy for jimmyvanveen.com - Learn how we collect, use, and protect your data.",
-  },
-];
+export const meta: Route.MetaFunction = () =>
+  buildMeta({
+    title: "Privacy Policy",
+    description:
+      "How jimmyvanveen.com collects, uses, and protects your data — analytics, contact form, and third-party services.",
+    pathname: "/privacy",
+  });
 
 // Add analytics tracking to this route
 export async function clientLoader() {
