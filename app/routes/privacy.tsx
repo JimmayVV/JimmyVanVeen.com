@@ -11,6 +11,17 @@ export const meta: Route.MetaFunction = () =>
     pathname: "/privacy",
   });
 
+/**
+ * A server loader that returns nothing still matters. Without one, a
+ * `clientLoader` marked `hydrate = true` makes React Router render the
+ * HydrateFallback during SSR instead of this component, so the response
+ * carries a correct <title> over an empty body — invisible in a browser,
+ * fatal to a crawler. /privacy shipped that way unnoticed.
+ */
+export function loader() {
+  return null;
+}
+
 // Add analytics tracking to this route
 export async function clientLoader() {
   // Track page view for privacy page
