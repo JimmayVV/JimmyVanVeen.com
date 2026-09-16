@@ -30,6 +30,7 @@ interface SitemapUrl {
 const STATIC_PAGES: SitemapUrl[] = [
   { loc: SITE_URL },
   { loc: `${SITE_URL}/blog` },
+  { loc: `${SITE_URL}/about` },
   { loc: `${SITE_URL}/privacy` },
 ];
 

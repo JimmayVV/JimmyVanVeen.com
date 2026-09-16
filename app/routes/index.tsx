@@ -202,6 +202,9 @@ function SiteFooter() {
         <a href="https://bsky.app/profile/jimmyvanveen.com" target="_blank" rel="noreferrer">
           Bluesky
         </a>
+        <Link to="/about" prefetch="intent">
+          About
+        </Link>
         <Link to="/privacy" prefetch="intent">
           Privacy
         </Link>
