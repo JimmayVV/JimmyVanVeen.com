@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { isRecord } from "~/utils/is-record";
+import { articleJsonLd, resolveAuthor } from "~/utils/seo";
+
 import { PostHero } from "./post-hero";
 
 /**
@@ -35,6 +38,39 @@ describe("PostHero", () => {
   it("drops the reading time when there isn't one, without leaving a stray separator", () => {
     render(<PostHero {...base} />);
     expect(screen.getByText("By Jimmy Van Veen · July 5, 2026")).toBeTruthy();
+  });
+
+  // The case that was missing, and that a review caught. PostHero used `??`
+  // while articleJsonLd used `||`; those agree on undefined and diverge on "".
+  // A Contentful author field filled in and later cleared yields "".
+  it.each(["", "   "])("falls back to the site owner for a blank author (%j)", (author) => {
+    const { container } = render(<PostHero {...base} author={author} />);
+    const dateline = container.querySelector(".dateline");
+    expect(dateline?.textContent).toBe("By Jimmy Van Veen · July 5, 2026");
+  });
+
+  // The actual invariant: the visible byline and the name the Article markup
+  // claims must be the same string for every input, or the structured data is
+  // describing something the page does not show.
+  it.each([undefined, "", "   ", "A Guest"])("byline and Article author agree for %j", (author) => {
+    const { container } = render(<PostHero {...base} author={author} />);
+    const dateline = container.querySelector(".dateline")?.textContent ?? "";
+
+    const ld = articleJsonLd({
+      title: base.title,
+      publishDate: base.publishDate,
+      author,
+      pathname: "/blog/x",
+    });
+
+    // No `as` — narrow the JSON-LD author node the way the project requires.
+    const node: unknown = ld["author"];
+    expect(isRecord(node)).toBe(true);
+    const claimed = isRecord(node) ? node["name"] : undefined;
+
+    expect(typeof claimed).toBe("string");
+    expect(claimed).toBe(resolveAuthor(author));
+    expect(dateline).toContain(`By ${String(claimed)} ·`);
   });
 
   it("renders the title as the page's only h1", () => {

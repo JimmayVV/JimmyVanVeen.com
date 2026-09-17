@@ -1,5 +1,5 @@
 import { formatPostDate } from "~/utils/format-post-date";
-import { SITE_NAME } from "~/utils/seo";
+import { resolveAuthor } from "~/utils/seo";
 
 interface PostHeroProps {
   title: string;
@@ -18,7 +18,7 @@ export function PostHero({
   author,
 }: PostHeroProps) {
   const date = formatPostDate(publishDate);
-  const byline = author ?? SITE_NAME;
+  const byline = resolveAuthor(author);
   // The byline is visible because the Article markup on this page claims an
   // author, and structured data may only describe what a visitor can see.
   const meta = readingMinutes

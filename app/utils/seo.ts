@@ -144,6 +144,21 @@ export function buildMeta({
   return descriptors;
 }
 
+/**
+ * The one place a post's author name is resolved.
+ *
+ * PostHero and `articleJsonLd` must never disagree: the `Article` markup names
+ * an author, and structured data may only describe what the page shows. They
+ * previously used `??` and `||` respectively, which agree on null/undefined and
+ * diverge on `""` — a Contentful Symbol field that was filled in and later
+ * cleared yields an empty string, which would have rendered `By  · <date>`
+ * while the markup claimed the site owner. Both now call this, so the two
+ * cannot drift apart again.
+ */
+export function resolveAuthor(author?: string | null): string {
+  return author?.trim() || SITE_NAME;
+}
+
 interface ArticleJsonLdOptions {
   title: string;
   description?: string | undefined;
@@ -181,7 +196,7 @@ export function articleJsonLd({
     datePublished: publishDate,
     author: {
       "@type": "Person",
-      name: author || SITE_NAME,
+      name: resolveAuthor(author),
     },
     mainEntityOfPage: canonicalUrl(pathname),
   };
