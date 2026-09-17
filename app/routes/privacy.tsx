@@ -1,17 +1,26 @@
 import { trackPageView } from "~/utils/analytics-loader";
+import { buildMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/privacy";
 
-export const meta: Route.MetaFunction = () => [
-  {
-    title: "Privacy Policy - Jimmy Van Veen",
-  },
-  {
-    name: "description",
-    content:
-      "Privacy policy for jimmyvanveen.com - Learn how we collect, use, and protect your data.",
-  },
-];
+export const meta: Route.MetaFunction = () =>
+  buildMeta({
+    title: "Privacy Policy",
+    description:
+      "How jimmyvanveen.com collects, uses, and protects your data — analytics, contact form, and third-party services.",
+    pathname: "/privacy",
+  });
+
+/**
+ * A server loader that returns nothing still matters. Without one, a
+ * `clientLoader` marked `hydrate = true` makes React Router render the
+ * HydrateFallback during SSR instead of this component, so the response
+ * carries a correct <title> over an empty body — invisible in a browser,
+ * fatal to a crawler. /privacy shipped that way unnoticed.
+ */
+export function loader() {
+  return null;
+}
 
 // Add analytics tracking to this route
 export async function clientLoader() {

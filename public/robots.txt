@@ -1,0 +1,22 @@
+# https://www.jimmyvanveen.com/robots.txt
+#
+# Until 2026-09-16 this path had no file behind it. The SSR catch-all answered
+# /robots.txt with 10 KB of the site's HTML shell and a 200, so crawlers got a
+# web page where a robots file should be and the sitemap went unadvertised.
+
+User-agent: *
+Allow: /
+
+# Analytics collection endpoint. It is a POST-only data route, not a page —
+# crawling it returns nothing useful and wastes crawl budget.
+Disallow: /api/
+
+# AI training and grounding crawlers: allowed, deliberately.
+#
+# This is a separate decision from Search. Blocking Google-Extended has no
+# effect on ranking or indexing either way, so the choice is only about whether
+# the writing here may be used for training and grounding. It may — being
+# quoted is the point of writing it down. Recorded rather than left implicit so
+# the next person to read this file knows it was decided, not overlooked.
+
+Sitemap: https://www.jimmyvanveen.com/sitemap.xml

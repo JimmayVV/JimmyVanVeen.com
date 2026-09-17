@@ -14,8 +14,48 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
 import { isRecord } from "~/utils/is-record";
 import { readingStats } from "~/utils/reading-time";
+import { articleJsonLd, buildMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/$slug";
+
+export const meta: Route.MetaFunction = ({ loaderData, params }) => {
+  const pathname = `/blog/${params.slug}`;
+
+  // The redirect branch in the loader means loader data can be absent. A
+  // canonical is still correct; a fabricated title and description would not be.
+  if (!loaderData) {
+    return buildMeta({ title: "Post", pathname });
+  }
+
+  const { title, description, publishDate, author, image } = loaderData.fields;
+
+  // Contentful hands back either a resolved asset or an unresolved link. Same
+  // narrowing the home page uses for project screenshots — no `as`.
+  const shareImage = image && "fields" in image ? image.fields.file?.url : undefined;
+
+  return [
+    ...buildMeta({
+      title,
+      // Contentful's description is rendered as the dek in PostHero. When a
+      // post has none, no description tag is emitted rather than a generic one.
+      description: description || undefined,
+      pathname,
+      // A post with its own Contentful image shares that; the rest fall back
+      // to the site plate.
+      image: shareImage || undefined,
+      ogType: "article",
+    }),
+    {
+      "script:ld+json": articleJsonLd({
+        title,
+        description: description || undefined,
+        publishDate,
+        author,
+        pathname,
+      }),
+    },
+  ];
+};
 
 export async function loader({ params }: Route.LoaderArgs) {
   const slug: string = params.slug;
@@ -67,6 +107,7 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
           publishDate={blog.fields.publishDate}
           description={blog.fields.description}
           readingMinutes={minutes}
+          author={blog.fields.author}
         />
 
         <article className="prose-editorial" data-long={long ? "true" : undefined}>

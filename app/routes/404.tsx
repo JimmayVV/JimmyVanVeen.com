@@ -1,4 +1,21 @@
+import { data } from "react-router";
+
 import { trackPageView } from "~/utils/analytics-loader";
+import { SITE_NAME } from "~/utils/seo";
+
+import type { Route } from "./+types/404";
+
+export const meta: Route.MetaFunction = () => [{ title: `Page not found · ${SITE_NAME}` }];
+
+/**
+ * The catch-all route used to render this page with a 200, which made every
+ * mistyped URL an indexable soft 404 — including /robots.txt before a real one
+ * existed. `data()` keeps the rendered page while sending the status a crawler
+ * needs to drop the URL.
+ */
+export function loader() {
+  return data(null, { status: 404 });
+}
 
 // Add analytics tracking to this route
 export async function clientLoader() {
