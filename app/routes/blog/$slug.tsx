@@ -27,7 +27,11 @@ export const meta: Route.MetaFunction = ({ loaderData, params }) => {
     return buildMeta({ title: "Post", pathname });
   }
 
-  const { title, description, publishDate, author } = loaderData.fields;
+  const { title, description, publishDate, author, image } = loaderData.fields;
+
+  // Contentful hands back either a resolved asset or an unresolved link. Same
+  // narrowing the home page uses for project screenshots — no `as`.
+  const shareImage = image && "fields" in image ? image.fields.file?.url : undefined;
 
   return [
     ...buildMeta({
@@ -36,6 +40,10 @@ export const meta: Route.MetaFunction = ({ loaderData, params }) => {
       // post has none, no description tag is emitted rather than a generic one.
       description: description || undefined,
       pathname,
+      // A post with its own Contentful image shares that; the rest fall back
+      // to the site plate.
+      image: shareImage || undefined,
+      ogType: "article",
     }),
     {
       // Article has no required properties. Every field here is visible on the

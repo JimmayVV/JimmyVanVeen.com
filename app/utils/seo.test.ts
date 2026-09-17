@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { isRecord } from "./is-record";
-import { SITE_URL, buildMeta, canonicalUrl } from "./seo";
+import { SITE_URL, absoluteUrl, buildMeta, canonicalUrl } from "./seo";
 
 /** Narrow a descriptor list down to the title string, whatever position it sits in. */
 function titleOf(descriptors: ReturnType<typeof buildMeta>): string | undefined {
@@ -18,6 +18,19 @@ function contentOfName(
   for (const d of descriptors) {
     if ("name" in d && d.name === name && "content" in d && typeof d.content === "string") {
       return d.content;
+    }
+  }
+  return undefined;
+}
+
+function contentOfProperty(
+  descriptors: ReturnType<typeof buildMeta>,
+  property: string,
+): string | undefined {
+  for (const descriptor of descriptors) {
+    const d: unknown = descriptor;
+    if (isRecord(d) && d["property"] === property && typeof d["content"] === "string") {
+      return d["content"];
     }
   }
   return undefined;
@@ -97,5 +110,84 @@ describe("buildMeta", () => {
     const home = titleOf(buildMeta({ homeTitle: "Jimmy Van Veen — Web Engineer", pathname: "/" }));
     const blog = titleOf(buildMeta({ title: "Notes & field reports", pathname: "/blog" }));
     expect(home).not.toBe(blog);
+  });
+});
+
+describe("absoluteUrl", () => {
+  it("leaves an absolute URL alone", () => {
+    expect(absoluteUrl("https://images.ctfassets.net/x/y.jpg")).toBe(
+      "https://images.ctfassets.net/x/y.jpg",
+    );
+  });
+
+  it("upgrades a protocol-relative Contentful asset URL", () => {
+    // Contentful returns //images.ctfassets.net/... and preview fetchers
+    // reject anything that isn't absolute https.
+    expect(absoluteUrl("//images.ctfassets.net/x/y.jpg")).toBe(
+      "https://images.ctfassets.net/x/y.jpg",
+    );
+  });
+
+  it("makes a site-relative path absolute", () => {
+    expect(absoluteUrl("/images/talladega_glory.jpg")).toBe(
+      `${SITE_URL}/images/talladega_glory.jpg`,
+    );
+  });
+
+  it("tolerates a path with no leading slash", () => {
+    expect(absoluteUrl("images/x.jpg")).toBe(`${SITE_URL}/images/x.jpg`);
+  });
+});
+
+describe("buildMeta share tags", () => {
+  it("emits og:title, og:url, and og:site_name matching the page", () => {
+    const meta = buildMeta({ title: "About", pathname: "/about" });
+    expect(contentOfProperty(meta, "og:title")).toBe("About · Jimmy Van Veen");
+    expect(contentOfProperty(meta, "og:url")).toBe(`${SITE_URL}/about`);
+    expect(contentOfProperty(meta, "og:site_name")).toBe("Jimmy Van Veen");
+  });
+
+  it("defaults og:type to website and allows article", () => {
+    expect(contentOfProperty(buildMeta({ title: "A", pathname: "/a" }), "og:type")).toBe("website");
+    expect(
+      contentOfProperty(buildMeta({ title: "A", pathname: "/a", ogType: "article" }), "og:type"),
+    ).toBe("article");
+  });
+
+  it("falls back to the site plate, as an absolute URL", () => {
+    const meta = buildMeta({ title: "A", pathname: "/a" });
+    expect(contentOfProperty(meta, "og:image")).toBe(`${SITE_URL}/images/talladega_glory.jpg`);
+    expect(contentOfProperty(meta, "og:image:alt")).toContain("Talladega");
+  });
+
+  it("makes a supplied protocol-relative image absolute", () => {
+    const meta = buildMeta({
+      title: "A post",
+      pathname: "/blog/a",
+      image: "//images.ctfassets.net/x/y.jpg",
+    });
+    expect(contentOfProperty(meta, "og:image")).toBe("https://images.ctfassets.net/x/y.jpg");
+    // Without explicit alt, a post's own image is described by its title.
+    expect(contentOfProperty(meta, "og:image:alt")).toBe("A post · Jimmy Van Veen");
+  });
+
+  it("mirrors the description into og:description, and omits it when absent", () => {
+    expect(
+      contentOfProperty(
+        buildMeta({ title: "A", description: "Dek.", pathname: "/a" }),
+        "og:description",
+      ),
+    ).toBe("Dek.");
+    expect(
+      contentOfProperty(buildMeta({ title: "A", pathname: "/a" }), "og:description"),
+    ).toBeUndefined();
+  });
+
+  it("declares a large summary card", () => {
+    // twitter:title/description/image are deliberately absent — X falls back
+    // to the og:* equivalents, so duplicating them is dead weight.
+    expect(contentOfName(buildMeta({ title: "A", pathname: "/a" }), "twitter:card")).toBe(
+      "summary_large_image",
+    );
   });
 });
