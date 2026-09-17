@@ -147,5 +147,11 @@ test.describe("crawler surface", () => {
 
     expect(site).toBeDefined();
     expect(site.name).toBe("Jimmy Van Veen");
+
+    // The structured data's url must be the same string as the page's own
+    // canonical. Asserting only `name` let a trailing-slash mismatch through.
+    const canonical = /<link[^>]*rel="canonical"[^>]*href="([^"]*)"/.exec(html)?.[1];
+    expect(canonical).toBe("https://www.jimmyvanveen.com");
+    expect(site.url).toBe(canonical);
   });
 });

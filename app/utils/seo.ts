@@ -104,7 +104,17 @@ export function buildMeta({
   imageAlt,
   ogType = "website",
 }: BuildMetaOptions): MetaDescriptor[] {
-  const resolvedTitle = homeTitle ?? `${title ?? SITE_NAME}${TITLE_SUFFIX}`;
+  // A blank or missing title resolves to the bare site name. Two traps here,
+  // both hit while fixing this:
+  //   - `??` passes "" straight through, producing " · Jimmy Van Veen" with a
+  //     leading separator. Same divergence class as the resolveAuthor bug.
+  //   - falling back to SITE_NAME *before* appending the suffix produces
+  //     "Jimmy Van Veen · Jimmy Van Veen". The suffix must be skipped
+  //     entirely, not applied to a defaulted title.
+  // `description` has always treated "" as absent; this now matches it.
+  const pageTitle = title?.trim();
+  const resolvedTitle =
+    homeTitle?.trim() || (pageTitle ? `${pageTitle}${TITLE_SUFFIX}` : SITE_NAME);
 
   const descriptors: MetaDescriptor[] = [{ title: resolvedTitle }];
 

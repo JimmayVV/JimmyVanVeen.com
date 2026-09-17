@@ -8,7 +8,7 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedProjects } from "~/utils/contentful-cache";
 import { formatPostDate } from "~/utils/format-post-date";
 import { getRepositoriesByGhId, repoMatchesGhId } from "~/utils/github";
-import { SITE_NAME, SITE_URL, buildMeta } from "~/utils/seo";
+import { SITE_NAME, buildMeta, canonicalUrl } from "~/utils/seo";
 
 import type { Route } from "./+types/index";
 
@@ -31,7 +31,10 @@ export const meta: Route.MetaFunction = () => [
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: SITE_NAME,
-      url: `${SITE_URL}/`,
+      // Must be the same string as this page's canonical. canonicalUrl("/")
+      // returns no trailing slash on purpose, so one page cannot claim two
+      // identities — and the structured data has to agree with it.
+      url: canonicalUrl("/"),
     },
   },
 ];

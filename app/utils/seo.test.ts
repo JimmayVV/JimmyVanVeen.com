@@ -104,6 +104,27 @@ describe("buildMeta", () => {
     expect(meta.some((d) => "name" in d && d.name === "description")).toBe(false);
   });
 
+  it.each(["", "   "])(
+    "treats a blank title as absent rather than emitting a bare suffix (%j)",
+    (title) => {
+      // `??` would have produced " · Jimmy Van Veen" here — a leading separator
+      // with no title. Same class as the resolveAuthor divergence.
+      expect(titleOf(buildMeta({ title, pathname: "/blog/x" }))).toBe("Jimmy Van Veen");
+    },
+  );
+
+  it.each(["", "   "])("falls through a blank homeTitle to the normal path (%j)", (homeTitle) => {
+    expect(titleOf(buildMeta({ homeTitle, title: "Blog", pathname: "/blog" }))).toBe(
+      "Blog · Jimmy Van Veen",
+    );
+  });
+
+  it("trims a padded title instead of baking the padding into the tag", () => {
+    expect(titleOf(buildMeta({ title: "  Blog  ", pathname: "/blog" }))).toBe(
+      "Blog · Jimmy Van Veen",
+    );
+  });
+
   it("gives two different pages two different titles", () => {
     // The whole reason this module exists: every page used to serve the
     // identical <title>Jimmy Van Veen</title>.
@@ -232,5 +253,25 @@ describe("articleJsonLd", () => {
   it("omits description entirely rather than emitting an empty one", () => {
     expect(articleJsonLd({ ...base, description: "" })).not.toHaveProperty("description");
     expect(articleJsonLd(base)).not.toHaveProperty("description");
+  });
+});
+
+describe("buildMeta title fallback edge cases", () => {
+  it("resolves to the bare site name when no title is given at all", () => {
+    // The original `??` form produced "Jimmy Van Veen · Jimmy Van Veen" here.
+    // Unreachable today since every route passes a title, but wrong.
+    expect(titleOf(buildMeta({ pathname: "/x" }))).toBe("Jimmy Van Veen");
+  });
+
+  it("never emits a title that starts with the separator", () => {
+    for (const title of [undefined, "", "   "]) {
+      expect(titleOf(buildMeta({ title, pathname: "/x" }))?.startsWith(" ·")).toBe(false);
+    }
+  });
+
+  it("never repeats the site name", () => {
+    for (const title of [undefined, "", "   "]) {
+      expect(titleOf(buildMeta({ title, pathname: "/x" }))).toBe("Jimmy Van Veen");
+    }
   });
 });
