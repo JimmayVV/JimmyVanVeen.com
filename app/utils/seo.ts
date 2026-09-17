@@ -143,3 +143,46 @@ export function buildMeta({
 
   return descriptors;
 }
+
+interface ArticleJsonLdOptions {
+  title: string;
+  description?: string | undefined;
+  publishDate: string;
+  /** Falls back to the site owner, matching the byline PostHero renders. */
+  author?: string | undefined;
+  pathname: string;
+}
+
+/**
+ * `Article` structured data for a blog post.
+ *
+ * Pure and exported so it can be asserted directly. The alternative was an
+ * e2e test that renders a real post, which the suite cannot do — it runs with
+ * `DISABLE_CONTENTFUL_RUNTIME=true` and there are no posts to render. Faking a
+ * post fixture into the production caching layer to satisfy a test would be a
+ * worse trade than testing this function for real.
+ *
+ * Every field here is visible on the page: the headline and dek in PostHero,
+ * the byline and date in its dateline. Structured data may only describe what
+ * a visitor can see.
+ */
+export function articleJsonLd({
+  title,
+  description,
+  publishDate,
+  author,
+  pathname,
+}: ArticleJsonLdOptions): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    ...(description ? { description } : {}),
+    datePublished: publishDate,
+    author: {
+      "@type": "Person",
+      name: author || SITE_NAME,
+    },
+    mainEntityOfPage: canonicalUrl(pathname),
+  };
+}

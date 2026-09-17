@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { isRecord } from "./is-record";
-import { SITE_URL, absoluteUrl, buildMeta, canonicalUrl } from "./seo";
+import { SITE_URL, absoluteUrl, articleJsonLd, buildMeta, canonicalUrl } from "./seo";
 
 /** Narrow a descriptor list down to the title string, whatever position it sits in. */
 function titleOf(descriptors: ReturnType<typeof buildMeta>): string | undefined {
@@ -189,5 +189,48 @@ describe("buildMeta share tags", () => {
     expect(contentOfName(buildMeta({ title: "A", pathname: "/a" }), "twitter:card")).toBe(
       "summary_large_image",
     );
+  });
+});
+
+describe("articleJsonLd", () => {
+  const base = {
+    title: "The Window I Wanted to Work In",
+    publishDate: "2026-07-05",
+    pathname: "/blog/the-window-i-wanted-to-work-in",
+  };
+
+  it("describes the post with a Person author and an absolute mainEntityOfPage", () => {
+    const ld = articleJsonLd({ ...base, description: "Atrium is a single calm window." });
+
+    expect(ld).toEqual({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: "The Window I Wanted to Work In",
+      description: "Atrium is a single calm window.",
+      datePublished: "2026-07-05",
+      author: { "@type": "Person", name: "Jimmy Van Veen" },
+      mainEntityOfPage: `${SITE_URL}/blog/the-window-i-wanted-to-work-in`,
+    });
+  });
+
+  it("uses a post's own Contentful author when it has one", () => {
+    const ld = articleJsonLd({ ...base, author: "A Guest" });
+    expect(ld["author"]).toEqual({ "@type": "Person", name: "A Guest" });
+  });
+
+  it("falls back to the site owner for a blank author, matching the rendered byline", () => {
+    // PostHero renders `By {author ?? SITE_NAME}`. The markup claims an author,
+    // so it has to agree with what the visitor actually sees.
+    for (const author of [undefined, ""]) {
+      expect(articleJsonLd({ ...base, author })["author"]).toEqual({
+        "@type": "Person",
+        name: "Jimmy Van Veen",
+      });
+    }
+  });
+
+  it("omits description entirely rather than emitting an empty one", () => {
+    expect(articleJsonLd({ ...base, description: "" })).not.toHaveProperty("description");
+    expect(articleJsonLd(base)).not.toHaveProperty("description");
   });
 });

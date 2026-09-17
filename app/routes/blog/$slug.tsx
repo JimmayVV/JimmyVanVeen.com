@@ -14,7 +14,7 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
 import { isRecord } from "~/utils/is-record";
 import { readingStats } from "~/utils/reading-time";
-import { SITE_NAME, buildMeta, canonicalUrl } from "~/utils/seo";
+import { articleJsonLd, buildMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/$slug";
 
@@ -46,21 +46,13 @@ export const meta: Route.MetaFunction = ({ loaderData, params }) => {
       ogType: "article",
     }),
     {
-      // Article has no required properties. Every field here is visible on the
-      // page: the headline and dek in PostHero, the byline and date in its
-      // dateline.
-      "script:ld+json": {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        headline: title,
-        ...(description ? { description } : {}),
-        datePublished: publishDate,
-        author: {
-          "@type": "Person",
-          name: author || SITE_NAME,
-        },
-        mainEntityOfPage: canonicalUrl(pathname),
-      },
+      "script:ld+json": articleJsonLd({
+        title,
+        description: description || undefined,
+        publishDate,
+        author,
+        pathname,
+      }),
     },
   ];
 };
