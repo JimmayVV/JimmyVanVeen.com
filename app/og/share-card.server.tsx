@@ -1,4 +1,7 @@
-import { Resvg } from "@resvg/resvg-js";
+import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+
+import { Resvg, initWasm } from "@resvg/resvg-wasm";
 import satori from "satori";
 
 import { formatPostDate } from "~/utils/format-post-date";
@@ -15,6 +18,12 @@ import sourceSerif from "./fonts/source-serif-4-400.ttf?inline";
  * Fonts are static TTF instances inlined into the server bundle. Satori can't
  * read WOFF2 or variable fonts, and inlining avoids reaching for the
  * filesystem from a Netlify Function, where bundled paths aren't guaranteed.
+ *
+ * Rasterising uses resvg's WebAssembly build. The native @resvg/resvg-js picks
+ * a platform binary at runtime that Netlify's function bundler didn't ship, and
+ * the failed import took every SSR route down with it. Vite won't inline a
+ * .wasm file, so it's read from node_modules on first use; netlify.toml's
+ * included_files ships it with the function.
  */
 
 export const SHARE_CARD_WIDTH = 1200;
@@ -34,15 +43,24 @@ export interface ShareCardPost {
   publishDate?: string | undefined;
 }
 
-function fontData(dataUri: string): Buffer {
+function inlineData(dataUri: string): Buffer {
   return Buffer.from(dataUri.slice(dataUri.indexOf(",") + 1), "base64");
 }
 
 const fonts = [
-  { name: "Newsreader", data: fontData(newsreader), weight: 600, style: "normal" },
-  { name: "Source Serif 4", data: fontData(sourceSerif), weight: 400, style: "normal" },
-  { name: "JetBrains Mono", data: fontData(jetbrainsMono), weight: 500, style: "normal" },
+  { name: "Newsreader", data: inlineData(newsreader), weight: 600, style: "normal" },
+  { name: "Source Serif 4", data: inlineData(sourceSerif), weight: 400, style: "normal" },
+  { name: "JetBrains Mono", data: inlineData(jetbrainsMono), weight: 500, style: "normal" },
 ] as const;
+
+// initWasm throws if called twice, so every render shares one promise.
+let resvgReady: Promise<void> | undefined;
+function ensureResvg(): Promise<void> {
+  resvgReady ??= readFile(
+    createRequire(import.meta.url).resolve("@resvg/resvg-wasm/index_bg.wasm"),
+  ).then((wasm) => initWasm(wasm));
+  return resvgReady;
+}
 
 /** Longer titles step down so a two-line title never runs into the description. */
 export function titleSize(title: string): number {
@@ -60,6 +78,11 @@ export function clampText(text: string, max: number): string {
 }
 
 function ShareCard({ title, description, publishDate }: ShareCardPost) {
+  // Satori calls this as a plain function, outside React's renderer, so the
+  // React Compiler's memo-cache hook would throw "Invalid hook call" here.
+  // Vitest doesn't run the compiler, so only the production build shows it.
+  "use no memo";
+
   const byline = publishDate ? `Jimmy Van Veen · ${formatPostDate(publishDate)}` : "Jimmy Van Veen";
 
   return (
@@ -138,6 +161,7 @@ function ShareCard({ title, description, publishDate }: ShareCardPost) {
  * because Response bodies won't take resvg's Node Buffer type directly.
  */
 export async function renderShareCard(post: ShareCardPost): Promise<Uint8Array<ArrayBuffer>> {
+  await ensureResvg();
   const svg = await satori(<ShareCard {...post} />, {
     width: SHARE_CARD_WIDTH,
     height: SHARE_CARD_HEIGHT,

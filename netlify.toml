@@ -11,6 +11,12 @@ TURBO_TELEMETRY_DISABLED = "1"
 # Node version lives solely in .nvmrc (Netlify reads it), which also fixes the
 # bundled npm. No NODE_VERSION here on purpose — one source of truth.
 
+# The blog share-card renderer (app/og) reads resvg's WebAssembly module from
+# node_modules at runtime. Vite can't inline .wasm, so name it here or the
+# function ships without it.
+[functions]
+included_files = ["node_modules/@resvg/resvg-wasm/index_bg.wasm"]
+
 [dev]
 command = "npm run dev"
 framework = "vite"

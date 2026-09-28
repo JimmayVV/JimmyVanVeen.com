@@ -1,4 +1,3 @@
-import { renderShareCard } from "~/og/share-card.server";
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
 
 import type { Route } from "./+types/og.blog.$slug";
@@ -19,6 +18,9 @@ export async function loader({ params }: Route.LoaderArgs) {
   }
 
   const { title, description, publishDate } = post.fields;
+  // Loaded on demand so the renderer's WASM and fonts stay out of every other
+  // route's startup, and a renderer failure can only break this route.
+  const { renderShareCard } = await import("~/og/share-card.server");
   const png = await renderShareCard({
     title,
     description: description || undefined,

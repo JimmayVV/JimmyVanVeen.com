@@ -35,7 +35,7 @@
     "@octokit/rest": "^22.0.1",
     "@react-router/node": "^8.3.0",
     "@react-router/serve": "^8.3.0",
-    "@resvg/resvg-js": "^2.6.2",
+    "@resvg/resvg-wasm": "^2.6.2",
     "browser-bunyan": "^1.8.0",
     "contentful": "^11.12.9",
     "date-fns": "^4.4.0",
