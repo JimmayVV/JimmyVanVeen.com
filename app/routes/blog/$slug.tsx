@@ -40,9 +40,9 @@ export const meta: Route.MetaFunction = ({ loaderData, params }) => {
       // post has none, no description tag is emitted rather than a generic one.
       description: description || undefined,
       pathname,
-      // A post with its own Contentful image shares that; the rest fall back
-      // to the site plate.
-      image: shareImage || undefined,
+      // A post with its own Contentful image shares that; the rest get a card
+      // rendered from their title and description by the og/blog route.
+      image: shareImage || `/og/blog/${params.slug}`,
       ogType: "article",
     }),
     {

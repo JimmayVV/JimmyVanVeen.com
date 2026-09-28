@@ -11,8 +11,10 @@ export function generateClientId(): string {
 
   // Add entropy from performance timing if available
   const entropy =
-    typeof performance !== "undefined" && performance.now
-      ? Math.floor(performance.now() * 1000)
+    // globalThis keeps the "may not exist" guard: a bare `performance?.now`
+    // would still throw if the global were undeclared.
+    globalThis.performance?.now
+      ? Math.floor(globalThis.performance.now() * 1000)
       : Math.floor(Math.random() * 1000000);
 
   // Generate random component
