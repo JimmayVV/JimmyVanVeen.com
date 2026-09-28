@@ -40,6 +40,10 @@ export async function loader({ params }: Route.LoaderArgs) {
       // Crawlers fetch the card once per share. A day is long enough to keep
       // the render off the hot path and short enough that a title fix shows up.
       "Cache-Control": "public, max-age=86400",
+      // A cold render takes several seconds, longer than some crawlers wait.
+      // Durable caching shares one render across every Netlify edge, so only
+      // the first request after a deploy pays for it.
+      "Netlify-CDN-Cache-Control": "public, durable, s-maxage=86400",
     },
   });
 }
