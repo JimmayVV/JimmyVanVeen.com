@@ -13,7 +13,10 @@ export async function loader({ params }: Route.LoaderArgs) {
   let post: Awaited<ReturnType<typeof getCachedBlogPostBySlug>>;
   try {
     post = await getCachedBlogPostBySlug(params.slug);
-  } catch {
+  } catch (error) {
+    // Logged because a Contentful outage lands here too, and would otherwise
+    // 404 every card with nothing to point at why.
+    console.error("Share card slug lookup failed", { slug: params.slug, error });
     return new Response("Not found", { status: 404 });
   }
 

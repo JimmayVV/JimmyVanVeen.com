@@ -70,6 +70,10 @@ describe("/og/blog/:slug", () => {
 
     expect(response.status).toBe(404);
     expect(renderShareCard).not.toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith(
+      "Share card slug lookup failed",
+      expect.objectContaining({ slug: "nope" }),
+    );
   });
 
   it("answers a render failure with a 500 and logs it", async () => {
