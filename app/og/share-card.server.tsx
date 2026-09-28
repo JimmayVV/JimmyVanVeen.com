@@ -1,9 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 
-import { Resvg, initWasm } from "@resvg/resvg-wasm";
-import satori from "satori";
-
 import { formatPostDate } from "~/utils/format-post-date";
 
 import jetbrainsMono from "./fonts/jetbrains-mono-500.ttf?inline";
@@ -24,6 +21,11 @@ import sourceSerif from "./fonts/source-serif-4-400.ttf?inline";
  * the failed import took every SSR route down with it. Vite won't inline a
  * .wasm file, so it's read from node_modules on first use; netlify.toml's
  * included_files ships it with the function.
+ *
+ * satori and resvg are imported inside the render, never at module level.
+ * Netlify's packager can hoist a lazily imported chunk's static imports into
+ * the function's startup, and with them at the top of this file, registering
+ * the route alone took every page on the deploy preview down with a 502.
  */
 
 export const SHARE_CARD_WIDTH = 1200;
@@ -47,19 +49,37 @@ function inlineData(dataUri: string): Buffer {
   return Buffer.from(dataUri.slice(dataUri.indexOf(",") + 1), "base64");
 }
 
-const fonts = [
-  { name: "Newsreader", data: inlineData(newsreader), weight: 600, style: "normal" },
-  { name: "Source Serif 4", data: inlineData(sourceSerif), weight: 400, style: "normal" },
-  { name: "JetBrains Mono", data: inlineData(jetbrainsMono), weight: 500, style: "normal" },
-] as const;
+function loadFonts() {
+  return [
+    { name: "Newsreader", data: inlineData(newsreader), weight: 600, style: "normal" },
+    { name: "Source Serif 4", data: inlineData(sourceSerif), weight: 400, style: "normal" },
+    { name: "JetBrains Mono", data: inlineData(jetbrainsMono), weight: 500, style: "normal" },
+  ] as const;
+}
 
-// initWasm throws if called twice, so every render shares one promise.
-let resvgReady: Promise<void> | undefined;
-function ensureResvg(): Promise<void> {
-  resvgReady ??= readFile(
-    createRequire(import.meta.url).resolve("@resvg/resvg-wasm/index_bg.wasm"),
-  ).then((wasm) => initWasm(wasm));
-  return resvgReady;
+// Loaded once per function instance. initWasm throws if called twice, so every
+// render shares this one promise.
+let renderer:
+  | Promise<{
+      satori: typeof import("satori").default;
+      Resvg: typeof import("@resvg/resvg-wasm").Resvg;
+      fonts: ReturnType<typeof loadFonts>;
+    }>
+  | undefined;
+
+function loadRenderer() {
+  renderer ??= (async () => {
+    const [{ default: satori }, { Resvg, initWasm }] = await Promise.all([
+      import("satori"),
+      import("@resvg/resvg-wasm"),
+    ]);
+    const wasm = await readFile(
+      createRequire(import.meta.url).resolve("@resvg/resvg-wasm/index_bg.wasm"),
+    );
+    await initWasm(wasm);
+    return { satori, Resvg, fonts: loadFonts() };
+  })();
+  return renderer;
 }
 
 /** Longer titles step down so a two-line title never runs into the description. */
@@ -161,7 +181,7 @@ function ShareCard({ title, description, publishDate }: ShareCardPost) {
  * because Response bodies won't take resvg's Node Buffer type directly.
  */
 export async function renderShareCard(post: ShareCardPost): Promise<Uint8Array<ArrayBuffer>> {
-  await ensureResvg();
+  const { satori, Resvg, fonts } = await loadRenderer();
   const svg = await satori(<ShareCard {...post} />, {
     width: SHARE_CARD_WIDTH,
     height: SHARE_CARD_HEIGHT,
