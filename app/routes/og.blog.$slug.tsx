@@ -29,12 +29,9 @@ export async function loader({ params }: Route.LoaderArgs) {
       publishDate,
     });
   } catch (error) {
-    // TEMP diagnostic for the deploy preview; never shown in production.
-    const detail = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
-    console.error("Share card render failed", error);
-    return new Response(process.env["CONTEXT"] === "production" ? "Render failed" : detail, {
-      status: 500,
-    });
+    // A render failure answers this request only; crawlers fall back to no image.
+    console.error("Share card render failed", { slug: params.slug, error });
+    return new Response("Render failed", { status: 500 });
   }
 
   return new Response(png, {
