@@ -58,7 +58,7 @@ function loadFonts() {
 }
 
 // Loaded once per function instance. initWasm throws if called twice, so every
-// render shares this one promise.
+// render shares this one promise while it's pending or has succeeded.
 let renderer:
   | Promise<{
       satori: typeof import("satori").default;
@@ -78,7 +78,12 @@ function loadRenderer() {
     );
     await initWasm(wasm);
     return { satori, Resvg, fonts: loadFonts() };
-  })();
+  })().catch((error: unknown) => {
+    // Forget a failed load so the next request retries, instead of a warm
+    // instance re-throwing the same stale error until it's recycled.
+    renderer = undefined;
+    throw error;
+  });
   return renderer;
 }
 

@@ -1,5 +1,5 @@
 // @vitest-environment node
-// Satori resolves its browser build under jsdom, where its layout engine never
+// Satori resolves its browser build under happy-dom, where its layout engine never
 // initialises. The card only ever renders on the server.
 
 import { describe, expect, it } from "vitest";

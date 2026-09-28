@@ -63,7 +63,7 @@ const sessionStorageMock = (() => {
   };
 })();
 
-// Browser globals only exist under jsdom. A test that opts into the node
+// Browser globals only exist under happy-dom. A test that opts into the node
 // environment (the share-card renderer) has no window to decorate, and needs
 // the real fetch: Satori loads its layout engine's WASM through it.
 if (typeof window !== "undefined") {
