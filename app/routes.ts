@@ -14,6 +14,6 @@ export default [
   route("sitemap.xml", "routes/sitemap[.]xml.tsx"),
   route("rss.xml", "routes/rss[.]xml.tsx"),
   route("api/events", "routes/api.events.tsx"),
-  route("og/blog/:slug", "routes/og.blog.$slug.tsx"),
+  // BISECT: route("og/blog/:slug", "routes/og.blog.$slug.tsx"),
   route("*", "routes/404.tsx"),
 ] satisfies RouteConfig;
