@@ -20,12 +20,22 @@ export async function loader({ params }: Route.LoaderArgs) {
   const { title, description, publishDate } = post.fields;
   // Loaded on demand so the renderer's WASM and fonts stay out of every other
   // route's startup, and a renderer failure can only break this route.
-  const { renderShareCard } = await import("~/og/share-card.server");
-  const png = await renderShareCard({
-    title,
-    description: description || undefined,
-    publishDate,
-  });
+  let png: Uint8Array<ArrayBuffer>;
+  try {
+    const { renderShareCard } = await import("~/og/share-card.server");
+    png = await renderShareCard({
+      title,
+      description: description || undefined,
+      publishDate,
+    });
+  } catch (error) {
+    // TEMP diagnostic for the deploy preview; never shown in production.
+    const detail = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
+    console.error("Share card render failed", error);
+    return new Response(process.env["CONTEXT"] === "production" ? "Render failed" : detail, {
+      status: 500,
+    });
+  }
 
   return new Response(png, {
     headers: {
