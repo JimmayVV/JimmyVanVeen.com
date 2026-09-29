@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import { isRecord } from "./is-record";
-import { SITE_URL, absoluteUrl, articleJsonLd, buildMeta, canonicalUrl } from "./seo";
+import {
+  SITE_URL,
+  X_HANDLE,
+  absoluteUrl,
+  articleJsonLd,
+  articleMeta,
+  buildMeta,
+  canonicalUrl,
+} from "./seo";
 
 /** Narrow a descriptor list down to the title string, whatever position it sits in. */
 function titleOf(descriptors: ReturnType<typeof buildMeta>): string | undefined {
@@ -204,6 +212,30 @@ describe("buildMeta share tags", () => {
     ).toBeUndefined();
   });
 
+  it("credits the site owner's X account as site and creator", () => {
+    const meta = buildMeta({ title: "A", pathname: "/a" });
+    expect(contentOfName(meta, "twitter:site")).toBe(X_HANDLE);
+    expect(contentOfName(meta, "twitter:creator")).toBe("@JimmayVV");
+  });
+
+  it("declares the image's size and type when the caller knows them", () => {
+    const meta = buildMeta({
+      title: "A",
+      pathname: "/a",
+      image: "/og/blog/a",
+      imageSize: { width: 1200, height: 630, type: "image/png" },
+    });
+    expect(contentOfProperty(meta, "og:image:width")).toBe("1200");
+    expect(contentOfProperty(meta, "og:image:height")).toBe("630");
+    expect(contentOfProperty(meta, "og:image:type")).toBe("image/png");
+  });
+
+  it("leaves the image size off rather than guessing it", () => {
+    const meta = buildMeta({ title: "A", pathname: "/a", image: "//images.ctfassets.net/x.jpg" });
+    expect(contentOfProperty(meta, "og:image:width")).toBeUndefined();
+    expect(contentOfProperty(meta, "og:image:height")).toBeUndefined();
+  });
+
   it("declares a large summary card", () => {
     // twitter:title/description/image are deliberately absent — X falls back
     // to the og:* equivalents, so duplicating them is dead weight.
@@ -229,7 +261,7 @@ describe("articleJsonLd", () => {
       headline: "The Window I Wanted to Work In",
       description: "Atrium is a single calm window.",
       datePublished: "2026-07-05",
-      author: { "@type": "Person", name: "Jimmy Van Veen" },
+      author: { "@type": "Person", name: "Jimmy Van Veen", url: `${SITE_URL}/about` },
       mainEntityOfPage: `${SITE_URL}/blog/the-window-i-wanted-to-work-in`,
     });
   });
@@ -246,6 +278,7 @@ describe("articleJsonLd", () => {
       expect(articleJsonLd({ ...base, author })["author"]).toEqual({
         "@type": "Person",
         name: "Jimmy Van Veen",
+        url: `${SITE_URL}/about`,
       });
     }
   });
@@ -273,5 +306,28 @@ describe("buildMeta title fallback edge cases", () => {
     for (const title of [undefined, "", "   "]) {
       expect(titleOf(buildMeta({ title, pathname: "/x" }))).toBe("Jimmy Van Veen");
     }
+  });
+});
+
+describe("articleMeta", () => {
+  function propertyOf(descriptors: ReturnType<typeof articleMeta>, property: string) {
+    return contentOfProperty(descriptors, property);
+  }
+
+  it("dates the post and points its author at /about", () => {
+    const meta = articleMeta({ publishDate: "2026-09-28" });
+    expect(propertyOf(meta, "article:published_time")).toBe("2026-09-28");
+    expect(propertyOf(meta, "article:author")).toBe(`${SITE_URL}/about`);
+  });
+
+  it("treats a blank author as the site owner, matching the byline", () => {
+    expect(
+      propertyOf(articleMeta({ publishDate: "2026-09-28", author: "" }), "article:author"),
+    ).toBe(`${SITE_URL}/about`);
+  });
+
+  it("leaves article:author off for a guest, who has no page here", () => {
+    const meta = articleMeta({ publishDate: "2026-09-28", author: "A Guest" });
+    expect(propertyOf(meta, "article:author")).toBeUndefined();
   });
 });

@@ -12,6 +12,8 @@ export type BlogPostSkeleton = Contentful.EntrySkeletonType<
     image?: Contentful.EntryFieldTypes.AssetLink;
     body: Contentful.EntryFields.Text;
     publishDate: Contentful.EntryFields.Date;
+    xThreadUrl?: Contentful.EntryFieldTypes.Symbol;
+    blueskyThreadUrl?: Contentful.EntryFieldTypes.Symbol;
   },
   "blogPost"
 >;

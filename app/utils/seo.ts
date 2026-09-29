@@ -32,6 +32,14 @@ export const SITE_URL = "https://www.jimmyvanveen.com";
  */
 export const SITE_NAME = "Jimmy Van Veen";
 
+/**
+ * The site owner's X account. Verified from his own profile (name, avatar, and a
+ * bio naming his projects), which matters here: search results show a different
+ * person's X account under the same name, the trap docs/seo-audit-2026-09-16.md
+ * warns about.
+ */
+export const X_HANDLE = "@JimmayVV";
+
 /** Title suffix for every page except the home page, which is name-forward already. */
 const TITLE_SUFFIX = ` · ${SITE_NAME}`;
 
@@ -67,6 +75,11 @@ interface BuildMetaOptions {
   image?: string | undefined;
   /** Alt text for the share image. Defaults alongside the image. */
   imageAlt?: string | undefined;
+  /**
+   * Pixel size of `image`, when known. LinkedIn and Facebook can render the
+   * large card on their first fetch instead of waiting to download the image.
+   */
+  imageSize?: { width: number; height: number; type: string } | undefined;
   /** og:type. "article" for blog posts, "website" everywhere else. */
   ogType?: "website" | "article" | undefined;
 }
@@ -102,6 +115,7 @@ export function buildMeta({
   pathname,
   image,
   imageAlt,
+  imageSize,
   ogType = "website",
 }: BuildMetaOptions): MetaDescriptor[] {
   // A blank or missing title resolves to the bare site name. Two traps here,
@@ -145,11 +159,25 @@ export function buildMeta({
     },
   );
 
+  if (imageSize) {
+    descriptors.push(
+      { property: "og:image:width", content: String(imageSize.width) },
+      { property: "og:image:height", content: String(imageSize.height) },
+      { property: "og:image:type", content: imageSize.type },
+    );
+  }
+
   if (description) {
     descriptors.push({ property: "og:description", content: description });
   }
 
-  descriptors.push({ name: "twitter:card", content: "summary_large_image" });
+  // twitter:site and twitter:creator have no og equivalent. They put the account
+  // on the card, so a reader can find the thread and the person behind the post.
+  descriptors.push(
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:site", content: X_HANDLE },
+    { name: "twitter:creator", content: X_HANDLE },
+  );
 
   return descriptors;
 }
@@ -167,6 +195,27 @@ export function buildMeta({
  */
 export function resolveAuthor(author?: string | null): string {
   return author?.trim() || SITE_NAME;
+}
+
+/**
+ * Open Graph article tags for a post: when it was published, and who wrote it.
+ * `article:author` points at /about, the page that carries the site owner's
+ * profile markup, and is left off for a guest author, who has no page here.
+ */
+export function articleMeta({
+  publishDate,
+  author,
+}: {
+  publishDate: string;
+  author?: string | null | undefined;
+}): MetaDescriptor[] {
+  const descriptors: MetaDescriptor[] = [
+    { property: "article:published_time", content: publishDate },
+  ];
+  if (resolveAuthor(author) === SITE_NAME) {
+    descriptors.push({ property: "article:author", content: canonicalUrl("/about") });
+  }
+  return descriptors;
 }
 
 interface ArticleJsonLdOptions {
@@ -207,6 +256,8 @@ export function articleJsonLd({
     author: {
       "@type": "Person",
       name: resolveAuthor(author),
+      // The site owner's profile page, whose ProfilePage markup lists sameAs.
+      ...(resolveAuthor(author) === SITE_NAME ? { url: canonicalUrl("/about") } : {}),
     },
     mainEntityOfPage: canonicalUrl(pathname),
   };

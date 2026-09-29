@@ -14,7 +14,8 @@ import { trackPageView } from "~/utils/analytics-loader";
 import { getCachedBlogPostBySlug } from "~/utils/contentful-cache";
 import { isRecord } from "~/utils/is-record";
 import { readingStats } from "~/utils/reading-time";
-import { articleJsonLd, buildMeta } from "~/utils/seo";
+import { discussionLinks } from "~/utils/discussion-links";
+import { articleJsonLd, articleMeta, buildMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/$slug";
 
@@ -43,8 +44,11 @@ export const meta: Route.MetaFunction = ({ loaderData, params }) => {
       // A post with its own Contentful image shares that; the rest get a card
       // rendered from their title and description by the og/blog route.
       image: shareImage || `/og/blog/${params.slug}`,
+      // The rendered card's size is fixed; a Contentful image's isn't known here.
+      imageSize: shareImage ? undefined : { width: 1200, height: 630, type: "image/png" },
       ogType: "article",
     }),
+    ...articleMeta({ publishDate, author }),
     {
       "script:ld+json": articleJsonLd({
         title,
@@ -176,7 +180,10 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
           </ReactMarkdown>
         </article>
 
-        <PostFooter publishDate={blog.fields.publishDate} />
+        <PostFooter
+          publishDate={blog.fields.publishDate}
+          discussion={discussionLinks(blog.fields)}
+        />
       </main>
     </>
   );

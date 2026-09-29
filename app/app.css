@@ -229,6 +229,25 @@ a[target="_blank"]::after {
   color: var(--blog-accent-soft);
 }
 
+/* "Discuss this post on X or Bluesky": the conversation lives there, not here */
+.blog-discuss {
+  margin: 0.75rem 0 0;
+  font-size: 1rem;
+  color: var(--blog-muted);
+}
+.blog-discuss a {
+  color: var(--blog-accent);
+  text-underline-offset: 3px;
+}
+.blog-discuss a:hover {
+  color: var(--blog-accent-soft);
+}
+.blog-discuss a:focus-visible {
+  outline: 2px solid var(--blog-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 /* Reading progress hairline */
 .blog-progress {
   position: fixed;

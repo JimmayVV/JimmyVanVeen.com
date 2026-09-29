@@ -20,10 +20,15 @@ import type { Route } from "./+types/about";
  * disambiguation problem worse, not better.
  */
 
-/** Profiles confirmed as his — both already linked from the site footer. */
+/**
+ * Profiles confirmed as his. GitHub and Bluesky are linked from the site
+ * footer; X is @JimmayVV, confirmed from his own profile (not the same-name
+ * account search results show).
+ */
 const PROFILES = [
   { label: "GitHub", href: "https://github.com/JimmayVV" },
   { label: "Bluesky", href: "https://bsky.app/profile/jimmyvanveen.com" },
+  { label: "X", href: "https://x.com/JimmayVV" },
 ] as const;
 
 const DESCRIPTION =
