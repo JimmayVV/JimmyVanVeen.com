@@ -21,7 +21,7 @@ export function PostFooter({ publishDate, discussion = NO_DISCUSSION }: PostFoot
           {discussion.map((link, index) => (
             <span key={link.platform}>
               {index > 0 ? " or " : null}
-              <a href={link.href} target="_blank" rel="noopener">
+              <a href={link.href} target="_blank" rel="noreferrer">
                 {link.platform}
               </a>
             </span>

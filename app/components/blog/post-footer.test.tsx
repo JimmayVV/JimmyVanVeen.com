@@ -22,6 +22,8 @@ describe("PostFooter", () => {
     const x = screen.getByRole("link", { name: "X" });
     expect(x.getAttribute("href")).toBe("https://x.com/JimmayVV/status/1");
     expect(x.getAttribute("target")).toBe("_blank");
+    // Matches every other outbound link on the site: no opener, no referrer.
+    expect(x.getAttribute("rel")).toBe("noreferrer");
     expect(screen.getByRole("link", { name: "Bluesky" }).getAttribute("href")).toBe(
       "https://bsky.app/profile/jimmyvanveen.com/post/abc",
     );
