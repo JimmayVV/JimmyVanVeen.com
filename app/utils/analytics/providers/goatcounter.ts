@@ -23,8 +23,10 @@ interface GoatCounterHit {
   event?: boolean;
   /** Referrer URL */
   ref?: string | undefined;
-  /** Screen size (width,height) */
+  /** Screen width. The OpenAPI spec says number[], but the API only accepts a string */
   size?: string | undefined;
+  /** BCP 47 language tag, e.g. "en-US" */
+  language?: string | undefined;
   /** Query string; GoatCounter reads utm_source/ref from it as the campaign */
   query?: string | undefined;
   /** Visitor's User-Agent, for browser/system stats and unique visitors */
@@ -101,6 +103,8 @@ export class GoatCounterProvider extends BaseProvider implements AnalyticsProvid
       query: extractQuery(data.url),
       user_agent: userAgent,
       ip,
+      size: data.screenWidth ? String(data.screenWidth) : undefined,
+      language: extractLanguage(context?.headers),
     };
 
     const payload: GoatCounterPayload = {
@@ -151,6 +155,7 @@ export class GoatCounterProvider extends BaseProvider implements AnalyticsProvid
       title: asString(event.properties["page_title"]) || "",
       referrer: asString(event.properties["page_referrer"]),
       timestamp: asString(event.properties["timestamp"]) || new Date().toISOString(),
+      screenWidth: asScreenWidth(event.properties["screen_width"]),
     };
 
     await this.trackPageView(pageViewData, context);
@@ -167,6 +172,24 @@ function extractQuery(pageUrl: string): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Accept only a plausible screen width; the value comes from the client unchecked.
+ */
+function asScreenWidth(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isInteger(value) && value > 0 && value <= 16384
+    ? value
+    : undefined;
+}
+
+/**
+ * First language tag of an Accept-Language header ("en-US,en;q=0.9" → "en-US"),
+ * or undefined when absent or not a BCP 47-shaped tag.
+ */
+function extractLanguage(headers: Headers | undefined): string | undefined {
+  const first = headers?.get("accept-language")?.split(",")[0]?.split(";")[0]?.trim();
+  return first && /^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$/.test(first) ? first : undefined;
 }
 
 /**

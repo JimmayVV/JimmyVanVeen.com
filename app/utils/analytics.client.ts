@@ -89,6 +89,7 @@ class ClientAnalytics implements AnalyticsService {
       ...properties,
       page_path: pagePath,
       page_location: window.location.href,
+      screen_width: window.screen.width,
     });
   }
 

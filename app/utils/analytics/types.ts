@@ -30,6 +30,8 @@ export interface PageViewData {
   referrer?: string | undefined;
   /** ISO 8601 timestamp */
   timestamp: string;
+  /** Screen width in CSS pixels, from window.screen.width */
+  screenWidth?: number | undefined;
 }
 
 /**
