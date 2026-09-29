@@ -241,6 +241,7 @@ a[target="_blank"]::after {
 }
 .blog-discuss a {
   color: var(--blog-accent);
+  text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
 }
