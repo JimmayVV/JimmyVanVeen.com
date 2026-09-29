@@ -25,8 +25,12 @@ interface GoatCounterHit {
   ref?: string | undefined;
   /** Screen size (width,height) */
   size?: string | undefined;
-  /** Session identifier for unique visitor tracking */
-  session?: string | undefined;
+  /** Query string; GoatCounter reads utm_source/ref from it as the campaign */
+  query?: string | undefined;
+  /** Visitor's User-Agent, for browser/system stats and unique visitors */
+  user_agent?: string | undefined;
+  /** Visitor's IP, for location and unique visitors (not stored by GoatCounter) */
+  ip?: string | undefined;
 }
 
 /**
@@ -34,6 +38,11 @@ interface GoatCounterHit {
  */
 interface GoatCounterPayload {
   hits: GoatCounterHit[];
+  /**
+   * Required when a hit carries neither a session nor browser+IP; without it
+   * GoatCounter rejects the whole request with a 400.
+   */
+  no_sessions?: boolean;
 }
 
 export class GoatCounterProvider extends BaseProvider implements AnalyticsProvider {
@@ -74,23 +83,29 @@ export class GoatCounterProvider extends BaseProvider implements AnalyticsProvid
     return !!(this.siteCode && this.apiToken);
   }
 
-  async trackPageView(data: PageViewData, _context?: ServerContext): Promise<void> {
+  async trackPageView(data: PageViewData, context?: ServerContext): Promise<void> {
     if (!this.isConfigured()) {
       this.debug("Skipping page view - provider not configured");
       return;
     }
 
+    // Server-side hits come from the function's own IP and user agent, so the
+    // visitor's must be forwarded or GoatCounter can't tell visitors apart.
+    const userAgent = context?.userAgent || undefined;
+    const ip = context?.clientIp && context.clientIp !== "unknown" ? context.clientIp : undefined;
+
     const hit: GoatCounterHit = {
       path: data.path,
       title: data.title,
-      ref: data.referrer,
-      // Use client_id as session identifier for unique visitor tracking
-      // GoatCounter uses this to distinguish unique visitors
-      session: this.extractSessionId(data),
+      ref: data.referrer || undefined,
+      query: extractQuery(data.url),
+      user_agent: userAgent,
+      ip,
     };
 
     const payload: GoatCounterPayload = {
       hits: [hit],
+      ...(userAgent && ip ? {} : { no_sessions: true }),
     };
 
     const url = `https://${this.siteCode}.goatcounter.com/api/v0/count`;
@@ -140,16 +155,16 @@ export class GoatCounterProvider extends BaseProvider implements AnalyticsProvid
 
     await this.trackPageView(pageViewData, context);
   }
+}
 
-  /**
-   * Extract session identifier from page view data
-   * Uses client_id from properties if available
-   */
-  private extractSessionId(_data: PageViewData): string | undefined {
-    // GoatCounter uses session IDs to track unique visitors
-    // We can use the client_id from our analytics system
-    // The session ID should be passed through the data object
-    // For now, return undefined and let GoatCounter generate its own
+/**
+ * Return the "?…" part of a page URL, or undefined when there is none or the URL
+ * doesn't parse. GoatCounter reads campaign parameters (utm_source, ref) from it.
+ */
+function extractQuery(pageUrl: string): string | undefined {
+  try {
+    return new URL(pageUrl).search || undefined;
+  } catch {
     return undefined;
   }
 }

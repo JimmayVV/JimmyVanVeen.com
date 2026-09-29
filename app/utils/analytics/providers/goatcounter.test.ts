@@ -180,6 +180,75 @@ describe("GoatCounter Provider", () => {
     });
   });
 
+  describe("visitor forwarding", () => {
+    beforeEach(async () => {
+      await provider.initialize(mockConfig);
+    });
+
+    const pageData: PageViewData = {
+      path: "/blog/post",
+      url: "https://jimmyvanveen.com/blog/post?utm_source=linkedin&utm_campaign=launch",
+      title: "Post",
+      timestamp: "2026-09-29T00:00:00.000Z",
+    };
+
+    const context = {
+      clientIp: "198.51.100.7",
+      userAgent: "Mozilla/5.0 Chrome/140",
+      headers: new Headers(),
+    };
+
+    it("sends the visitor's user agent and IP, not the server's", async () => {
+      await provider.trackPageView(pageData, context);
+
+      const payload = fetchBody(0);
+
+      expect(payload.hits[0]).toMatchObject({
+        user_agent: "Mozilla/5.0 Chrome/140",
+        ip: "198.51.100.7",
+      });
+      expect(payload.no_sessions).toBeUndefined();
+    });
+
+    it("sends the query string so utm_ parameters count as a campaign", async () => {
+      await provider.trackPageView(pageData, context);
+
+      expect(fetchBody(0).hits[0].query).toBe("?utm_source=linkedin&utm_campaign=launch");
+    });
+
+    it("omits the query when the URL has none or doesn't parse", async () => {
+      await provider.trackPageView({ ...pageData, url: "https://jimmyvanveen.com/" }, context);
+      await provider.trackPageView({ ...pageData, url: "" }, context);
+
+      expect(fetchBody(0).hits[0].query).toBeUndefined();
+      expect(fetchBody(1).hits[0].query).toBeUndefined();
+    });
+
+    // GoatCounter answers 400 "session or browser/IP not set" to a hit with
+    // neither, which silently dropped every pageview before this was added.
+    it.each([
+      ["no context", undefined],
+      ["an unknown IP", { ...context, clientIp: "unknown" }],
+      ["no user agent", { ...context, userAgent: "" }],
+    ])("sets no_sessions when there is %s", async (_label, ctx) => {
+      await provider.trackPageView(pageData, ctx);
+
+      expect(fetchBody(0).no_sessions).toBe(true);
+    });
+
+    it("passes the context through from trackEvent", async () => {
+      await provider.trackEvent(
+        { event: "page_view", properties: { page_path: "/", page_location: pageData.url } },
+        context,
+      );
+
+      expect(fetchBody(0).hits[0]).toMatchObject({
+        ip: "198.51.100.7",
+        query: "?utm_source=linkedin&utm_campaign=launch",
+      });
+    });
+  });
+
   describe("trackEvent()", () => {
     beforeEach(async () => {
       await provider.initialize(mockConfig);

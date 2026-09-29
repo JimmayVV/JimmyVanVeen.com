@@ -264,6 +264,10 @@ async function isRateLimited(clientIP: string): Promise<boolean> {
 }
 
 function getClientIP(request: Request): string {
+  // Netlify's own header is the connecting client and can't be spoofed by it
+  const netlifyIP = request.headers.get("x-nf-client-connection-ip");
+  if (netlifyIP) return netlifyIP;
+
   const xForwardedFor = request.headers.get("x-forwarded-for");
 
   if (xForwardedFor) {
