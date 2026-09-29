@@ -67,7 +67,7 @@ describe("clampText", () => {
 });
 
 describe("cardKicker", () => {
-  it("dates the top line, clear of the corner social platforms label over", () => {
+  it("puts the date in the top line, clear of the platform label in the bottom corner", () => {
     expect(cardKicker("2026-09-28")).toBe("JIMMYVANVEEN.COM / BLOG · SEPTEMBER 28, 2026");
   });
 
