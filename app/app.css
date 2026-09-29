@@ -272,8 +272,9 @@ a[target="_blank"]::after {
   font-weight: 600;
   text-decoration: none;
 }
-.blog-discuss-button::after {
-  content: none;
+/* The X glyph already says where this goes; drop the site-wide ↗ marker. */
+.blog-discuss a.blog-discuss-button[target="_blank"]::after {
+  display: none;
 }
 .blog-discuss-button:hover {
   background: var(--blog-accent-soft);
