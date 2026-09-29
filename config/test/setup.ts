@@ -21,9 +21,6 @@ beforeEach(() => {
   });
 });
 
-// Mock fetch globally
-global.fetch = vi.fn();
-
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -44,11 +41,6 @@ const localStorageMock = (() => {
     },
   };
 })();
-
-Object.defineProperty(window, "localStorage", {
-  value: localStorageMock,
-  writable: true,
-});
 
 // Mock sessionStorage (same implementation as localStorage for tests)
 const sessionStorageMock = (() => {
@@ -71,17 +63,30 @@ const sessionStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, "sessionStorage", {
-  value: sessionStorageMock,
-  writable: true,
-});
+// Browser globals only exist under happy-dom. A test that opts into the node
+// environment (the share-card renderer) has no window to decorate, and needs
+// the real fetch: Satori loads its layout engine's WASM through it.
+if (typeof window !== "undefined") {
+  // Mock fetch globally
+  global.fetch = vi.fn();
 
-// Mock navigator
-Object.defineProperty(window, "navigator", {
-  value: {
-    doNotTrack: null,
-    userAgent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-  },
-  writable: true,
-});
+  Object.defineProperty(window, "localStorage", {
+    value: localStorageMock,
+    writable: true,
+  });
+
+  Object.defineProperty(window, "sessionStorage", {
+    value: sessionStorageMock,
+    writable: true,
+  });
+
+  // Mock navigator
+  Object.defineProperty(window, "navigator", {
+    value: {
+      doNotTrack: null,
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    },
+    writable: true,
+  });
+}
