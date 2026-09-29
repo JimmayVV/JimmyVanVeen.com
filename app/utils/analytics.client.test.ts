@@ -61,6 +61,7 @@ describe("Analytics Client", () => {
       expect(payload.event).toBe("page_view");
       expect(payload.properties.page_path).toBe("/page");
       expect(payload.properties.page_location).toBe("https://test.com/page");
+      expect(payload.properties.screen_width).toBe(window.screen.width);
     });
 
     it("should track page views with custom path", async () => {

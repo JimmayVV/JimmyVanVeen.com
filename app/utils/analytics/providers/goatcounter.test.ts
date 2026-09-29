@@ -236,6 +236,45 @@ describe("GoatCounter Provider", () => {
       expect(fetchBody(0).no_sessions).toBe(true);
     });
 
+    it("sends the screen width as a string, which is the only form the API accepts", async () => {
+      await provider.trackEvent(
+        { event: "page_view", properties: { page_path: "/", screen_width: 1440 } },
+        context,
+      );
+
+      expect(fetchBody(0).hits[0].size).toBe("1440");
+    });
+
+    it.each([
+      ["a string", "1440"],
+      ["zero", 0],
+      ["a fraction", 1440.5],
+      ["an absurd width", 99999],
+    ])("drops a screen width that is %s", async (_label, width) => {
+      await provider.trackEvent(
+        { event: "page_view", properties: { page_path: "/", screen_width: width } },
+        context,
+      );
+
+      expect(fetchBody(0).hits[0].size).toBeUndefined();
+    });
+
+    it.each([
+      ["en-US,en;q=0.9", "en-US"],
+      ["nl", "nl"],
+      ["fr-CH;q=0.8, fr", "fr-CH"],
+      ["*", undefined],
+      ["<script>", undefined],
+      [null, undefined],
+    ])("reads language %s from Accept-Language as %s", async (header, expected) => {
+      const headers = new Headers();
+      if (header !== null) headers.set("accept-language", header);
+
+      await provider.trackPageView(pageData, { ...context, headers });
+
+      expect(fetchBody(0).hits[0].language).toBe(expected);
+    });
+
     it("passes the context through from trackEvent", async () => {
       await provider.trackEvent(
         { event: "page_view", properties: { page_path: "/", page_location: pageData.url } },

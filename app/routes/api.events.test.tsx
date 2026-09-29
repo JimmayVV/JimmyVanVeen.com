@@ -219,6 +219,18 @@ describe("Analytics API Route", () => {
       });
     });
 
+    it("forwards screen width and browser language", async () => {
+      const request = createMockRequest(
+        "POST",
+        { event: "page_view", properties: { page_path: "/", screen_width: 390 } },
+        { "x-nf-client-connection-ip": "198.51.100.7", "accept-language": "en-GB,en;q=0.8" },
+      );
+
+      await action(mockArgs(request));
+
+      expect(fetchBody(0).hits[0]).toMatchObject({ size: "390", language: "en-GB" });
+    });
+
     it("falls back to the first x-forwarded-for address", async () => {
       const request = createMockRequest("POST", pageView, {
         "x-forwarded-for": "203.0.113.1, 10.0.0.1",

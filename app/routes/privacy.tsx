@@ -61,7 +61,8 @@ export default function Privacy() {
           <ul className="list-disc pl-6 text-gray-300 space-y-2">
             <li>Pages visited</li>
             <li>General location (country/region level)</li>
-            <li>Device type and browser information</li>
+            <li>Device type and browser information, including screen width</li>
+            <li>Your browser&apos;s preferred language</li>
             <li>How you arrived at our site (referrer and campaign tags such as utm_source)</li>
           </ul>
 
