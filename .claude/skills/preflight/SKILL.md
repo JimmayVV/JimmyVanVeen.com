@@ -61,7 +61,9 @@ Record which path you took.
 
 - **The React Compiler runs in the build, not in Vitest.** Code that calls a component as a plain
   function (satori, any JSX-to-image renderer) throws "Invalid hook call" only in production.
-  Put `"use no memo";` at the top of that function. Step 4 is what catches this class of bug.
+  Put `"use no memo";` at the top of that function, and pin it in CI the way
+  `app/og/share-card.compiler.server.test.ts` does: compile with the build's Babel setup, with a
+  control case proving the check can fail.
 - **Emscripten aborts the process.** A missing `.wasm` kills the function outright, so a
   try/catch never gets to answer and the log is the only witness.
 - **The test setup is browser-shaped.** `config/test/setup.ts` mocks `fetch` and decorates
