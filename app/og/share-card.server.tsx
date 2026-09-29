@@ -102,13 +102,21 @@ export function clampText(text: string, max: number): string {
   return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s.,;:]+$/, "")}…`;
 }
 
+/**
+ * The card's top line, dated when the post has a date. The date lives up here
+ * because X, Bluesky and LinkedIn lay their own title label over the card's
+ * bottom-left corner, which hid a byline placed there.
+ */
+export function cardKicker(publishDate?: string): string {
+  const site = "JIMMYVANVEEN.COM / BLOG";
+  return publishDate ? `${site} · ${formatPostDate(publishDate).toUpperCase()}` : site;
+}
+
 function ShareCard({ title, description, publishDate }: ShareCardPost) {
   // Satori calls this as a plain function, outside React's renderer, so the
   // React Compiler's memo-cache hook would throw "Invalid hook call" here.
   // Vitest doesn't run the compiler, so only the production build shows it.
   "use no memo";
-
-  const byline = publishDate ? `Jimmy Van Veen · ${formatPostDate(publishDate)}` : "Jimmy Van Veen";
 
   return (
     <div
@@ -137,7 +145,7 @@ function ShareCard({ title, description, publishDate }: ShareCardPost) {
             color: PAPER_ACCENT,
           }}
         >
-          JIMMYVANVEEN.COM / BLOG
+          {cardKicker(publishDate)}
         </div>
         <div
           style={{
@@ -166,16 +174,6 @@ function ShareCard({ title, description, publishDate }: ShareCardPost) {
             {clampText(description, 190)}
           </div>
         ) : null}
-        <div
-          style={{
-            marginTop: "auto",
-            fontFamily: "JetBrains Mono",
-            fontSize: 22,
-            color: PAPER_MUTED,
-          }}
-        >
-          {byline}
-        </div>
       </div>
     </div>
   );
