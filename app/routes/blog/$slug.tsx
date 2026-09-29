@@ -182,6 +182,7 @@ export default function Post({ loaderData: blog }: Route.ComponentProps) {
 
         <PostFooter
           publishDate={blog.fields.publishDate}
+          slug={blog.fields.slug}
           discussion={discussionLinks(blog.fields)}
         />
       </main>

@@ -3,15 +3,19 @@ import { Link } from "react-router";
 import type { DiscussionLink } from "~/utils/discussion-links";
 import { formatPostDate } from "~/utils/format-post-date";
 
+import { ShareButtons } from "./share-buttons";
+
 interface PostFooterProps {
   publishDate: string;
+  /** The post's slug, for its share links. The buttons are omitted without one. */
+  slug?: string;
   /** Threads where this post is discussed. The line is omitted when empty. */
   discussion?: DiscussionLink[];
 }
 
 const NO_DISCUSSION: DiscussionLink[] = [];
 
-export function PostFooter({ publishDate, discussion = NO_DISCUSSION }: PostFooterProps) {
+export function PostFooter({ publishDate, slug, discussion = NO_DISCUSSION }: PostFooterProps) {
   return (
     <footer className="blog-post-footer">
       <div className="dateline">Posted {formatPostDate(publishDate)}</div>
@@ -29,6 +33,7 @@ export function PostFooter({ publishDate, discussion = NO_DISCUSSION }: PostFoot
           .
         </p>
       ) : null}
+      {slug ? <ShareButtons slug={slug} /> : null}
       <Link to="/blog" prefetch="intent" className="blog-back-link">
         ← All posts
       </Link>

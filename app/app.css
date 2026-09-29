@@ -229,6 +229,45 @@ a[target="_blank"]::after {
   color: var(--blog-accent-soft);
 }
 
+/* "Copy link for X / LinkedIn / Bluesky": tagged share links, one click each */
+.blog-share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blog-muted);
+}
+.blog-share-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--blog-rule);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--blog-accent);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+.blog-share-button:hover {
+  border-color: var(--blog-accent);
+}
+.blog-share-button:focus-visible {
+  outline: 2px solid var(--blog-accent);
+  outline-offset: 3px;
+}
+.blog-share-status {
+  min-width: 0;
+}
+
 /* "Discuss this post on X or Bluesky": the conversation lives there, not here */
 .blog-discuss {
   margin: 0.75rem 0 0;

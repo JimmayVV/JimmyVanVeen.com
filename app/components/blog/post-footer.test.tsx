@@ -37,4 +37,9 @@ describe("PostFooter", () => {
     expect(screen.queryByText(/Discuss this post on/)).toBeNull();
     expect(screen.getByRole("link", { name: /All posts/ })).toBeTruthy();
   });
+
+  it("offers share-link buttons when it knows the post's slug", () => {
+    renderFooter({ publishDate: "2026-09-28", slug: "auto-merge-for-a-fleet-of-one" });
+    expect(screen.getByRole("button", { name: "Copy link for X" })).toBeTruthy();
+  });
 });
