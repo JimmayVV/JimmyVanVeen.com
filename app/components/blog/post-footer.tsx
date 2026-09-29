@@ -21,7 +21,7 @@ export function PostFooter({ publishDate, slug, discussion = NO_DISCUSSION }: Po
       <div className="dateline">Posted {formatPostDate(publishDate)}</div>
       {discussion.length > 0 ? (
         <p className="blog-discuss">
-          Discuss this post on{" "}
+          Talk about this post on{" "}
           {discussion.map((link, index) => (
             <span key={link.platform}>
               {index > 0 ? " or " : null}
@@ -33,10 +33,12 @@ export function PostFooter({ publishDate, slug, discussion = NO_DISCUSSION }: Po
           .
         </p>
       ) : null}
-      {slug ? <ShareButtons slug={slug} /> : null}
-      <Link to="/blog" prefetch="intent" className="blog-back-link">
-        ← All posts
-      </Link>
+      <div className="blog-post-footer-row">
+        <Link to="/blog" prefetch="intent" className="blog-back-link">
+          ← All posts
+        </Link>
+        {slug ? <ShareButtons slug={slug} /> : null}
+      </div>
     </footer>
   );
 }

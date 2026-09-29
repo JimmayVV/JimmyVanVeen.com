@@ -27,14 +27,14 @@ describe("PostFooter", () => {
     expect(screen.getByRole("link", { name: "Bluesky" }).getAttribute("href")).toBe(
       "https://bsky.app/profile/jimmyvanveen.com/post/abc",
     );
-    expect(screen.getByText(/Discuss this post on/).textContent).toBe(
-      "Discuss this post on X or Bluesky.",
+    expect(screen.getByText(/Talk about this post on/).textContent).toBe(
+      "Talk about this post on X or Bluesky.",
     );
   });
 
   it("omits the line entirely when the post has no threads", () => {
     renderFooter({ publishDate: "2026-09-28" });
-    expect(screen.queryByText(/Discuss this post on/)).toBeNull();
+    expect(screen.queryByText(/Talk about this post on/)).toBeNull();
     // No slug, no share links: the buttons would have nothing to build.
     expect(screen.queryByRole("button", { name: /Copy link/ })).toBeNull();
     expect(screen.getByRole("link", { name: /All posts/ })).toBeTruthy();
