@@ -134,6 +134,7 @@ test.describe("crawler surface", () => {
     expect(profile.mainEntity.sameAs).toEqual([
       "https://github.com/JimmayVV",
       "https://bsky.app/profile/jimmyvanveen.com",
+      "https://x.com/JimmayVV",
     ]);
   });
 

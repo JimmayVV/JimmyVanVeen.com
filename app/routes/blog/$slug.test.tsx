@@ -10,20 +10,27 @@ import { meta } from "./$slug";
 
 type MetaArgs = Parameters<typeof meta>[0];
 
-function ogImage(descriptors: ReturnType<typeof meta>): string | undefined {
+function property(descriptors: ReturnType<typeof meta>, name: string): string | undefined {
   for (const descriptor of descriptors) {
     const d: unknown = descriptor;
-    if (isRecord(d) && d["property"] === "og:image" && typeof d["content"] === "string") {
+    if (isRecord(d) && d["property"] === name && typeof d["content"] === "string") {
       return d["content"];
     }
   }
   return undefined;
 }
 
+const ogImage = (descriptors: ReturnType<typeof meta>) => property(descriptors, "og:image");
+
+const defaultFields: Record<string, unknown> = {
+  title: "Auto-Merge for a Fleet of One",
+  publishDate: "2026-09-28",
+};
+
 const argsFor = (fields: Record<string, unknown>) =>
   fromPartial<MetaArgs>({
     params: { slug: "auto-merge-for-a-fleet-of-one" },
-    loaderData: { fields: { title: "Auto-Merge for a Fleet of One", ...fields } },
+    loaderData: { fields: { ...defaultFields, ...fields } },
   });
 
 describe("blog post meta", () => {
@@ -39,5 +46,22 @@ describe("blog post meta", () => {
     });
 
     expect(ogImage(meta(withImage))).toBe("https://images.ctfassets.net/space/asset/cover.jpg");
+  });
+
+  it("sizes the rendered card, and leaves a Contentful image unsized", () => {
+    const card = meta(argsFor({}));
+    expect(property(card, "og:image:width")).toBe("1200");
+    expect(property(card, "og:image:height")).toBe("630");
+
+    const withImage = meta(
+      argsFor({ image: { fields: { file: { url: "//images.ctfassets.net/a/b/c.jpg" } } } }),
+    );
+    expect(property(withImage, "og:image:width")).toBeUndefined();
+  });
+
+  it("carries the article's publish date and author", () => {
+    const descriptors = meta(argsFor({}));
+    expect(property(descriptors, "article:published_time")).toBe("2026-09-28");
+    expect(property(descriptors, "article:author")).toBe("https://www.jimmyvanveen.com/about");
   });
 });
