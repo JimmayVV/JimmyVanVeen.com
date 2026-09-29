@@ -4,6 +4,7 @@ import type { DiscussionLink } from "~/utils/discussion-links";
 import { formatPostDate } from "~/utils/format-post-date";
 
 import { ShareButtons } from "./share-buttons";
+import { XLogo } from "./x-logo";
 
 interface PostFooterProps {
   publishDate: string;
@@ -20,18 +21,27 @@ export function PostFooter({ publishDate, slug, discussion = NO_DISCUSSION }: Po
     <footer className="blog-post-footer">
       <div className="dateline">Posted {formatPostDate(publishDate)}</div>
       {discussion.length > 0 ? (
-        <p className="blog-discuss">
-          Talk about this post on{" "}
-          {discussion.map((link, index) => (
-            <span key={link.platform}>
-              {index > 0 ? " or " : null}
-              <a href={link.href} target="_blank" rel="noreferrer">
-                {link.platform}
+        <aside className="blog-discuss" aria-label="Discuss this post">
+          <p className="blog-discuss-lede">Disagree? Tell me.</p>
+          <p className="blog-discuss-body">
+            The conversation about this post is on{" "}
+            {discussion.map((link) => link.platform).join(" and ")}.
+          </p>
+          <div className="blog-discuss-actions">
+            {discussion.map((link) => (
+              <a
+                key={link.platform}
+                className="blog-discuss-button"
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {link.platform === "X" ? <XLogo size={15} /> : null}
+                Reply on {link.platform}
               </a>
-            </span>
-          ))}
-          .
-        </p>
+            ))}
+          </div>
+        </aside>
       ) : null}
       <div className="blog-post-footer-row">
         <Link to="/blog" prefetch="intent" className="blog-back-link">

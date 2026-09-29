@@ -1,5 +1,5 @@
 /**
- * The places a post is discussed, for the "Talk about this post on" line in its
+ * The places a post is discussed, for the "Disagree? Tell me." invitation in its
  * footer. The conversation lives on X and Bluesky rather than in a comments
  * section here: replies there are seen by the people who follow the thread, and
  * there is nothing to moderate or store on this site.
