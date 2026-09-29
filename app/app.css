@@ -285,8 +285,9 @@ a[target="_blank"]::after {
 }
 
 /* The back link and the author's copy-link shortcuts share one quiet row.
-   The shortcuts are for the author, so they sit right and stay muted until
-   hovered or focused. */
+   The shortcuts are for the author, so they sit right, small and muted. Muted
+   by colour only: --blog-muted keeps AA contrast in both themes, and an
+   opacity fade on top of it would not. */
 .blog-post-footer-row {
   display: flex;
   flex-wrap: wrap;
@@ -306,16 +307,11 @@ a[target="_blank"]::after {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--blog-muted);
-  opacity: 0.7;
-  transition: opacity 150ms ease;
-}
-.blog-share:hover,
-.blog-share:focus-within {
-  opacity: 1;
 }
 .blog-share-button {
   display: inline-flex;
   align-items: center;
+  min-height: 2rem;
   padding: 0.25rem 0;
   border: 0;
   background: none;
@@ -337,11 +333,6 @@ a[target="_blank"]::after {
 }
 .blog-share-status {
   color: var(--blog-accent);
-}
-@media (prefers-reduced-motion: reduce) {
-  .blog-share {
-    transition: none;
-  }
 }
 
 /* Reading progress hairline */
