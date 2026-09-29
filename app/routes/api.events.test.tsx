@@ -1,3 +1,4 @@
+import { fetchBody } from "../../config/test/mock-fetch";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { type RouterContextProvider } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -192,6 +193,40 @@ describe("Analytics API Route", () => {
       responses.forEach((response) => {
         expect(response.status).toBe(200);
       });
+    });
+  });
+
+  describe("GoatCounter forwarding", () => {
+    beforeEach(() => {
+      vi.stubEnv("GOATCOUNTER_SITE_CODE", "jimmyvanveen");
+      vi.stubEnv("GOATCOUNTER_API_TOKEN", "test_token_1234567890");
+      return () => vi.unstubAllEnvs();
+    });
+
+    const pageView = { event: "page_view", properties: { page_path: "/" } };
+
+    it("forwards Netlify's client IP ahead of x-forwarded-for", async () => {
+      const request = createMockRequest("POST", pageView, {
+        "x-nf-client-connection-ip": "198.51.100.7",
+        "x-forwarded-for": "203.0.113.1, 10.0.0.1",
+      });
+
+      await action(mockArgs(request));
+
+      expect(fetchBody(0).hits[0]).toMatchObject({
+        ip: "198.51.100.7",
+        user_agent: "Mozilla/5.0 Test Browser",
+      });
+    });
+
+    it("falls back to the first x-forwarded-for address", async () => {
+      const request = createMockRequest("POST", pageView, {
+        "x-forwarded-for": "203.0.113.1, 10.0.0.1",
+      });
+
+      await action(mockArgs(request));
+
+      expect(fetchBody(0).hits[0].ip).toBe("203.0.113.1");
     });
   });
 
