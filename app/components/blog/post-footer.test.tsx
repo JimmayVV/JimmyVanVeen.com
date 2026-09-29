@@ -10,7 +10,7 @@ function renderFooter(props: Parameters<typeof PostFooter>[0]) {
 }
 
 describe("PostFooter", () => {
-  it("links each discussion thread, opening in a new tab", () => {
+  it("invites a reply on each discussion thread, opening in a new tab", () => {
     renderFooter({
       publishDate: "2026-09-28",
       discussion: [
@@ -19,22 +19,31 @@ describe("PostFooter", () => {
       ],
     });
 
-    const x = screen.getByRole("link", { name: "X" });
+    expect(screen.getByText("Disagree? Tell me.")).toBeTruthy();
+    expect(screen.getByText("The conversation about this post is on X and Bluesky.")).toBeTruthy();
+
+    const x = screen.getByRole("link", { name: "Reply on X" });
     expect(x.getAttribute("href")).toBe("https://x.com/JimmayVV/status/1");
     expect(x.getAttribute("target")).toBe("_blank");
     // Matches every other outbound link on the site: no opener, no referrer.
     expect(x.getAttribute("rel")).toBe("noreferrer");
-    expect(screen.getByRole("link", { name: "Bluesky" }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: "Reply on Bluesky" }).getAttribute("href")).toBe(
       "https://bsky.app/profile/jimmyvanveen.com/post/abc",
-    );
-    expect(screen.getByText(/Discuss this post on/).textContent).toBe(
-      "Discuss this post on X or Bluesky.",
     );
   });
 
-  it("omits the line entirely when the post has no threads", () => {
+  it("names only the platforms a post has a thread on", () => {
+    renderFooter({
+      publishDate: "2026-09-28",
+      discussion: [{ platform: "X", href: "https://x.com/JimmayVV/status/1" }],
+    });
+    expect(screen.getByText("The conversation about this post is on X.")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Reply on Bluesky" })).toBeNull();
+  });
+
+  it("omits the invitation entirely when the post has no threads", () => {
     renderFooter({ publishDate: "2026-09-28" });
-    expect(screen.queryByText(/Discuss this post on/)).toBeNull();
+    expect(screen.queryByText("Disagree? Tell me.")).toBeNull();
     // No slug, no share links: the buttons would have nothing to build.
     expect(screen.queryByRole("button", { name: /Copy link/ })).toBeNull();
     expect(screen.getByRole("link", { name: /All posts/ })).toBeTruthy();

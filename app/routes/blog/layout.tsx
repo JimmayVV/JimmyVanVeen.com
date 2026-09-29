@@ -2,7 +2,8 @@ import { Outlet } from "react-router";
 
 import type { Route } from "./+types/layout";
 
-// Fraunces is only used for the long-post drop cap (italic axis), so it
+// Fraunces is only used for the long-post drop cap and the post footer's
+// "Disagree? Tell me." lede (italic axis), so it
 // loads on /blog/* routes only — non-blog pages don't pay the cost.
 export const links: Route.LinksFunction = () => [
   {
