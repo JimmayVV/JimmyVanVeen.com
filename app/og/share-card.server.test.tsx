@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import {
   SHARE_CARD_HEIGHT,
   SHARE_CARD_WIDTH,
+  cardKicker,
   clampText,
   renderShareCard,
   titleSize,
@@ -62,5 +63,15 @@ describe("clampText", () => {
 
   it("drops trailing punctuation before the ellipsis", () => {
     expect(clampText("first clause, second clause", 14)).toBe("first clause…");
+  });
+});
+
+describe("cardKicker", () => {
+  it("dates the top line, clear of the corner social platforms label over", () => {
+    expect(cardKicker("2026-09-28")).toBe("JIMMYVANVEEN.COM / BLOG · SEPTEMBER 28, 2026");
+  });
+
+  it("leaves the date off when the post has none", () => {
+    expect(cardKicker()).toBe("JIMMYVANVEEN.COM / BLOG");
   });
 });
