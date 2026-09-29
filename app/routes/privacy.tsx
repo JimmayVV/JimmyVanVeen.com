@@ -41,7 +41,7 @@ export default function Privacy() {
       <div className="prose prose-invert max-w-none space-y-8">
         <section>
           <p className="text-lg text-gray-300 mb-6">
-            <strong>Last updated:</strong> September 16, 2025
+            <strong>Last updated:</strong> September 29, 2026
           </p>
 
           <p className="text-gray-300">
@@ -59,11 +59,10 @@ export default function Privacy() {
             understanding site usage, including:
           </p>
           <ul className="list-disc pl-6 text-gray-300 space-y-2">
-            <li>Pages visited and time spent on each page</li>
+            <li>Pages visited</li>
             <li>General location (country/region level)</li>
             <li>Device type and browser information</li>
-            <li>How you arrived at our site (referrer)</li>
-            <li>Basic interaction data for functionality improvements</li>
+            <li>How you arrived at our site (referrer and campaign tags such as utm_source)</li>
           </ul>
 
           <h3 className="text-xl font-medium mb-2 mt-6 text-gray-200">Contact Form Data</h3>
@@ -98,8 +97,9 @@ export default function Privacy() {
           <h2 className="text-2xl font-semibold mb-4 text-white">Data Sharing</h2>
           <p className="text-gray-300">
             We do <strong>not</strong> sell, rent, or share your personal information with third
-            parties. Analytics data is processed through Google Analytics 4, and contact forms are
-            handled through our hosting provider (Netlify) for functionality purposes only.
+            parties. Page views are sent from our server to GoatCounter, a privacy-focused analytics
+            service, and contact forms are handled through our hosting provider (Netlify) for
+            functionality purposes only.
           </p>
         </section>
 
@@ -112,10 +112,6 @@ export default function Privacy() {
             <li>
               <strong>Browser settings:</strong> Enable &quot;Do Not Track&quot; in your browser
               preferences
-            </li>
-            <li>
-              <strong>Ad blockers:</strong> Most ad blockers automatically prevent analytics
-              tracking
             </li>
             <li>
               <strong>Contact us:</strong> Email us through our{" "}
@@ -139,7 +135,11 @@ export default function Privacy() {
           </p>
           <ul className="list-disc pl-6 text-gray-300 space-y-2">
             <li>All data transmission uses HTTPS encryption</li>
-            <li>Analytics data is anonymized and aggregated</li>
+            <li>
+              Analytics is cookie-free. Your IP address and browser user agent are passed to
+              GoatCounter to derive country, browser, and unique-visit counts; GoatCounter does not
+              store the IP address or the full user agent, and reports only aggregate statistics
+            </li>
             <li>Contact form data is processed securely and not stored long-term</li>
             <li>We retain only the minimum data necessary for the stated purposes</li>
           </ul>
@@ -152,7 +152,7 @@ export default function Privacy() {
           </p>
           <ul className="list-disc pl-6 text-gray-300 space-y-2">
             <li>
-              <strong>Google Analytics 4:</strong> For website analytics and security monitoring
+              <strong>GoatCounter:</strong> For privacy-focused, cookie-free website analytics
             </li>
             <li>
               <strong>Netlify:</strong> For website hosting and contact form processing
