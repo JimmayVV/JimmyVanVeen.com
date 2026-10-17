@@ -14,6 +14,7 @@ import json
 import os
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 
 API = "https://jimmyvanveen.goatcounter.com/api/v0"
@@ -22,7 +23,7 @@ SECTIONS = ["toprefs", "campaigns", "browsers", "systems", "locations", "sizes",
 
 
 def get(path, params):
-    query = "&".join(f"{k}={v}" for k, v in params.items())
+    query = urllib.parse.urlencode(params, safe="/")
     req = urllib.request.Request(
         f"{API}{path}?{query}",
         headers={"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"},
@@ -40,8 +41,7 @@ def rows(items, width=4):
 
 
 def page_report(rng, wanted):
-    # /stats/total rejects "limit"; /stats/hits pages through 100 at most
-    hits = get("/stats/hits", {**rng, "limit": 100})["hits"]
+    hits = get("/stats/hits", {**rng, "include_paths": wanted, "path_by_name": "true"})["hits"]
     match = next((h for h in hits if h["path"] == wanted), None)
     if match is None:
         print(f"{wanted}: no visits {rng['start']} to {rng['end']}")
@@ -53,6 +53,7 @@ def page_report(rng, wanted):
 
 
 def site_report(rng):
+    # /stats/total rejects "limit"; the list endpoints take it
     total = get("/stats/total", rng)
     print(f"TOTAL  {total['total']} visitors ({rng['start']} to {rng['end']}, UTC days)")
     print("daily: " + " ".join(f"{d['day'][5:]}={d['daily']}" for d in total["stats"]))
@@ -73,6 +74,8 @@ if __name__ == "__main__":
     path = None
     if "--path" in args:
         i = args.index("--path")
+        if i + 1 >= len(args):
+            sys.exit("--path needs a page, e.g. --path /blog/some-slug")
         path = args[i + 1]
         del args[i : i + 2]
 
