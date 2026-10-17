@@ -50,6 +50,8 @@ test.describe("crawler surface", () => {
     const body = await res.text();
     expect(body).toContain("<loc>https://www.jimmyvanveen.com</loc>");
     expect(body).toContain("<loc>https://www.jimmyvanveen.com/about</loc>");
+    expect(body).toContain("<loc>https://www.jimmyvanveen.com/exhibits</loc>");
+    expect(body).toContain("<loc>https://www.jimmyvanveen.com/exhibits/garden-ice</loc>");
 
     // Documented as ignored by Google; emitting them was noise.
     expect(body).not.toContain("<changefreq>");
@@ -72,6 +74,11 @@ test.describe("crawler surface", () => {
     { path: "/", title: "Jimmy Van Veen — Web Engineer in Greater Boston" },
     { path: "/about", title: "About · Jimmy Van Veen" },
     { path: "/privacy", title: "Privacy Policy · Jimmy Van Veen" },
+    { path: "/exhibits", title: "Exhibits · Jimmy Van Veen" },
+    {
+      path: "/exhibits/garden-ice",
+      title: "How the old Boston Garden ice compares with TD Garden · Jimmy Van Veen",
+    },
   ];
 
   for (const { path, title } of pages) {
@@ -108,6 +115,8 @@ test.describe("crawler surface", () => {
   const mustRenderServerSide = [
     { path: "/about", needle: "What I build" },
     { path: "/privacy", needle: "Information We Collect" },
+    { path: "/exhibits", needle: "The old Boston Garden rink and the TD Garden rink" },
+    { path: "/exhibits/garden-ice", needle: "Where the extra ice went" },
   ];
 
   for (const { path, needle } of mustRenderServerSide) {
