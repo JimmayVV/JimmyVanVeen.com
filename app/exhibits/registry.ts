@@ -11,15 +11,17 @@ export interface Exhibit {
   published: string;
 }
 
-export const EXHIBITS: readonly Exhibit[] = [
+export const EXHIBITS = [
   {
     slug: "garden-ice",
     title: "Garden ice",
     summary:
-      "The old Boston Garden rink and the TD Garden rink at true scale, centered on the same red line: in plan, in 3D, and back in a 1995 photograph.",
+      "The old Boston Garden rink and the TD Garden rink at true scale, centered on the same red line: in plan, in 3D, and drawn over photographs of both buildings.",
     published: "2026-10-17",
   },
-];
+] as const satisfies readonly Exhibit[];
+
+export type ExhibitSlug = (typeof EXHIBITS)[number]["slug"];
 
 export function findExhibit(slug: string): Exhibit {
   const exhibit = EXHIBITS.find((e) => e.slug === slug);

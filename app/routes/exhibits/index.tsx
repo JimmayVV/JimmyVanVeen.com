@@ -4,7 +4,7 @@ import { Link } from "react-router";
 import exhibitStyles from "~/exhibits/exhibits.css?url";
 import { OLD_GARDEN, TD_GARDEN } from "~/exhibits/garden-ice/geometry";
 import { RinkPlan } from "~/exhibits/garden-ice/rink-plan";
-import { EXHIBITS } from "~/exhibits/registry";
+import { EXHIBITS, type ExhibitSlug } from "~/exhibits/registry";
 import { formatPostDate } from "~/utils/format-post-date";
 import { trackPageView } from "~/utils/analytics-loader";
 import { buildMeta } from "~/utils/seo";
@@ -32,8 +32,8 @@ export async function clientLoader() {
 }
 clientLoader.hydrate = true;
 
-/** Each exhibit's thumbnail; a new exhibit adds its own here. */
-const THUMBNAILS: Record<string, ReactNode> = {
+/** Each exhibit's thumbnail. Keyed by slug, so a new exhibit without one fails to compile. */
+const THUMBNAILS: Record<ExhibitSlug, ReactNode> = {
   "garden-ice": (
     <RinkPlan old={OLD_GARDEN} modern={TD_GARDEN} era="both" unit="ft" labels={false} />
   ),

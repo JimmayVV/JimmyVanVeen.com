@@ -512,14 +512,16 @@ fieldset.segmented,
   background: var(--stage-bg);
 }
 
-.photo-frame img {
+.photo-frame img,
+.photo-frame canvas {
   display: block;
   width: 100%;
   height: auto;
   transition: filter 300ms ease;
 }
 
-.photo-frame.is-dim img {
+.photo-frame.is-dim img,
+.photo-frame.is-dim canvas {
   filter: brightness(0.55) saturate(0.7);
 }
 

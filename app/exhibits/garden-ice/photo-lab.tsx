@@ -23,8 +23,9 @@ import { type Anchor, REFERENCE_PHOTOS, type ReferencePhoto, defaultAnchors } fr
 
 type Anchors = ReferencePhoto["anchors"];
 
+/** The visitor's own photo, decoded in the browser. It never becomes a URL. */
 interface Upload {
-  src: string;
+  bitmap: ImageBitmap;
   width: number;
   height: number;
   arena: RinkId;
@@ -99,17 +100,6 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-/**
- * A same-document blob: URL for the visitor's file, or null. The file never
- * leaves the browser; checking the scheme keeps anything else out of <img src>.
- */
-function blobUrl(file: File): string | null {
-  const url = URL.createObjectURL(file);
-  if (new URL(url).protocol === "blob:") return url;
-  URL.revokeObjectURL(url);
-  return null;
-}
-
 export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
   const id = React.useId();
   const first = REFERENCE_PHOTOS[0];
@@ -122,22 +112,21 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
   const [adjusting, setAdjusting] = React.useState(false);
   const [uploadError, setUploadError] = React.useState<string | null>(null);
   const frameRef = React.useRef<HTMLDivElement>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const dragging = React.useRef<number | null>(null);
 
   const preset = REFERENCE_PHOTOS.find((p) => p.id === photoId);
   const showingUpload = photoId === "upload" && upload !== null;
   const photo = showingUpload
-    ? { src: upload.src, width: upload.width, height: upload.height, arena: upload.arena }
+    ? { width: upload.width, height: upload.height, arena: upload.arena }
     : preset;
 
-  // Free the visitor's photo when it's replaced or the page goes away.
-  const uploadSrc = upload?.src;
-  React.useEffect(
-    () => () => {
-      if (uploadSrc) URL.revokeObjectURL(uploadSrc);
-    },
-    [uploadSrc],
-  );
+  // Paint the visitor's photo onto the canvas; free it when it's replaced or the page goes away.
+  const bitmap = upload?.bitmap;
+  React.useEffect(() => {
+    if (showingUpload && bitmap) canvasRef.current?.getContext("2d")?.drawImage(bitmap, 0, 0);
+  }, [showingUpload, bitmap]);
+  React.useEffect(() => () => bitmap?.close(), [bitmap]);
 
   if (!photo) return null;
 
@@ -177,23 +166,21 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
       setUploadError(`“${file.name}” isn’t an image. Choose a JPEG, PNG or WebP photo.`);
       return;
     }
-    const src = blobUrl(file);
-    if (!src) {
-      setUploadError("This browser couldn’t open that photo.");
-      return;
-    }
-    const image = new Image();
-    image.addEventListener("load", () => {
-      setUpload({ src, width: image.naturalWidth, height: image.naturalHeight, arena: "modern" });
-      setAnchorsById(({ upload: _discard, ...rest }) => rest);
-      setPhotoId("upload");
-      setAdjusting(true);
-    });
-    image.addEventListener("error", () => {
-      URL.revokeObjectURL(src);
-      setUploadError(`“${file.name}” couldn’t be read as an image. Try another photo.`);
-    });
-    image.src = src;
+    createImageBitmap(file)
+      .then((decoded) => {
+        setUpload((previous) => ({
+          bitmap: decoded,
+          width: decoded.width,
+          height: decoded.height,
+          arena: previous?.arena ?? "modern",
+        }));
+        setAnchorsById(({ upload: _discard, ...rest }) => rest);
+        setPhotoId("upload");
+        setAdjusting(true);
+      })
+      .catch(() => {
+        setUploadError(`“${file.name}” couldn’t be read as an image. Try another photo.`);
+      });
   }
 
   const both = oldStrength > 0 && modernStrength > 0;
@@ -244,13 +231,22 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
         className={`photo-frame${dim ? " is-dim" : ""}${adjusting ? " is-adjusting" : ""}`}
         style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
       >
-        <img
-          src={photo.src}
-          width={photo.width}
-          height={photo.height}
-          alt={showingUpload ? "Your photo" : (preset?.alt ?? "")}
-          decoding="async"
-        />
+        {showingUpload ? (
+          <canvas
+            ref={canvasRef}
+            width={photo.width}
+            height={photo.height}
+            aria-label="Your photo"
+          />
+        ) : (
+          <img
+            src={preset?.src}
+            width={photo.width}
+            height={photo.height}
+            alt={preset?.alt ?? ""}
+            decoding="async"
+          />
+        )}
         {h && (
           <svg
             viewBox={`0 0 ${photo.width} ${photo.height}`}

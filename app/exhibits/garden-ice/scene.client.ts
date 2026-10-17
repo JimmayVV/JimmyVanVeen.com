@@ -20,8 +20,9 @@ import {
   perimeter,
 } from "./geometry";
 
-export type ViewerMode = "both" | "split" | "old" | "modern";
-export type CameraView = "stands" | "overhead" | "ice";
+import { type CameraView, type ViewerMode, framing, visibility } from "./scene-layout";
+
+export type { CameraView, ViewerMode } from "./scene-layout";
 
 export interface SceneState {
   old: Rink;
@@ -648,18 +649,16 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
 
   function applyVisibility() {
     if (!parts) return;
-    const { mode } = state;
-    parts.old.group.visible = mode === "old" || mode === "split";
-    parts.modern.group.visible = mode === "modern" || mode === "both" || mode === "split";
-    parts.oldGhost.group.visible = mode === "both";
+    const show = visibility(state.mode, view, state);
+    parts.old.group.visible = show.old;
+    parts.modern.group.visible = show.modern;
+    parts.oldGhost.group.visible = show.oldGhost;
     const extra = world.userData["extra"];
-    if (extra instanceof THREE.Object3D) extra.visible = mode === "both";
+    if (extra instanceof THREE.Object3D) extra.visible = show.extraIce;
     for (const model of [parts.old, parts.modern, parts.oldGhost]) {
-      model.boards.visible = state.boards;
-      // At ice level the labels float in front of the boards they describe.
-      model.dimensions.visible = state.dimensions && view !== "ice";
+      model.boards.visible = show.boards;
+      model.dimensions.visible = show.dimensions;
     }
-    // In side by side, each half gets its own rink, so its dimensions sit on the near side.
     resize();
   }
 
@@ -689,12 +688,10 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
     const { width, height } = container.getBoundingClientRect();
     if (!width || !height) return;
     renderer.setSize(width, height, false);
-    const aspect = (state.mode === "split" ? width / 2 : width) / height;
+    const { aspect, fov, overheadHalfHeight: half } = framing(width, height, state.mode);
     perspective.aspect = aspect;
-    perspective.fov =
-      (2 * Math.atan(Math.tan((42 * Math.PI) / 360) * Math.max(1, 1.3 / aspect)) * 180) / Math.PI;
+    perspective.fov = fov;
     perspective.updateProjectionMatrix();
-    const half = Math.max(70, 120 / aspect);
     ortho.left = -half * aspect;
     ortho.right = half * aspect;
     ortho.top = half;
