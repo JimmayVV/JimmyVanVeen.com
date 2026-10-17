@@ -14,7 +14,7 @@ const PUBLIC_DIR = join(import.meta.dirname, "..", "..", "..", "public");
 describe("reference photos", () => {
   it.each(REFERENCE_PHOTOS)("$id ships its image and an open licence", (photo) => {
     expect(existsSync(join(PUBLIC_DIR, photo.src))).toBe(true);
-    expect(photo.credit.license).toMatch(/^CC BY/);
+    expect(photo.credit.license).toMatch(/^(CC BY|Public domain)/);
     expect(photo.credit.source).toMatch(/^https:\/\/commons\.wikimedia\.org\//);
   });
 
@@ -78,7 +78,9 @@ describe("PhotoLab", () => {
     const first = REFERENCE_PHOTOS[0];
     expect(html).toContain(`src="${first?.src}"`);
     expect(html).toContain(first?.credit.author);
-    expect(html).toContain(first?.credit.license);
+    expect(html).toContain(
+      first?.credit.license === "Public domain" ? "in the public domain" : first?.credit.license,
+    );
   });
 
   it("draws both rinks and the ice between them", () => {

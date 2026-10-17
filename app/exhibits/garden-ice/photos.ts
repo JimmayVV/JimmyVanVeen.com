@@ -30,6 +30,32 @@ export interface ReferencePhoto {
 
 export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
   {
+    id: "td-end-2008",
+    label: "TD Garden from behind a net",
+    arena: "modern",
+    src: "/exhibits/garden-ice/td-garden-from-end-2008.jpg",
+    width: 2400,
+    height: 1600,
+    alt: "An empty TD Garden before a game in 2008, seen from high above one end, the whole rink laid out below.",
+    lookFor:
+      "From behind a net the whole difference is in view: the Garden’s end boards stand four and a half feet inside today’s at both ends, and its end-zone circles sit that much closer to center ice.",
+    credit: {
+      author: "AEJ",
+      year: "2008",
+      source: "https://commons.wikimedia.org/wiki/File:TDBanknorthGardenBeforeGame.jpg",
+      license: "Public domain",
+      licenseUrl: "https://commons.wikimedia.org/wiki/File:TDBanknorthGardenBeforeGame.jpg",
+    },
+    // Least-squares fit to seven landmarks (all four end-zone dots, two
+    // neutral-zone dots, the far net); worst residual under 5 px at 3840 px wide.
+    anchors: [
+      { landmark: "dot-left-far", at: [1031.8, 1195.7] },
+      { landmark: "dot-left-near", at: [1727.3, 1133.6] },
+      { landmark: "dot-right-far", at: [909.6, 663.4] },
+      { landmark: "dot-right-near", at: [1257.6, 648.9] },
+    ],
+  },
+  {
     id: "td-corner-2014",
     label: "TD Garden from a corner",
     arena: "modern",
@@ -47,35 +73,13 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
       license: "CC BY 2.0",
       licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
     },
+    // Least-squares fit to seven landmarks (far net, near end-zone dots, center,
+    // both blue lines at the far boards, a neutral-zone dot); worst residual 9 px.
     anchors: [
-      { landmark: "net-left", at: [510, 990] },
-      { landmark: "net-right", at: [1248, 636] },
-      { landmark: "blue-right-far", at: [782, 671] },
-      { landmark: "blue-left-far", at: [539, 746] },
-    ],
-  },
-  {
-    id: "td-end-2008",
-    label: "TD Garden from the end",
-    arena: "modern",
-    src: "/exhibits/garden-ice/td-garden-end-2008.jpg",
-    width: 1920,
-    height: 1440,
-    alt: "TD Garden before a Bruins game in 2008, seen from high above one end, with team logos projected on the ice.",
-    lookFor:
-      "Looking down the length, the near end-zone circles show it: the Garden’s sit closer to center ice, because its end zones were four feet shallower.",
-    credit: {
-      author: "Danger Dad",
-      year: "2008",
-      source: "https://commons.wikimedia.org/wiki/File:Bruins_Home_Turf_-_panoramio.jpg",
-      license: "CC BY 3.0",
-      licenseUrl: "https://creativecommons.org/licenses/by/3.0/",
-    },
-    anchors: [
-      { landmark: "dot-left-far", at: [496, 1288] },
-      { landmark: "dot-left-near", at: [1338, 1322] },
-      { landmark: "blue-right-far", at: [557, 830] },
-      { landmark: "blue-right-near", at: [1534, 830] },
+      { landmark: "net-right", at: [1245.8, 634.2] },
+      { landmark: "dot-left-far", at: [389.4, 878.1] },
+      { landmark: "dot-left-near", at: [1000.1, 969.1] },
+      { landmark: "blue-right-far", at: [782, 673.7] },
     ],
   },
   {

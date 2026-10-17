@@ -406,10 +406,16 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
             <a href={preset.credit.source} target="_blank" rel="noreferrer">
               Wikimedia Commons
             </a>
-            , licensed{" "}
-            <a href={preset.credit.licenseUrl} target="_blank" rel="noreferrer">
-              {preset.credit.license}
-            </a>
+            {preset.credit.license === "Public domain" ? (
+              ", in the public domain"
+            ) : (
+              <>
+                , licensed{" "}
+                <a href={preset.credit.licenseUrl} target="_blank" rel="noreferrer">
+                  {preset.credit.license}
+                </a>
+              </>
+            )}
             , shown unmodified. The rinks are drawn on a separate layer.
           </p>
         )}
