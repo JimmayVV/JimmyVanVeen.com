@@ -24,6 +24,13 @@ export default defineConfig({
     reactRouter(),
     netlifyReactRouter(),
   ],
+  build: {
+    // The Garden Ice exhibit's 3D chunk is Three.js, about 630 kB minified on its
+    // own, so no split gets it under the 500 kB default. It is loaded with a
+    // dynamic import, only when that exhibit's viewer nears the screen. The limit
+    // sits just above it so any other oversized chunk still warns.
+    chunkSizeWarningLimit: 700,
+  },
   envPrefix: "JVV",
   envDir: "./config/env",
   resolve: {

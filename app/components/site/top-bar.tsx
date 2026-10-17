@@ -6,6 +6,7 @@ import { ThemeToggle } from "~/components/site/theme-toggle";
 const SECTIONS = [
   { label: "Home", to: "/" },
   { label: "Blog", to: "/blog" },
+  { label: "Exhibits", to: "/exhibits" },
   { label: "About", to: "/about" },
 ] as const;
 

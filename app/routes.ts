@@ -8,6 +8,10 @@ export default [
       route(":slug", "routes/blog/$slug.tsx"),
     ]),
   ]),
+  ...prefix("exhibits", [
+    index("routes/exhibits/index.tsx"),
+    route("garden-ice", "routes/exhibits/garden-ice.tsx"),
+  ]),
   route("about", "routes/about.tsx"),
   route("email", "routes/email.tsx"),
   route("privacy", "routes/privacy.tsx"),
