@@ -29,9 +29,11 @@ def get(path, params):
         headers={"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"},
     )
     try:
-        return json.load(urllib.request.urlopen(req))
+        return json.load(urllib.request.urlopen(req, timeout=15))
     except urllib.error.HTTPError as e:
         sys.exit(f"GoatCounter {path} answered {e.code}: {e.read().decode()[:200]}")
+    except (urllib.error.URLError, TimeoutError) as e:
+        sys.exit(f"Could not reach GoatCounter for {path}: {getattr(e, 'reason', e)}")
 
 
 def rows(items, width=4):
