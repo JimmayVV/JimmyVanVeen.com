@@ -12,7 +12,7 @@ import {
   iceArea,
   zoneDepth,
 } from "~/exhibits/garden-ice/geometry";
-import { PhotoOverlay } from "~/exhibits/garden-ice/photo-overlay";
+import { PhotoLab } from "~/exhibits/garden-ice/photo-lab";
 import { type Era, RinkPlan } from "~/exhibits/garden-ice/rink-plan";
 import { RinkViewer } from "~/exhibits/garden-ice/rink-viewer";
 import { findExhibit } from "~/exhibits/registry";
@@ -224,15 +224,19 @@ export default function GardenIce() {
 
       <section className="exhibit-section" aria-labelledby="photo">
         <div className="exhibit-prose prose-editorial">
-          <h2 id="photo">Back in the photograph</h2>
+          <h2 id="photo">Lay both rinks over a photograph</h2>
           <p>
-            A Rangers practice at the Garden, around 1995, with both rinks traced onto the ice. The
-            gold line should follow the old boards. The white line is where today’s boards would
-            stand in that building: a foot further out along each side, four and a half feet at each
-            end.
+            Pick a photo and both rinks are drawn onto its ice in the photo’s own perspective: the
+            Garden’s in gold, today’s in white, with the ice TD Garden added hatched. Fade either
+            one in or out to compare. The ends are where the difference shows, so the view from
+            behind a net makes it plainest.
+          </p>
+          <p>
+            Have a better photo, from a seat you sat in? Use your own. It stays in your browser, and
+            four handles let you pin the rinks to it.
           </p>
         </div>
-        <PhotoOverlay old={old} modern={modern} />
+        <PhotoLab old={old} modern={modern} />
       </section>
 
       <section className="exhibit-section" aria-labelledby="known">
@@ -325,8 +329,8 @@ export default function GardenIce() {
         </ul>
         <h3>More photographs</h3>
         <p>
-          These helped line the models up but aren’t mine to republish, so they stay with their
-          owners.
+          These show the rinks well but aren’t mine to republish, so they stay with their owners.
+          Open one, save it, and load it as your own photo above to line the rinks up against it.
         </p>
         <ul>
           {OTHER_PHOTOS.map((photo) => (

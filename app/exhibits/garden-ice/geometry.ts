@@ -100,6 +100,37 @@ export function cornerArcs(rink: Rink, segments = 24): Point[][] {
   return [0, 1, 2, 3].map((i) => loop.slice(i * perCorner, (i + 1) * perCorner));
 }
 
+/** Points along a circle around (cx, cz), from angle `from` to `to` in degrees. */
+export function arcPoints(
+  cx: number,
+  cz: number,
+  r: number,
+  from: number,
+  to: number,
+  steps = 16,
+): Point[] {
+  return Array.from({ length: steps + 1 }, (_, i): Point => {
+    const t = ((from + ((to - from) * i) / steps) * Math.PI) / 180;
+    return [cx + r * Math.cos(t), cz + r * Math.sin(t)];
+  });
+}
+
+/**
+ * Goal crease at one end (`side` −1 or +1), as a closed outline. The 1995 crease
+ * was the semicircle used from 1991–92; today's is the same 6 ft arc cut off
+ * square 4 ft either side of center.
+ */
+export function creaseOutline(rink: Rink, side: -1 | 1): Point[] {
+  const goal = side * (rink.length / 2 - rink.goal);
+  if (rink.id === "old") return arcPoints(goal, 0, 6, side === 1 ? 90 : -90, side === 1 ? 270 : 90);
+  const cut = (Math.asin(4 / 6) * 180) / Math.PI;
+  return [
+    [goal, -4],
+    ...arcPoints(goal, 0, 6, side === 1 ? 180 + cut : -cut, side === 1 ? 180 - cut : cut),
+    [goal, 4],
+  ];
+}
+
 /** Goal mouth: 6 ft between the posts, 4 ft to the crossbar, in every era here. */
 export const GOAL_MOUTH = { width: 6, height: 4 } as const;
 

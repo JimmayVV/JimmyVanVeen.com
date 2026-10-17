@@ -530,32 +530,234 @@ fieldset.segmented,
   height: 100%;
 }
 
-.photo-line {
-  fill: none;
-  stroke-linejoin: round;
+/* The rinks drawn on a photo. Gold is 1995; white is today. Lines keep their
+   pixel width however large the photo is shown. */
+.lab-rink path,
+.lab-rink circle {
   vector-effect: non-scaling-stroke;
 }
 
-.photo-halo {
+.lab-ice {
+  fill: #ffffff;
+  fill-opacity: 0.08;
+  stroke: none;
+}
+
+.lab-rink-old .lab-ice {
+  fill: #f0b93a;
+  fill-opacity: 0.1;
+}
+
+.lab-line {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.4px;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+
+.lab-line-heavy {
+  stroke-width: 2.4px;
+}
+
+.lab-dot {
+  fill: #ffffff;
+}
+
+.lab-halo {
+  fill: none;
   stroke: #0b0f12;
   stroke-width: 6px;
-  opacity: 0.7;
+  stroke-opacity: 0.6;
+  stroke-linejoin: round;
 }
 
-.photo-old {
-  stroke: #f0b93a;
-  stroke-width: 3px;
-}
-
-.photo-modern {
+.lab-boards {
+  fill: none;
   stroke: #ffffff;
-  stroke-width: 2.5px;
+  stroke-width: 2.6px;
+  stroke-linejoin: round;
+}
+
+.lab-rink-old .lab-line,
+.lab-rink-old .lab-boards {
+  stroke: #f0b93a;
+}
+
+.lab-rink-old .lab-dot {
+  fill: #f0b93a;
 }
 
 .photo-hatch-line {
   stroke: #ffffff;
-  stroke-width: 2.2;
-  opacity: 0.75;
+  stroke-width: 2.5;
+  opacity: 0.8;
+}
+
+/* Photo picker: thumbnails that read as a strip of prints. */
+.lab-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.75rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.lab-picker button,
+.lab-upload {
+  appearance: none;
+  display: grid;
+  gap: 0.4rem;
+  align-content: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--blog-muted);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lab-picker img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 150ms ease;
+}
+
+.lab-picker button[aria-pressed="true"] {
+  color: var(--blog-ink);
+}
+
+.lab-picker button[aria-pressed="true"] img {
+  outline-color: var(--blog-ink);
+}
+
+.lab-upload {
+  place-content: center;
+  text-align: center;
+  aspect-ratio: 4 / 3;
+  border: 1px dashed var(--blog-rule);
+  border-radius: 4px;
+  padding: 0.75rem;
+}
+
+.lab-upload.is-active {
+  border: 2px solid var(--blog-ink);
+  color: var(--blog-ink);
+}
+
+.lab-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.lab-upload:focus-within {
+  outline: 2px solid var(--blog-accent);
+  outline-offset: 2px;
+}
+
+.lab-upload-return {
+  place-content: center;
+  text-align: center;
+}
+
+/* Fit handles: a ring with a crosshair center, so the exact point is visible. */
+.lab-handle {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  padding: 0;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0 2px, transparent 2.5px), rgba(11, 15, 18, 0.35);
+  box-shadow: 0 0 0 1.5px rgba(11, 15, 18, 0.8);
+  cursor: grab;
+  touch-action: none;
+}
+
+.lab-handle:active {
+  cursor: grabbing;
+}
+
+.lab-handle span {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 4px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: #ffffff;
+  background: rgba(11, 15, 18, 0.8);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.lab-handle:hover span,
+.lab-handle:focus-visible span {
+  opacity: 1;
+}
+
+.lab-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.75rem 2rem;
+  align-items: center;
+}
+
+.lab-strength {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 1rem;
+  font-size: 0.95rem;
+}
+
+.lab-strength input {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--blog-ink);
+}
+
+.lab-strength-old input {
+  accent-color: var(--rink-old);
+}
+
+.lab-strength output {
+  font-family: var(--font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.lab-toggles {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.lab-controls fieldset.segmented legend {
+  float: left;
+  padding: 0.55rem 0.5rem 0 0.75rem;
+  font-size: 0.95rem;
+  color: var(--blog-muted);
+}
+
+.exhibit-photo figcaption p + p {
+  margin-top: 0.5rem;
 }
 
 .exhibit-photo figcaption {

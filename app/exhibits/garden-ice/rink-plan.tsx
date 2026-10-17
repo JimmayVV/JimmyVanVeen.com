@@ -5,6 +5,7 @@ import {
   type Rink,
   type Unit,
   cornerArcs,
+  creaseOutline,
   formatLength,
   lerpRink,
   netBase,
@@ -28,14 +29,6 @@ function toPath(points: readonly Point[], close = true): string {
   return close ? `${d}Z` : d;
 }
 
-/** Points along a circle around (cx, cz), from angle `from` to `to` in degrees. */
-function arc(cx: number, cz: number, r: number, from: number, to: number, steps = 16): Point[] {
-  return Array.from({ length: steps + 1 }, (_, i) => {
-    const t = ((from + ((to - from) * i) / steps) * Math.PI) / 180;
-    return [cx + r * Math.cos(t), cz + r * Math.sin(t)] as const;
-  });
-}
-
 /** Regulation markings for one rink. Callers clip them to the boards. */
 function Markings({ rink }: { rink: Rink }) {
   const half = rink.length / 2;
@@ -46,21 +39,7 @@ function Markings({ rink }: { rink: Rink }) {
       {sides.map((s) => {
         const goal = s * (half - rink.goal);
         const dotX = goal - s * 20;
-        const creaseAngle = (Math.asin(4 / 6) * 180) / Math.PI;
-        const crease =
-          rink.id === "old"
-            ? arc(goal, 0, 6, s === 1 ? 90 : -90, s === 1 ? 270 : 90)
-            : [
-                [goal, -4] as const,
-                ...arc(
-                  goal,
-                  0,
-                  6,
-                  s === 1 ? 180 + creaseAngle : -creaseAngle,
-                  s === 1 ? 180 - creaseAngle : creaseAngle,
-                ),
-                [goal, 4] as const,
-              ];
+        const crease = creaseOutline(rink, s);
         return (
           <g key={s}>
             <rect
