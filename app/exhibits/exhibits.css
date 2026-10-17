@@ -90,6 +90,15 @@
 }
 
 fieldset.segmented,
+.viewer-failure {
+  flex-basis: 100%;
+  color: var(--blog-accent);
+}
+
+.viewer-failure:empty {
+  display: none;
+}
+
 .viewer-downloads fieldset {
   margin: 0;
   min-inline-size: 0;
@@ -252,6 +261,7 @@ fieldset.segmented,
 
 .rink-net {
   stroke: var(--rink-net);
+  stroke-width: 1.4px;
 }
 
 .rink-then {

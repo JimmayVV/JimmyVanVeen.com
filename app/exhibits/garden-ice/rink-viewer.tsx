@@ -36,6 +36,7 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
   const [boards, setBoards] = React.useState(true);
   const [dimensions, setDimensions] = React.useState(true);
   const [busy, setBusy] = React.useState<string | null>(null);
+  const [failure, setFailure] = React.useState<string | null>(null);
 
   // The scene loads asynchronously; whatever the visitor chose meanwhile is applied when it's ready.
   const latest = React.useRef({ state: { old, modern, mode, boards, dimensions, unit }, view });
@@ -77,9 +78,19 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
     };
   }, []);
 
+  // Moving a rink rebuilds its geometry and textures, so wait for a slider to settle.
   React.useEffect(() => {
-    sceneRef.current?.update({ old, modern, mode, boards, dimensions, unit });
-  }, [old, modern, mode, boards, dimensions, unit]);
+    const timer = setTimeout(
+      () => sceneRef.current?.update({ ...latest.current.state, old, modern, unit }),
+      150,
+    );
+    return () => clearTimeout(timer);
+  }, [old, modern, unit]);
+
+  // Showing or hiding parts is cheap; apply it at once.
+  React.useEffect(() => {
+    sceneRef.current?.update({ ...latest.current.state, mode, boards, dimensions });
+  }, [mode, boards, dimensions]);
 
   React.useEffect(() => {
     sceneRef.current?.setView(view);
@@ -89,9 +100,13 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
     const scene = sceneRef.current;
     if (!scene) return;
     setBusy(id);
+    setFailure(null);
     try {
       const blob = await scene.exportModel(id);
       download(blob, id === "old" ? "boston-garden-1995.glb" : "td-garden-2026.glb");
+    } catch (error) {
+      console.error("Garden Ice model export failed", error);
+      setFailure("The model couldn’t be exported in this browser. The image download still works.");
     } finally {
       setBusy(null);
     }
@@ -101,9 +116,14 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
     const scene = sceneRef.current;
     if (!scene) return;
     setBusy("image");
+    setFailure(null);
     try {
       const blob = await scene.exportImage();
-      if (blob) download(blob, `garden-ice-${mode}-${view}.png`);
+      if (!blob) throw new Error("Canvas produced no image");
+      download(blob, `garden-ice-${mode}-${view}.png`);
+    } catch (error) {
+      console.error("Garden Ice image export failed", error);
+      setFailure("The view couldn’t be saved as an image in this browser.");
     } finally {
       setBusy(null);
     }
@@ -201,6 +221,9 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
             {busy === "modern" ? "Exporting…" : "TD Garden model (GLB)"}
           </button>
         </fieldset>
+        <p className="viewer-failure" aria-live="polite">
+          {failure}
+        </p>
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import {
   formatLength,
   iceArea,
   lerpRink,
+  netBase,
   perimeter,
   projectToPhoto,
   zoneDepth,
@@ -92,5 +93,28 @@ describe("the fitted photograph", () => {
   it.each(landmarks)("projects $ice onto the photo within 4 px of $photo", ({ ice, photo }) => {
     const [u, v] = projectToPhoto(ice);
     expect(Math.hypot(u - photo[0], v - photo[1])).toBeLessThan(4);
+  });
+});
+
+describe("the nets", () => {
+  it.each([
+    { rink: OLD_GARDEN, depth: 44, width: 96 },
+    { rink: TD_GARDEN, depth: 40, width: 88 },
+  ])(
+    "$rink.name net is $depth in deep and $width in wide at the base",
+    ({ rink, depth, width }) => {
+      const base = netBase(rink);
+      const xs = base.map(([x]) => x);
+      const zs = base.map(([, z]) => z);
+      expect(Math.max(...xs) * 12).toBeCloseTo(depth, 6);
+      // Sampled, so the widest point can fall between samples: within 0.05 in.
+      expect((Math.max(...zs) - Math.min(...zs)) * 12).toBeCloseTo(width, 1);
+    },
+  );
+
+  it("starts and ends at the posts, 6 ft apart on the goal line", () => {
+    const base = netBase(TD_GARDEN);
+    expect(base[0]).toEqual([0, -3]);
+    expect(base.at(-1)).toEqual([0, 3]);
   });
 });

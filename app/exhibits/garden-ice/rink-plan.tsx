@@ -7,6 +7,7 @@ import {
   cornerArcs,
   formatLength,
   lerpRink,
+  netBase,
   perimeter,
 } from "./geometry";
 
@@ -71,12 +72,12 @@ function Markings({ rink }: { rink: Rink }) {
             />
             <line className="rink-red-thin" x1={goal} x2={goal} y1={-60} y2={60} />
             <path className="rink-crease" d={toPath(crease)} />
-            <rect
+            <path
               className="rink-net"
-              x={s === 1 ? goal : goal - rink.netDepth}
-              y={-3}
-              width={rink.netDepth}
-              height={6}
+              d={toPath(
+                netBase(rink).map(([x, z]): Point => [goal + s * x, z]),
+                false,
+              )}
             />
             {rink.id === "modern" &&
               sides.map((z) => (

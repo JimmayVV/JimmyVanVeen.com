@@ -24,8 +24,10 @@ export interface Rink {
   blue: number;
   /** Board height. */
   board: number;
-  /** Net depth behind the goal line. */
+  /** Net depth behind the goal line, at the base. */
   netDepth: number;
+  /** Net width at the widest point of its base, which bows out past the posts. */
+  netWidth: number;
 }
 
 export const OLD_GARDEN: Rink = {
@@ -38,7 +40,9 @@ export const OLD_GARDEN: Rink = {
   goal: 11,
   blue: 24.5,
   board: 4,
-  netDepth: 4,
+  // Pre-2013 NHL net: 44 in deep, 96 in wide at the base.
+  netDepth: 44 / 12,
+  netWidth: 96 / 12,
 };
 
 export const TD_GARDEN: Rink = {
@@ -51,7 +55,9 @@ export const TD_GARDEN: Rink = {
   goal: 11,
   blue: 25,
   board: 3.5,
-  netDepth: 3.667,
+  // The shallower net the NHL adopted in 2013–14: 40 in deep, 88 in wide.
+  netDepth: 40 / 12,
+  netWidth: 88 / 12,
 };
 
 /** The old-Garden values a visitor can adjust, because no survey pins them down. */
@@ -94,6 +100,33 @@ export function cornerArcs(rink: Rink, segments = 24): Point[][] {
   return [0, 1, 2, 3].map((i) => loop.slice(i * perCorner, (i + 1) * perCorner));
 }
 
+/** Goal mouth: 6 ft between the posts, 4 ft to the crossbar, in every era here. */
+export const GOAL_MOUTH = { width: 6, height: 4 } as const;
+
+/**
+ * Outline of the net's base on the ice, from one post around the back to the
+ * other. `x` is the distance behind the goal line, `z` across the rink. The base
+ * leaves each post, bows out to its widest a little behind the line, then
+ * rounds off at full depth.
+ */
+export function netBase(rink: Rink, steps = 24): Point[] {
+  const d = rink.netDepth;
+  const post = GOAL_MOUTH.width / 2;
+  const widest = rink.netWidth / 2;
+  const bulge = d * 0.4;
+  const half = Array.from({ length: steps + 1 }, (_, i): Point => {
+    const x = (d * i) / steps;
+    const z =
+      x <= bulge
+        ? post + (widest - post) * Math.sin((Math.PI / 2) * (x / bulge))
+        : widest * Math.sqrt(Math.max(0, 1 - ((x - bulge) / (d - bulge)) ** 2));
+    return [x, z];
+  });
+  // Left post round the back to the right post: the near side mirrored, then the far side returning.
+  const left = half.map(([x, z]): Point => [x, -z]);
+  return [...left, ...half.toReversed().slice(1)];
+}
+
 /** Area of the ice inside the boards, in square feet. */
 export function iceArea(rink: Rink): number {
   return rink.length * rink.width - (4 - Math.PI) * rink.corner * rink.corner;
@@ -115,6 +148,7 @@ export function lerpRink(from: Rink, to: Rink, t: number): Rink {
     blue: mix(from.blue, to.blue),
     board: mix(from.board, to.board),
     netDepth: mix(from.netDepth, to.netDepth),
+    netWidth: mix(from.netWidth, to.netWidth),
   };
 }
 

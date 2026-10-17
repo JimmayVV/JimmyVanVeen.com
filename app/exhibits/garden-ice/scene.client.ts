@@ -10,7 +10,15 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 
-import { type Rink, type RinkId, type Unit, formatLength, perimeter } from "./geometry";
+import {
+  GOAL_MOUTH,
+  type Rink,
+  type RinkId,
+  type Unit,
+  formatLength,
+  netBase,
+  perimeter,
+} from "./geometry";
 
 export type ViewerMode = "both" | "split" | "old" | "modern";
 export type CameraView = "stands" | "overhead" | "ice";
@@ -35,7 +43,7 @@ const COLORS = {
   board: "#f4f2ea",
   glass: "#b9d7de",
   net: "#c8102e",
-  mesh: "#b9c3c6",
+  frame: "#f6f6f2",
   background: "#121a1f",
 } as const;
 
@@ -231,22 +239,164 @@ function hatchTexture(rink: Rink): THREE.CanvasTexture {
   return texture;
 }
 
+/** Diamond netting, tiled across the net's surfaces. */
+function meshTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 64;
+  canvas.height = 64;
+  const q = canvas.getContext("2d");
+  if (q) {
+    q.strokeStyle = "rgba(255, 255, 255, 0.95)";
+    q.lineWidth = 3;
+    q.beginPath();
+    q.moveTo(0, 0);
+    q.lineTo(64, 64);
+    q.moveTo(64, 0);
+    q.lineTo(0, 64);
+    q.stroke();
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+type Vec3 = [number, number, number];
+
+/** Resample a polyline to `count` points evenly spaced along its length. */
+function resample(points: Vec3[], count: number): Vec3[] {
+  const lengths = [0];
+  for (let i = 1; i < points.length; i++) {
+    const [ax, ay, az] = points[i - 1] ?? [0, 0, 0];
+    const [bx, by, bz] = points[i] ?? [0, 0, 0];
+    lengths.push((lengths[i - 1] ?? 0) + Math.hypot(bx - ax, by - ay, bz - az));
+  }
+  const total = lengths.at(-1) ?? 0;
+  return Array.from({ length: count }, (_, k) => {
+    const target = (total * k) / (count - 1);
+    let i = 1;
+    while (i < lengths.length - 1 && (lengths[i] ?? 0) < target) i++;
+    const l0 = lengths[i - 1] ?? 0;
+    const l1 = lengths[i] ?? l0;
+    const t = l1 > l0 ? (target - l0) / (l1 - l0) : 0;
+    const [ax, ay, az] = points[i - 1] ?? [0, 0, 0];
+    const [bx, by, bz] = points[i] ?? [0, 0, 0];
+    return [ax + (bx - ax) * t, ay + (by - ay) * t, az + (bz - az) * t];
+  });
+}
+
+/** A surface stretched between two polylines with the same number of points. */
+function loft(a: Vec3[], b: Vec3[], material: THREE.Material, cell: number): THREE.Mesh {
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  let along = 0;
+  for (let i = 0; i < a.length; i++) {
+    const [ax, ay, az] = a[i] ?? [0, 0, 0];
+    const [bx, by, bz] = b[i] ?? [0, 0, 0];
+    if (i > 0) {
+      const [px, py, pz] = a[i - 1] ?? [0, 0, 0];
+      along += Math.hypot(ax - px, ay - py, az - pz);
+    }
+    const span = Math.hypot(bx - ax, by - ay, bz - az);
+    positions.push(ax, ay, az, bx, by, bz);
+    uvs.push(along / cell, 0, along / cell, span / cell);
+    if (i > 0) {
+      const k = i * 2;
+      indices.push(k - 2, k - 1, k, k - 1, k + 1, k);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  return new THREE.Mesh(geometry, material);
+}
+
+/**
+ * A regulation net: red posts and crossbar, a white base that bows out behind
+ * the posts, a short top shelf, and netting from the frame down to the base.
+ * Built behind the goal line on +X, then mirrored for the near end.
+ */
 function goalFrame(rink: Rink, s: number): THREE.Group {
   const group = new THREE.Group();
-  const x = s * (rink.length / 2 - rink.goal);
-  const d = rink.netDepth;
-  const at = (dx: number, y: number, z: number): [number, number, number] => [x + s * dx, y, z];
-  lineMesh(group, [at(0, 0, -3), at(0, 4, -3), at(0, 4, 3), at(0, 0, 3)], COLORS.net, 0.11);
-  lineMesh(group, [at(0, 0, -3), at(d, 0, -2.4), at(d, 0, 2.4), at(0, 0, 3)], COLORS.net, 0.09);
+  group.name = "Goal";
+  const { width, height } = GOAL_MOUTH;
+  const post = width / 2;
+  const shelf = rink.netDepth * 0.5;
+  const shelfHalf = post - 0.15;
+
+  // The mouth: posts and crossbar.
   lineMesh(
     group,
-    [at(0, 4, -3), at(d - 0.8, 2.8, -2.4), at(d - 0.8, 2.8, 2.4), at(0, 4, 3)],
+    [
+      [0, 0, -post],
+      [0, height, -post],
+      [0, height, post],
+      [0, 0, post],
+    ],
     COLORS.net,
-    0.07,
+    0.1,
   );
-  for (let z = -2.4; z <= 2.41; z += 0.6)
-    lineMesh(group, [at(d, 0, z), at(d - 0.8, 2.8, z)], COLORS.mesh, 0.02);
+
+  // Base on the ice.
+  const base: Vec3[] = netBase(rink).map(([x, z]) => [x, 0.06, z]);
+  lineMesh(group, base, COLORS.frame, 0.07);
+
+  // Top shelf: back from the crossbar, then across.
+  const top: Vec3[] = [
+    [0, height, -post],
+    [shelf, height, -shelfHalf],
+    [shelf, height, shelfHalf],
+    [0, height, post],
+  ];
+  lineMesh(group, top, COLORS.frame, 0.05);
+
+  // Rear frame: from the back of the shelf down to the base, near its widest-back point.
+  const rows = 40;
+  const sides = loft(resample(top, rows), resample(base, rows), netMaterial(), 0.45);
+  const shelfCorner = Math.round(
+    ((rows - 1) * Math.hypot(shelf, post - shelfHalf)) /
+      (2 * Math.hypot(shelf, post - shelfHalf) + 2 * shelfHalf),
+  );
+  for (const i of [shelfCorner, rows - 1 - shelfCorner]) {
+    const from = resample(top, rows)[i];
+    const to = resample(base, rows)[i];
+    if (from && to) lineMesh(group, [from, to], COLORS.frame, 0.05);
+  }
+  group.add(sides);
+
+  // The top netting, crossbar to shelf.
+  group.add(
+    loft(
+      [
+        [0, height, -post],
+        [0, height, post],
+      ],
+      [
+        [shelf, height, -shelfHalf],
+        [shelf, height, shelfHalf],
+      ],
+      netMaterial(),
+      0.45,
+    ),
+  );
+
+  group.position.x = s * (rink.length / 2 - rink.goal);
+  group.scale.x = s;
   return group;
+}
+
+function netMaterial(): THREE.MeshBasicMaterial {
+  return new THREE.MeshBasicMaterial({
+    map: meshTexture(),
+    color: "#ffffff",
+    transparent: true,
+    opacity: 0.85,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
 }
 
 interface RinkModel {

@@ -50,6 +50,8 @@ test.describe("crawler surface", () => {
     const body = await res.text();
     expect(body).toContain("<loc>https://www.jimmyvanveen.com</loc>");
     expect(body).toContain("<loc>https://www.jimmyvanveen.com/about</loc>");
+    expect(body).toContain("<loc>https://www.jimmyvanveen.com/exhibits</loc>");
+    expect(body).toContain("<loc>https://www.jimmyvanveen.com/exhibits/garden-ice</loc>");
 
     // Documented as ignored by Google; emitting them was noise.
     expect(body).not.toContain("<changefreq>");
