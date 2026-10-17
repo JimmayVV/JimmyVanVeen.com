@@ -99,6 +99,17 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+/**
+ * A same-document blob: URL for the visitor's file, or null. The file never
+ * leaves the browser; checking the scheme keeps anything else out of <img src>.
+ */
+function blobUrl(file: File): string | null {
+  const url = URL.createObjectURL(file);
+  if (new URL(url).protocol === "blob:") return url;
+  URL.revokeObjectURL(url);
+  return null;
+}
+
 export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
   const id = React.useId();
   const first = REFERENCE_PHOTOS[0];
@@ -109,6 +120,7 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
   const [modernStrength, setModernStrength] = React.useState(100);
   const [dim, setDim] = React.useState(true);
   const [adjusting, setAdjusting] = React.useState(false);
+  const [uploadError, setUploadError] = React.useState<string | null>(null);
   const frameRef = React.useRef<HTMLDivElement>(null);
   const dragging = React.useRef<number | null>(null);
 
@@ -158,8 +170,18 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
 
   function onFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
+    event.target.value = "";
     if (!file) return;
-    const src = URL.createObjectURL(file);
+    setUploadError(null);
+    if (!file.type.startsWith("image/")) {
+      setUploadError(`“${file.name}” isn’t an image. Choose a JPEG, PNG or WebP photo.`);
+      return;
+    }
+    const src = blobUrl(file);
+    if (!src) {
+      setUploadError("This browser couldn’t open that photo.");
+      return;
+    }
     const image = new Image();
     image.addEventListener("load", () => {
       setUpload({ src, width: image.naturalWidth, height: image.naturalHeight, arena: "modern" });
@@ -167,9 +189,11 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
       setPhotoId("upload");
       setAdjusting(true);
     });
-    image.addEventListener("error", () => URL.revokeObjectURL(src));
+    image.addEventListener("error", () => {
+      URL.revokeObjectURL(src);
+      setUploadError(`“${file.name}” couldn’t be read as an image. Try another photo.`);
+    });
     image.src = src;
-    event.target.value = "";
   }
 
   const both = oldStrength > 0 && modernStrength > 0;
@@ -203,6 +227,11 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
           <input type="file" accept="image/*" onChange={onFile} />
           <span>{upload ? "Your photo (choose another)" : "Use your own photo"}</span>
         </label>
+        {uploadError && (
+          <p className="lab-upload-error" role="alert">
+            {uploadError}
+          </p>
+        )}
         {upload && photoId !== "upload" && (
           <button type="button" className="lab-upload-return" onClick={() => setPhotoId("upload")}>
             Back to your photo

@@ -97,3 +97,17 @@ describe("PhotoLab", () => {
     expect(html).not.toContain("lab-handle");
   });
 });
+
+describe("PhotoLab with your own photo", () => {
+  it("says so when the chosen file isn't an image, instead of doing nothing", async () => {
+    const { fireEvent, render, screen } = await import("@testing-library/react");
+    const { container } = render(<PhotoLab old={OLD_GARDEN} modern={TD_GARDEN} />);
+    const input = container.querySelector('input[type="file"]');
+    if (!(input instanceof HTMLInputElement)) throw new Error("expected the file input");
+
+    const notes = new File(["not a photo"], "notes.txt", { type: "text/plain" });
+    fireEvent.change(input, { target: { files: [notes] } });
+
+    expect(screen.getByRole("alert").textContent).toContain("“notes.txt” isn’t an image");
+  });
+});

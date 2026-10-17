@@ -667,6 +667,12 @@ fieldset.segmented,
   outline-offset: 2px;
 }
 
+.lab-upload-error {
+  grid-column: 1 / -1;
+  color: var(--blog-accent);
+  font-size: 0.95rem;
+}
+
 .lab-upload-return {
   place-content: center;
   text-align: center;
