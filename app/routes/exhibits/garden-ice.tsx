@@ -58,6 +58,11 @@ const OTHER_PHOTOS = [
     href: "https://ballparks.smugmug.com/Boston-Garden-Pt2-razed-Boston-Massachusetts",
   },
   {
+    label: "Nick DeWolf’s photos of a 1974 Bruins game",
+    note: "the old Garden rink from high above, from the Nick DeWolf Foundation’s archive",
+    href: "https://www.flickr.com/photos/dboo/5094268185/",
+  },
+  {
     label: "The Hockey News, October 2025",
     note: "a Bruins practice at TD Garden with the current markings",
     href: "https://thehockeynews.com/nhl/boston-bruins/latest-news/boston-bruins-lines-on-eve-of-regular-season-opener",

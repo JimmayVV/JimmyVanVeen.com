@@ -200,7 +200,7 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
             }}
           >
             <img
-              src={p.src}
+              src={p.thumb}
               alt=""
               width={p.width}
               height={p.height}

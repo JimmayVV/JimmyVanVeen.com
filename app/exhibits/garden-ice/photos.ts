@@ -19,6 +19,8 @@ export interface ReferencePhoto {
   label: string;
   arena: RinkId;
   src: string;
+  /** A 480 px copy for the picker. */
+  thumb: string;
   width: number;
   height: number;
   alt: string;
@@ -42,6 +44,7 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
     label: "TD Garden from behind a net",
     arena: "modern",
     src: "/exhibits/garden-ice/td-garden-from-end-2008.jpg",
+    thumb: "/exhibits/garden-ice/td-garden-from-end-2008-thumb.jpg",
     width: 2400,
     height: 1600,
     alt: "An empty TD Garden before a game in 2008, seen from high above one end, the whole rink laid out below.",
@@ -69,6 +72,7 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
     label: "TD Garden from a corner",
     arena: "modern",
     src: "/exhibits/garden-ice/td-garden-corner-2014.jpg",
+    thumb: "/exhibits/garden-ice/td-garden-corner-2014-thumb.jpg",
     width: 1920,
     height: 1434,
     alt: "A Bruins game at TD Garden in January 2014, seen from the lower bowl near one corner.",
@@ -97,6 +101,7 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
     label: "TD Garden from the side",
     arena: "modern",
     src: "/exhibits/garden-ice/td-garden-side-2011.jpg",
+    thumb: "/exhibits/garden-ice/td-garden-side-2011-thumb.jpg",
     width: 2000,
     height: 1124,
     alt: "A Bruins game against Ottawa at TD Garden in January 2011, seen from the upper seats at center ice, the whole rink laid out below.",
@@ -124,6 +129,7 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
     label: "Boston Garden from the side",
     arena: "old",
     src: "/exhibits/garden-ice/boston-garden-1995.jpg",
+    thumb: "/exhibits/garden-ice/boston-garden-1995-thumb.jpg",
     width: 1231,
     height: 848,
     alt: "The Boston Garden rink during a Rangers practice, around 1995, seen from the upper seats.",

@@ -14,6 +14,7 @@ const PUBLIC_DIR = join(import.meta.dirname, "..", "..", "..", "public");
 describe("reference photos", () => {
   it.each(REFERENCE_PHOTOS)("$id ships its image and an open licence", (photo) => {
     expect(existsSync(join(PUBLIC_DIR, photo.src))).toBe(true);
+    expect(existsSync(join(PUBLIC_DIR, photo.thumb))).toBe(true);
     expect(photo.credit.license).toMatch(/^(CC BY|Public domain)/);
     expect(photo.credit.source).toMatch(
       photo.credit.site === "Flickr"
