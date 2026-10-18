@@ -24,7 +24,15 @@ export interface ReferencePhoto {
   alt: string;
   /** One sentence on what to look at in this view. */
   lookFor: string;
-  credit: { author: string; year: string; source: string; license: string; licenseUrl: string };
+  credit: {
+    author: string;
+    year: string;
+    /** Where the photo is published, named in the credit line. */
+    site: "Wikimedia Commons" | "Flickr";
+    source: string;
+    license: string;
+    licenseUrl: string;
+  };
   anchors: [Anchor, Anchor, Anchor, Anchor];
 }
 
@@ -42,6 +50,7 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
     credit: {
       author: "AEJ",
       year: "2008",
+      site: "Wikimedia Commons",
       source: "https://commons.wikimedia.org/wiki/File:TDBanknorthGardenBeforeGame.jpg",
       license: "Public domain",
       licenseUrl: "https://commons.wikimedia.org/wiki/File:TDBanknorthGardenBeforeGame.jpg",
@@ -68,6 +77,7 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
     credit: {
       author: "Bduboff",
       year: "2014",
+      site: "Wikimedia Commons",
       source:
         "https://commons.wikimedia.org/wiki/File:Bruins_2014-01-14_19.22.40_(14177423467).jpg",
       license: "CC BY 2.0",
@@ -83,6 +93,33 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
     ],
   },
   {
+    id: "td-side-2011",
+    label: "TD Garden from the side",
+    arena: "modern",
+    src: "/exhibits/garden-ice/td-garden-side-2011.jpg",
+    width: 2000,
+    height: 1124,
+    alt: "A Bruins game against Ottawa at TD Garden in January 2011, seen from the upper seats at center ice, the whole rink laid out below.",
+    lookFor:
+      "From center ice both ends are in view at once: at each one the Garden’s boards stop four and a half feet short of today’s, while along the sides the two rinks are a foot apart.",
+    credit: {
+      author: "Alvaro Galve",
+      year: "2011",
+      site: "Flickr",
+      source: "https://www.flickr.com/photos/61955637@N00/5347685497/",
+      license: "CC BY-SA 2.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0/",
+    },
+    // Least-squares fit to ten landmarks (all four end-zone dots, all four
+    // neutral-zone dots, both nets); worst residual 4 px at 2000 px wide.
+    anchors: [
+      { landmark: "dot-left-far", at: [437.6, 506.3] },
+      { landmark: "dot-left-near", at: [183, 661.8] },
+      { landmark: "dot-right-far", at: [1607, 611.4] },
+      { landmark: "dot-right-near", at: [1606, 847.8] },
+    ],
+  },
+  {
     id: "garden-side-1995",
     label: "Boston Garden from the side",
     arena: "old",
@@ -95,6 +132,7 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
     credit: {
       author: "Troy Parla",
       year: "c. 1995",
+      site: "Wikimedia Commons",
       source: "https://commons.wikimedia.org/wiki/File:BostonGardenNHL.jpg",
       license: "CC BY-SA 3.0",
       licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",

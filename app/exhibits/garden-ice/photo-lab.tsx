@@ -400,7 +400,7 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
           <p className="lab-credit">
             Photo by {preset.credit.author}, {preset.credit.year},{" "}
             <a href={preset.credit.source} target="_blank" rel="noreferrer">
-              Wikimedia Commons
+              {preset.credit.site}
             </a>
             {preset.credit.license === "Public domain" ? (
               ", in the public domain"
