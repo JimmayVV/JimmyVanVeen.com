@@ -30,10 +30,12 @@ export interface ReferencePhoto {
     author: string;
     year: string;
     /** Where the photo is published, named in the credit line. */
-    site: "Wikimedia Commons" | "Flickr";
+    site: "Wikimedia Commons" | "Flickr" | "SmugMug";
     source: string;
+    /** An open licence's name, or "Used with permission" for a photographer's own grant. */
     license: string;
-    licenseUrl: string;
+    /** The licence text; absent when the photographer gave permission directly. */
+    licenseUrl?: string;
   };
   anchors: [Anchor, Anchor, Anchor, Anchor];
 }
@@ -150,6 +152,88 @@ export const REFERENCE_PHOTOS: readonly ReferencePhoto[] = [
       { landmark: "blue-right-far", at: [443.9, 544] },
       { landmark: "blue-left-near", at: [930.1, 724.6] },
       { landmark: "blue-right-near", at: [942.5, 601.6] },
+    ],
+  },
+  {
+    id: "garden-end-1995",
+    label: "Boston Garden from behind a net",
+    arena: "old",
+    src: "/exhibits/garden-ice/boston-garden-end-1995.jpg",
+    thumb: "/exhibits/garden-ice/boston-garden-end-1995-thumb.jpg",
+    width: 1740,
+    height: 1205,
+    alt: "A Bruins practice at the Boston Garden in 1995, seen from high above one end, the whole rink below.",
+    lookFor:
+      "Watch the far end. Today’s rink runs four and a half feet past the Garden’s end boards, and its end zone reaches four feet deeper toward center.",
+    credit: {
+      author: "Bob Busser",
+      year: "1995",
+      site: "SmugMug",
+      source:
+        "https://ballparks.smugmug.com/Boston-Garden-Pt2-razed-Boston-Massachusetts/i-CVMPwnD",
+      license: "Used with permission",
+    },
+    // Least-squares fit to nine landmarks (all eight faceoff dots in view, the far
+    // net); worst residual 3 px at 1740 px wide. The fit also lands both blue lines.
+    anchors: [
+      { landmark: "dot-right-far", at: [604.6, 591.7] },
+      { landmark: "dot-right-near", at: [892.4, 588.3] },
+      { landmark: "dot-left-far", at: [462.9, 1036.5] },
+      { landmark: "dot-left-near", at: [1032.5, 1025.6] },
+    ],
+  },
+  {
+    id: "garden-corner-1995",
+    label: "Boston Garden from a corner",
+    arena: "old",
+    src: "/exhibits/garden-ice/boston-garden-corner-1995.jpg",
+    thumb: "/exhibits/garden-ice/boston-garden-corner-1995-thumb.jpg",
+    width: 1740,
+    height: 1193,
+    alt: "A Bruins practice at the Boston Garden in 1995, seen from high in one corner, the whole rink on the diagonal.",
+    lookFor:
+      "From the corner, both ends are in reach: today’s boards stand four and a half feet behind the Garden’s at each one, and a foot behind them along the sides.",
+    credit: {
+      author: "Bob Busser",
+      year: "1995",
+      site: "SmugMug",
+      source:
+        "https://ballparks.smugmug.com/Boston-Garden-Pt2-razed-Boston-Massachusetts/i-rtCFZzD",
+      license: "Used with permission",
+    },
+    // Least-squares fit to eight faceoff dots; worst residual 4 px at 1740 px wide.
+    anchors: [
+      { landmark: "dot-right-far", at: [670.7, 515.8] },
+      { landmark: "dot-right-near", at: [369.7, 561.2] },
+      { landmark: "dot-left-far", at: [1332.2, 897.6] },
+      { landmark: "dot-left-near", at: [865.8, 1062.3] },
+    ],
+  },
+  {
+    id: "garden-game-1995",
+    label: "Boston Garden on a game night",
+    arena: "old",
+    src: "/exhibits/garden-ice/boston-garden-game-1995.jpg",
+    thumb: "/exhibits/garden-ice/boston-garden-game-1995-thumb.jpg",
+    width: 1740,
+    height: 1140,
+    alt: "A full Boston Garden during a Bruins game in 1995, its championship banners hanging over the ice.",
+    lookFor:
+      "A full house in the building’s last season. Today’s rink, drawn over it, pushes the far end boards back four and a half feet.",
+    credit: {
+      author: "Bob Busser",
+      year: "1995",
+      site: "SmugMug",
+      source:
+        "https://ballparks.smugmug.com/Boston-Garden-Pt2-razed-Boston-Massachusetts/i-WpMd7sG",
+      license: "Used with permission",
+    },
+    // Least-squares fit to seven faceoff dots; worst residual 3 px at 1740 px wide.
+    anchors: [
+      { landmark: "dot-right-far", at: [1177.2, 696] },
+      { landmark: "dot-right-near", at: [868.7, 670.5] },
+      { landmark: "neutral-left-far", at: [1018.6, 921] },
+      { landmark: "dot-left-near", at: [275.8, 1057] },
     ],
   },
 ];

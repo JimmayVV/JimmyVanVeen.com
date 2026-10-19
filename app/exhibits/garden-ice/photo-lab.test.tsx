@@ -7,20 +7,26 @@ import { describe, expect, it } from "vitest";
 import { OLD_GARDEN, TD_GARDEN } from "./geometry";
 import { landmarkPoint, project, solveHomography } from "./homography";
 import { PhotoLab, rinkFeatures } from "./photo-lab";
-import { REFERENCE_PHOTOS, defaultAnchors } from "./photos";
+import { REFERENCE_PHOTOS, type ReferencePhoto, defaultAnchors } from "./photos";
 
 const PUBLIC_DIR = join(import.meta.dirname, "..", "..", "..", "public");
+
+const SOURCE_HOSTS = {
+  "Wikimedia Commons": /^https:\/\/commons\.wikimedia\.org\//,
+  Flickr: /^https:\/\/www\.flickr\.com\//,
+  SmugMug: /^https:\/\/ballparks\.smugmug\.com\//,
+} satisfies Record<ReferencePhoto["credit"]["site"], RegExp>;
 
 describe("reference photos", () => {
   it.each(REFERENCE_PHOTOS)("$id ships its image and an open licence", (photo) => {
     expect(existsSync(join(PUBLIC_DIR, photo.src))).toBe(true);
     expect(existsSync(join(PUBLIC_DIR, photo.thumb))).toBe(true);
-    expect(photo.credit.license).toMatch(/^(CC BY|Public domain)/);
-    expect(photo.credit.source).toMatch(
-      photo.credit.site === "Flickr"
-        ? /^https:\/\/www\.flickr\.com\//
-        : /^https:\/\/commons\.wikimedia\.org\//,
+    expect(photo.credit.license).toMatch(/^(CC BY|Public domain|Used with permission$)/);
+    // An open licence links its text; a photographer's own permission has none to link.
+    expect(photo.credit.licenseUrl === undefined).toBe(
+      photo.credit.license === "Used with permission",
     );
+    expect(photo.credit.source).toMatch(SOURCE_HOSTS[photo.credit.site]);
   });
 
   it.each(REFERENCE_PHOTOS)(

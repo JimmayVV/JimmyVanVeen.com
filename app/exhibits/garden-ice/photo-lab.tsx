@@ -404,13 +404,15 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
             </a>
             {preset.credit.license === "Public domain" ? (
               ", in the public domain"
-            ) : (
+            ) : preset.credit.licenseUrl ? (
               <>
                 , licensed{" "}
                 <a href={preset.credit.licenseUrl} target="_blank" rel="noreferrer">
                   {preset.credit.license}
                 </a>
               </>
+            ) : (
+              ", used with the photographer’s permission"
             )}
             , shown unmodified. The rinks are drawn on a separate layer.
           </p>

@@ -54,7 +54,7 @@ const ERAS: { era: Era; label: string }[] = [
 const OTHER_PHOTOS = [
   {
     label: "Bob Busser’s 1995 Boston Garden albums",
-    note: "practice and game views from the corner and under the balcony",
+    note: "three of the Garden photos above are his, used with his permission, and the albums hold dozens more views from the corner and under the balcony",
     href: "https://ballparks.smugmug.com/Boston-Garden-Pt2-razed-Boston-Massachusetts",
   },
   {
