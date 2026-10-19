@@ -197,9 +197,16 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
 
       <div className="exhibit-controls viewer-footer">
         <p className="viewer-hint">
-          {view === "overhead"
-            ? "Overhead stays fixed. Scroll or pinch to zoom."
-            : "Drag to walk around center ice. Scroll or pinch to zoom."}
+          <span className="hint-fine">
+            {view === "overhead"
+              ? "Overhead stays fixed. Scroll or pinch to zoom."
+              : "Drag to walk around center ice. Scroll or pinch to zoom."}
+          </span>
+          <span className="hint-touch">
+            {view === "overhead"
+              ? "Overhead stays fixed. Pinch to zoom."
+              : "Swipe sideways to walk around center ice. Pinch to zoom."}
+          </span>
           {mode === "split" &&
             " Under each rink the other is drawn flat: 1995 in gold, today in slate."}
         </p>

@@ -720,6 +720,9 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
   controls.enablePan = false;
   controls.maxPolarAngle = Math.PI / 2 - 0.02;
   controls.maxDistance = 600;
+  // OrbitControls claims every touch. Hand vertical swipes back to the page so a phone
+  // can scroll past the viewer; sideways swipes and pinches still reach the rinks.
+  renderer.domElement.style.touchAction = "pan-y";
 
   let world = new THREE.Group();
   let parts: {

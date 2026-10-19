@@ -198,31 +198,33 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
     <figure className="exhibit-photo">
       <fieldset className="lab-picker">
         <legend className="sr-only">Reference photo</legend>
-        {REFERENCE_PHOTOS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            aria-pressed={photoId === p.id}
-            onClick={() => {
-              setPhotoId(p.id);
-              setAdjusting(false);
-            }}
-          >
-            <img
-              src={p.thumb}
-              alt=""
-              width={p.width}
-              height={p.height}
-              loading="lazy"
-              decoding="async"
-            />
-            <span>{p.label}</span>
-          </button>
-        ))}
-        <label className={`lab-upload${photoId === "upload" ? " is-active" : ""}`}>
-          <input type="file" accept="image/*" onChange={onFile} />
-          <span>{upload ? "Your photo (choose another)" : "Use your own photo"}</span>
-        </label>
+        <div className="lab-picker-strip">
+          {REFERENCE_PHOTOS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              aria-pressed={photoId === p.id}
+              onClick={() => {
+                setPhotoId(p.id);
+                setAdjusting(false);
+              }}
+            >
+              <img
+                src={p.thumb}
+                alt=""
+                width={p.width}
+                height={p.height}
+                loading="lazy"
+                decoding="async"
+              />
+              <span>{p.label}</span>
+            </button>
+          ))}
+          <label className={`lab-upload${photoId === "upload" ? " is-active" : ""}`}>
+            <input type="file" accept="image/*" onChange={onFile} />
+            <span>{upload ? "Your photo (choose another)" : "Use your own photo"}</span>
+          </label>
+        </div>
         {uploadError && (
           <p className="lab-upload-error" role="alert">
             {uploadError}
