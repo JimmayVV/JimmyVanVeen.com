@@ -81,6 +81,16 @@ const OTHER_PHOTOS = [
 
 const SOURCES = [
   {
+    label: "Boston Bruins logos, Wikimedia Commons",
+    note: "the 1949–1995 and current spoked-B artwork on each 3D rink’s center ice, public domain as simple logos; the marks are the Bruins’ trademarks",
+    href: "https://commons.wikimedia.org/wiki/Category:Boston_Bruins_logos",
+  },
+  {
+    label: "Bob Busser’s photo of the 1995 center ice",
+    note: "the reference for the redrawn “Thanks for the memories” design",
+    href: "https://ballparks.smugmug.com/Boston-Garden-Pt2-razed-Boston-Massachusetts/i-L4SGxM7",
+  },
+  {
     label: "Boston Garden information sheet, 1987",
     note: "gives the 191 × 83 ft rink (Harvard Graduate School of Education, page 33)",
     href: "https://files.eric.ed.gov/fulltext/ED286720.pdf#page=43",

@@ -20,6 +20,7 @@ import {
   perimeter,
 } from "./geometry";
 
+import { CENTER_ICE } from "./center-ice";
 import { type CameraView, type ViewerMode, framing, visibility } from "./scene-layout";
 
 export type { CameraView, ViewerMode } from "./scene-layout";
@@ -462,6 +463,52 @@ function flatRink(rink: Rink, color: string): THREE.Group {
   return group;
 }
 
+const centerIceImages = new Map<RinkId, HTMLImageElement>();
+
+/** Loads both designs once; the scene rebuilds with them when they arrive. */
+function loadCenterIce(): Promise<void> {
+  const ids: RinkId[] = ["old", "modern"];
+  return Promise.all(
+    ids.map(async (id) => {
+      if (centerIceImages.has(id)) return;
+      const image = new Image();
+      image.src = CENTER_ICE[id].src;
+      await image.decode();
+      centerIceImages.set(id, image);
+    }),
+  ).then(() => undefined);
+}
+
+function centerIce(rink: Rink): THREE.Mesh | null {
+  const image = centerIceImages.get(rink.id);
+  if (!image) return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 2048;
+  canvas.height = 2048;
+  canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  const { size } = CENTER_ICE[rink.id];
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(size, size),
+    new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+    }),
+  );
+  mesh.name = "Center ice";
+  // Flat on the ice, reading upright from the stands on the +z side.
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.y = 0.015;
+  // Painted under the lines: the red line and center circle cross it.
+  mesh.renderOrder = 2;
+  return mesh;
+}
+
 interface RinkModel {
   group: THREE.Group;
   boards: THREE.Group;
@@ -504,6 +551,8 @@ function buildRink(rink: Rink, state: SceneState, options: { ghost: boolean }): 
     markings.name = "Markings";
     markings.renderOrder = 3;
     group.add(markings);
+    const logo = centerIce(rink);
+    if (logo) group.add(logo);
   } else {
     // The old Garden laid over today's ice: its goal lines, blue lines and end-zone circles in gold.
     group.add(flatLines(rink, COLORS.old));
@@ -796,6 +845,15 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
   rebuild();
   setView("stands");
   renderer.setAnimationLoop(render);
+  let disposed = false;
+  // The rinks draw at once; the center-ice art joins them when it has loaded.
+  loadCenterIce()
+    .then(() => {
+      if (!disposed) rebuild();
+    })
+    .catch(() => {
+      // Without it the rinks are still complete; nothing to tell the visitor.
+    });
 
   return {
     update(next) {
@@ -830,6 +888,7 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
       return new Promise((resolve) => renderer.domElement.toBlob(resolve, "image/png"));
     },
     dispose() {
+      disposed = true;
       renderer.setAnimationLoop(null);
       observer.disconnect();
       controls.dispose();
