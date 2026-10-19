@@ -1,5 +1,11 @@
 import { expect, test } from "@playwright/test";
 
+declare global {
+  interface Window {
+    __dntProbe?: { gateReads: number; analyticsSends: number };
+  }
+}
+
 test.describe("Analytics E2E Tests", () => {
   test.beforeEach(async ({ page, context }) => {
     // Clear cookies and localStorage before each test
@@ -104,40 +110,6 @@ test.describe("Analytics E2E Tests", () => {
       timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
       client_id: expect.stringMatching(/^\d+\.\d+\.[a-z0-9]+$/),
     });
-  });
-
-  test("should respect DNT (Do Not Track) header", async ({ page }) => {
-    // Note: Playwright doesn't support setting DNT directly, so this test
-    // verifies the analytics code checks for it
-
-    // Set up request interception
-    const analyticsRequests: unknown[] = [];
-
-    await page.route("**/api/events", async (route) => {
-      const request = route.request();
-      analyticsRequests.push(request.postDataJSON());
-
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ success: true }),
-      });
-    });
-
-    // Manually set DNT in the page context
-    await page.addInitScript(() => {
-      Object.defineProperty(navigator, "doNotTrack", {
-        value: "1",
-        writable: false,
-        configurable: true,
-      });
-    });
-
-    await page.goto("/");
-    await page.waitForTimeout(1000);
-
-    // Analytics should not track when DNT is enabled
-    expect(analyticsRequests.length).toBe(0);
   });
 
   test("should allow users to opt out of tracking", async ({ page }) => {
@@ -270,5 +242,63 @@ test.describe("Analytics E2E Tests", () => {
     // Verify both page views were tracked
     expect(pageViews).toContain("/");
     expect(pageViews).toContain("/privacy");
+  });
+});
+
+// Kept out of the describe above on purpose: its beforeEach loads "/" without
+// DNT, and that page's page_view is sent after hydration, which can land after
+// `goto` resolves. A route registered then catches the old page's event and the
+// test fails with one request that the DNT page never sent (#419).
+test.describe("Analytics with Do Not Track", () => {
+  test("should respect DNT (Do Not Track) header", async ({ page }) => {
+    const analyticsRequests: unknown[] = [];
+
+    await page.route("**/api/events", async (route) => {
+      analyticsRequests.push(route.request().postDataJSON());
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ success: true }),
+      });
+    });
+
+    // Before the first navigation, so every document this page loads has DNT set.
+    // The getter counts reads, which tells the test when analytics has reached its
+    // gate; the fetch wrapper counts sends inside the page, so the assertion does
+    // not depend on when Playwright's route handler happens to run.
+    await page.addInitScript(() => {
+      const probe = { gateReads: 0, analyticsSends: 0 };
+      window.__dntProbe = probe;
+
+      Object.defineProperty(navigator, "doNotTrack", {
+        configurable: true,
+        get: () => {
+          probe.gateReads += 1;
+          return "1";
+        },
+      });
+
+      const originalFetch = window.fetch.bind(window);
+      window.fetch = (input, init) => {
+        const url = input instanceof Request ? input.url : String(input);
+        if (url.includes("/api/events")) {
+          probe.analyticsSends += 1;
+        }
+        return originalFetch(input, init);
+      };
+    });
+
+    await page.goto("/");
+
+    // The page view is sent from the route's clientLoader after hydration. Wait
+    // until analytics has read the DNT flag, then let one task pass: from that
+    // read to the fetch is a chain of microtasks, so a send would have happened.
+    await page.waitForFunction(() => (window.__dntProbe?.gateReads ?? 0) > 0);
+    await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    const sends = await page.evaluate(() => window.__dntProbe?.analyticsSends);
+    expect(sends).toBe(0);
+    expect(analyticsRequests).toHaveLength(0);
   });
 });
