@@ -1,3 +1,4 @@
+import { EXHIBITS } from "~/exhibits/registry";
 import { getBlogPostsWithBackoff } from "~/utils/blog-posts-with-backoff";
 import { escapeXml } from "~/utils/escape-xml";
 import { SITE_URL } from "~/utils/seo";
@@ -19,7 +20,9 @@ import { SITE_URL } from "~/utils/seo";
  *   omit it rather than invent it.
  *
  * Blog posts keep their `lastmod`, because Contentful's `sys.updatedAt` is a
- * real modification timestamp for that entry.
+ * real modification timestamp for that entry. Exhibits are static pages for
+ * this purpose: their registry date is when they went up, not when they last
+ * changed.
  */
 
 interface SitemapUrl {
@@ -30,6 +33,8 @@ interface SitemapUrl {
 const STATIC_PAGES: SitemapUrl[] = [
   { loc: SITE_URL },
   { loc: `${SITE_URL}/blog` },
+  { loc: `${SITE_URL}/exhibits` },
+  ...EXHIBITS.map((exhibit) => ({ loc: `${SITE_URL}/exhibits/${exhibit.slug}` })),
   { loc: `${SITE_URL}/about` },
   { loc: `${SITE_URL}/privacy` },
 ];
