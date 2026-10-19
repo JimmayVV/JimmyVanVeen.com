@@ -18,6 +18,14 @@ describe("exhibit registry", () => {
     }
   });
 
+  it.each(EXHIBITS)("$slug ships a 1200 × 630 PNG share card", ({ card }) => {
+    const png = readFileSync(join(import.meta.dirname, "..", "..", "public", card.src));
+    // PNG signature, then the IHDR chunk's width and height.
+    expect(png.subarray(1, 4).toString("ascii")).toBe("PNG");
+    expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([card.width, card.height]);
+    expect(card.alt.length).toBeGreaterThan(40);
+  });
+
   it("finds an exhibit by slug and refuses an unknown one", () => {
     expect(findExhibit("garden-ice").title).toBe("Garden ice");
     expect(() => findExhibit("nope")).toThrow('No exhibit registered for "nope"');

@@ -11,13 +11,27 @@ import { buildMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/index";
 
+const NEWEST = EXHIBITS[0];
+
 const DESCRIPTION =
   "Small things I built that don’t need a repository or a site of their own: interactive models, visual studies, experiments.";
 
 export const links: Route.LinksFunction = () => [{ rel: "stylesheet", href: exhibitStyles }];
 
 export const meta: Route.MetaFunction = () =>
-  buildMeta({ title: "Exhibits", description: DESCRIPTION, pathname: "/exhibits" });
+  buildMeta({
+    title: "Exhibits",
+    description: DESCRIPTION,
+    pathname: "/exhibits",
+    // The newest exhibit's card stands in for the whole section.
+    image: NEWEST?.card.src,
+    imageAlt: NEWEST?.card.alt,
+    imageSize: NEWEST && {
+      width: NEWEST.card.width,
+      height: NEWEST.card.height,
+      type: "image/png",
+    },
+  });
 
 /** See app/routes/about.tsx: the empty server loader keeps SSR rendering the page. */
 export function loader() {

@@ -96,6 +96,18 @@ test.describe("crawler surface", () => {
     });
   }
 
+  test("the Garden ice exhibit shares its own card, not the site default", async ({ request }) => {
+    const res = await request.get("/exhibits/garden-ice");
+    const html = await res.text();
+    const card = "https://www.jimmyvanveen.com/exhibits/garden-ice/share-card.png";
+    expect(html).toContain(`<meta property="og:image" content="${card}"`);
+    expect(html).toContain('<meta name="twitter:card" content="summary_large_image"');
+
+    const image = await request.get("/exhibits/garden-ice/share-card.png");
+    expect(image.status()).toBe(200);
+    expect(image.headers()["content-type"]).toContain("image/png");
+  });
+
   test("titles are unique across pages", async ({ request }) => {
     const titles = await Promise.all(
       pages.map(async ({ path }) => {

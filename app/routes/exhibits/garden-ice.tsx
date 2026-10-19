@@ -30,6 +30,9 @@ export const meta: Route.MetaFunction = () =>
     title: "How the old Boston Garden ice compares with TD Garden",
     description: EXHIBIT.summary,
     pathname: `/exhibits/${EXHIBIT.slug}`,
+    image: EXHIBIT.card.src,
+    imageAlt: EXHIBIT.card.alt,
+    imageSize: { width: EXHIBIT.card.width, height: EXHIBIT.card.height, type: "image/png" },
   });
 
 /** See app/routes/about.tsx: the empty server loader keeps SSR rendering the page. */
