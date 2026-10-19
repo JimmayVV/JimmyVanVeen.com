@@ -96,6 +96,9 @@ function RinkLayer({ rink, h, strength }: { rink: Rink; h: Homography; strength:
   );
 }
 
+/** Larger than any phone photo; past this, decoding stalls the page with no feedback. */
+export const MAX_UPLOAD_MB = 40;
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -164,6 +167,12 @@ export function PhotoLab({ old, modern }: { old: Rink; modern: Rink }) {
     setUploadError(null);
     if (!file.type.startsWith("image/")) {
       setUploadError(`“${file.name}” isn’t an image. Choose a JPEG, PNG or WebP photo.`);
+      return;
+    }
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      setUploadError(
+        `“${file.name}” is over ${MAX_UPLOAD_MB} MB. Choose a smaller copy, such as one exported for the web.`,
+      );
       return;
     }
     createImageBitmap(file)

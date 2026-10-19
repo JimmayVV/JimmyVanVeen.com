@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { OLD_GARDEN, TD_GARDEN } from "./geometry";
 import { landmarkPoint, project, solveHomography } from "./homography";
-import { PhotoLab, rinkFeatures } from "./photo-lab";
+import { MAX_UPLOAD_MB, PhotoLab, rinkFeatures } from "./photo-lab";
 import { REFERENCE_PHOTOS, type ReferencePhoto, defaultAnchors } from "./photos";
 
 const PUBLIC_DIR = join(import.meta.dirname, "..", "..", "..", "public");
@@ -113,7 +113,7 @@ describe("PhotoLab", () => {
 
 describe("PhotoLab with your own photo", () => {
   it("says so when the chosen file isn't an image, instead of doing nothing", async () => {
-    const { fireEvent, render, screen } = await import("@testing-library/react");
+    const { fireEvent, render, within } = await import("@testing-library/react");
     const { container } = render(<PhotoLab old={OLD_GARDEN} modern={TD_GARDEN} />);
     const input = container.querySelector('input[type="file"]');
     if (!(input instanceof HTMLInputElement)) throw new Error("expected the file input");
@@ -121,6 +121,23 @@ describe("PhotoLab with your own photo", () => {
     const notes = new File(["not a photo"], "notes.txt", { type: "text/plain" });
     fireEvent.change(input, { target: { files: [notes] } });
 
-    expect(screen.getByRole("alert").textContent).toContain("“notes.txt” isn’t an image");
+    expect(within(container).getByRole("alert").textContent).toContain(
+      "“notes.txt” isn’t an image",
+    );
+  });
+
+  it("turns away a photo too large to decode quickly, and says why", async () => {
+    const { fireEvent, render, within } = await import("@testing-library/react");
+    const { container } = render(<PhotoLab old={OLD_GARDEN} modern={TD_GARDEN} />);
+    const input = container.querySelector('input[type="file"]');
+    if (!(input instanceof HTMLInputElement)) throw new Error("expected the file input");
+
+    const huge = new File(["x"], "huge.jpg", { type: "image/jpeg" });
+    Object.defineProperty(huge, "size", { value: (MAX_UPLOAD_MB + 1) * 1024 * 1024 });
+    fireEvent.change(input, { target: { files: [huge] } });
+
+    expect(within(container).getByRole("alert").textContent).toContain(
+      `“huge.jpg” is over ${MAX_UPLOAD_MB} MB`,
+    );
   });
 });

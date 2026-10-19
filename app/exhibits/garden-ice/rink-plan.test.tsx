@@ -49,4 +49,18 @@ describe("RinkPlan", () => {
     expect(html.match(/class="rink-old-corner"/g)).toHaveLength(4);
     expect(html.match(/class="rink-old-board"/g)).toHaveLength(4);
   });
+
+  it("draws the Garden's end-zone circles where its shorter ends put them", () => {
+    const html = render("both");
+    // 191 ft long, goal lines 11 ft from the ends, circles 20 ft out: 64.5 ft from center.
+    const centers = [...html.matchAll(/class="rink-old-circle" cx="(-?[\d.]+)" cy="(-?[\d.]+)"/g)];
+    expect(centers.map(([, x, y]) => [Number(x), Number(y)])).toEqual([
+      [-64.5, -22],
+      [-64.5, 22],
+      [64.5, -22],
+      [64.5, 22],
+    ]);
+    // Today's sit 4.5 ft deeper, at 69 ft.
+    expect(html).toContain('cx="69" cy="22" r="15"');
+  });
 });

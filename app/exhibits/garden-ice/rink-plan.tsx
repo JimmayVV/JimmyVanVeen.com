@@ -239,6 +239,23 @@ export function RinkPlan({
                 y2={60}
               />
               <line x1={s * old.blue} x2={s * old.blue} y1={-60} y2={60} />
+              {/* Its end-zone circles sit 20 ft out from its own goal line, so they move in with it. */}
+              {([-1, 1] as const).map((z) => (
+                <g key={z}>
+                  <circle
+                    className="rink-old-circle"
+                    cx={s * (old.length / 2 - old.goal - 20)}
+                    cy={z * 22}
+                    r={15}
+                  />
+                  <circle
+                    className="rink-old-dot"
+                    cx={s * (old.length / 2 - old.goal - 20)}
+                    cy={z * 22}
+                    r={1}
+                  />
+                </g>
+              ))}
             </g>
           ))}
         </g>

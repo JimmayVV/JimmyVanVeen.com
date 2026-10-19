@@ -284,6 +284,17 @@ fieldset.segmented,
   vector-effect: non-scaling-stroke;
 }
 
+.rink-old-circle {
+  fill: none;
+  stroke: var(--rink-old);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.rink-old-dot {
+  fill: var(--rink-old);
+}
+
 .rink-old-board,
 .rink-old-corner {
   fill: none;
