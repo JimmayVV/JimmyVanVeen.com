@@ -18,13 +18,19 @@ export interface Visibility {
   extraIce: boolean;
   boards: boolean;
   dimensions: boolean;
+  /** The 1995 goals, on whichever 1995 rink is showing. */
+  oldGoals: boolean;
+  modernGoals: boolean;
 }
 
-export function visibility(
-  mode: ViewerMode,
-  view: CameraView,
-  layers: { boards: boolean; dimensions: boolean },
-): Visibility {
+export interface Layers {
+  boards: boolean;
+  dimensions: boolean;
+  oldGoals: boolean;
+  modernGoals: boolean;
+}
+
+export function visibility(mode: ViewerMode, view: CameraView, layers: Layers): Visibility {
   return {
     old: mode === "old" || mode === "split",
     modern: mode === "modern" || mode === "both" || mode === "split",
@@ -33,6 +39,8 @@ export function visibility(
     boards: layers.boards,
     // At ice level the labels float in front of the boards they describe.
     dimensions: layers.dimensions && view !== "ice",
+    oldGoals: layers.oldGoals && mode !== "modern",
+    modernGoals: layers.modernGoals && mode !== "old",
   };
 }
 

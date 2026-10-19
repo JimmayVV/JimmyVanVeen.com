@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { framing, visibility } from "./scene-layout";
 
-const layers = { boards: true, dimensions: true };
+const layers = { boards: true, dimensions: true, oldGoals: true, modernGoals: true };
 
 describe("visibility", () => {
   it("lays the 1995 rink over today's, with the added ice, in 'old inside new'", () => {
@@ -36,10 +36,37 @@ describe("visibility", () => {
   });
 
   it("follows the boards and dimensions switches", () => {
-    expect(visibility("both", "stands", { boards: false, dimensions: false })).toMatchObject({
+    expect(
+      visibility("both", "stands", { ...layers, boards: false, dimensions: false }),
+    ).toMatchObject({
       boards: false,
       dimensions: false,
     });
+  });
+});
+
+describe("goals", () => {
+  it("shows both pairs of goals when one rink is laid over the other", () => {
+    expect(visibility("both", "stands", layers)).toMatchObject({
+      oldGoals: true,
+      modernGoals: true,
+    });
+  });
+
+  it("hides each era's goals on its own", () => {
+    expect(visibility("both", "ice", { ...layers, oldGoals: false })).toMatchObject({
+      oldGoals: false,
+      modernGoals: true,
+    });
+    expect(visibility("split", "ice", { ...layers, modernGoals: false })).toMatchObject({
+      oldGoals: true,
+      modernGoals: false,
+    });
+  });
+
+  it("never shows a goal for a rink that isn't on screen", () => {
+    expect(visibility("old", "stands", layers).modernGoals).toBe(false);
+    expect(visibility("modern", "stands", layers).oldGoals).toBe(false);
   });
 });
 

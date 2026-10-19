@@ -39,13 +39,21 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
   const [view, setView] = React.useState<CameraView>("stands");
   const [boards, setBoards] = React.useState(true);
   const [dimensions, setDimensions] = React.useState(true);
+  const [oldGoals, setOldGoals] = React.useState(true);
+  const [modernGoals, setModernGoals] = React.useState(true);
   const [busy, setBusy] = React.useState<string | null>(null);
   const [failure, setFailure] = React.useState<string | null>(null);
 
   // The scene loads asynchronously; whatever the visitor chose meanwhile is applied when it's ready.
-  const latest = React.useRef({ state: { old, modern, mode, boards, dimensions, unit }, view });
+  const latest = React.useRef({
+    state: { old, modern, mode, boards, dimensions, oldGoals, modernGoals, unit },
+    view,
+  });
   React.useEffect(() => {
-    latest.current = { state: { old, modern, mode, boards, dimensions, unit }, view };
+    latest.current = {
+      state: { old, modern, mode, boards, dimensions, oldGoals, modernGoals, unit },
+      view,
+    };
   });
 
   // Three.js is ~600 KB; fetch it only once the viewer is close to the screen.
@@ -93,8 +101,15 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
 
   // Showing or hiding parts is cheap; apply it at once.
   React.useEffect(() => {
-    sceneRef.current?.update({ ...latest.current.state, mode, boards, dimensions });
-  }, [mode, boards, dimensions]);
+    sceneRef.current?.update({
+      ...latest.current.state,
+      mode,
+      boards,
+      dimensions,
+      oldGoals,
+      modernGoals,
+    });
+  }, [mode, boards, dimensions, oldGoals, modernGoals]);
 
   React.useEffect(() => {
     sceneRef.current?.setView(view);
@@ -185,6 +200,8 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
           {view === "overhead"
             ? "Overhead stays fixed. Scroll or pinch to zoom."
             : "Drag to walk around center ice. Scroll or pinch to zoom."}
+          {mode === "split" &&
+            " Under each rink the other is drawn flat: 1995 in gold, today in slate."}
         </p>
         <label className="check">
           <input type="checkbox" checked={boards} onChange={(e) => setBoards(e.target.checked)} />
@@ -198,6 +215,26 @@ export function RinkViewer({ old, modern, unit }: { old: Rink; modern: Rink; uni
           />
           Dimensions
         </label>
+        {mode !== "modern" && (
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={oldGoals}
+              onChange={(e) => setOldGoals(e.target.checked)}
+            />
+            1995 goals
+          </label>
+        )}
+        {mode !== "old" && (
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={modernGoals}
+              onChange={(e) => setModernGoals(e.target.checked)}
+            />
+            Today’s goals
+          </label>
+        )}
       </div>
 
       <div className="viewer-downloads">

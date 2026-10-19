@@ -30,6 +30,8 @@ export interface SceneState {
   mode: ViewerMode;
   boards: boolean;
   dimensions: boolean;
+  oldGoals: boolean;
+  modernGoals: boolean;
   unit: Unit;
 }
 
@@ -37,6 +39,8 @@ export interface SceneState {
 const COLORS = {
   old: "#e2ad35",
   modern: "#eef2f2",
+  /** Today's rink drawn flat on white ice needs a darker stand-in for its white. */
+  modernFlat: "#46596a",
   ice: "#e4ebea",
   red: "#c8102e",
   blue: "#1f4e9a",
@@ -320,7 +324,7 @@ function loft(a: Vec3[], b: Vec3[], material: THREE.Material, cell: number): THR
  * the posts, a short top shelf, and netting from the frame down to the base.
  * Built behind the goal line on +X, then mirrored for the near end.
  */
-function goalFrame(rink: Rink, s: number): THREE.Group {
+function goalFrame(rink: Rink, s: number, posts: string = COLORS.net): THREE.Group {
   const group = new THREE.Group();
   group.name = "Goal";
   const { width, height } = GOAL_MOUTH;
@@ -337,7 +341,7 @@ function goalFrame(rink: Rink, s: number): THREE.Group {
       [0, height, post],
       [0, 0, post],
     ],
-    COLORS.net,
+    posts,
     0.1,
   );
 
@@ -400,9 +404,68 @@ function netMaterial(): THREE.MeshBasicMaterial {
   });
 }
 
+/**
+ * A rink's own lines drawn flat on the ice in one color: goal lines, blue lines and the
+ * end-zone circles, which sit 20 ft out from its goal line and so move with it.
+ */
+function flatLines(rink: Rink, color: string): THREE.Group {
+  const lines = new THREE.Group();
+  lines.name = `${rink.name} ${rink.season} lines and circles`;
+  for (const s of [-1, 1]) {
+    for (const x of [s * (rink.length / 2 - rink.goal), s * rink.blue]) {
+      const reach =
+        Math.abs(x) > rink.length / 2 - rink.corner ? rink.width / 2 - 4 : rink.width / 2;
+      lineMesh(
+        lines,
+        [
+          [x, 0.06, -reach],
+          [x, 0.06, reach],
+        ],
+        color,
+        0.14,
+      );
+    }
+    const dotX = s * (rink.length / 2 - rink.goal - 20);
+    for (const z of [-22, 22]) {
+      const ring: Vec3[] = Array.from({ length: 65 }, (_, i) => {
+        const a = (i / 64) * Math.PI * 2;
+        return [dotX + 15 * Math.cos(a), 0.06, z + 15 * Math.sin(a)];
+      });
+      lineMesh(lines, ring, color, 0.12);
+      const dot = new THREE.Mesh(
+        new THREE.CircleGeometry(1, 24),
+        new THREE.MeshBasicMaterial({ color }),
+      );
+      dot.rotation.x = -Math.PI / 2;
+      dot.position.set(dotX, 0.07, z);
+      lines.add(dot);
+    }
+  }
+  return lines;
+}
+
+/**
+ * The rink a side-by-side view is compared against, laid flat under the 3D one: its boards
+ * line and its own lines, so the extra or missing ice shows where it is.
+ */
+function flatRink(rink: Rink, color: string): THREE.Group {
+  const group = new THREE.Group();
+  group.name = `${rink.name} ${rink.season}, drawn flat`;
+  const points = perimeter(rink);
+  lineMesh(
+    group,
+    [...points, points[0] ?? [0, 0]].map(([x, z]): Vec3 => [x, 0.09, z]),
+    color,
+    0.22,
+  );
+  group.add(flatLines(rink, color));
+  return group;
+}
+
 interface RinkModel {
   group: THREE.Group;
   boards: THREE.Group;
+  goals: THREE.Group;
   dimensions: THREE.Group;
 }
 
@@ -442,25 +505,8 @@ function buildRink(rink: Rink, state: SceneState, options: { ghost: boolean }): 
     markings.renderOrder = 3;
     group.add(markings);
   } else {
-    // The old Garden laid over today's ice: its goal and blue lines in gold.
-    const lines = new THREE.Group();
-    lines.name = "1995 goal and blue lines";
-    for (const s of [-1, 1]) {
-      for (const x of [s * (rink.length / 2 - rink.goal), s * rink.blue]) {
-        const reach =
-          Math.abs(x) > rink.length / 2 - rink.corner ? rink.width / 2 - 4 : rink.width / 2;
-        lineMesh(
-          lines,
-          [
-            [x, 0.06, -reach],
-            [x, 0.06, reach],
-          ],
-          COLORS.old,
-          0.14,
-        );
-      }
-    }
-    group.add(lines);
+    // The old Garden laid over today's ice: its goal lines, blue lines and end-zone circles in gold.
+    group.add(flatLines(rink, COLORS.old));
   }
 
   const outline = new THREE.Group();
@@ -507,12 +553,12 @@ function buildRink(rink: Rink, state: SceneState, options: { ghost: boolean }): 
   if (!options.ghost) lineMesh(boards, loop(0.5), "#e9b13f", 0.16);
   group.add(boards);
 
-  if (!options.ghost) {
-    const goals = new THREE.Group();
-    goals.name = "Goal frames";
-    goals.add(goalFrame(rink, -1), goalFrame(rink, 1));
-    group.add(goals);
-  }
+  // Laid over today's ice, the 1995 goals take the page's gold so the two pairs read apart.
+  const goals = new THREE.Group();
+  goals.name = "Goal frames";
+  const posts = options.ghost ? COLORS.old : COLORS.net;
+  goals.add(goalFrame(rink, -1, posts), goalFrame(rink, 1, posts));
+  group.add(goals);
 
   const dimensions = new THREE.Group();
   dimensions.name = "Dimensions";
@@ -551,7 +597,7 @@ function buildRink(rink: Rink, state: SceneState, options: { ghost: boolean }): 
   dimensions.add(textSprite(formatLength(rink.width, state.unit), x, 0, accent));
   group.add(dimensions);
 
-  return { group, boards, dimensions };
+  return { group, boards, goals, dimensions };
 }
 
 function disposeGroup(root: THREE.Object3D) {
@@ -627,7 +673,13 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
   controls.maxDistance = 600;
 
   let world = new THREE.Group();
-  let parts: { old: RinkModel; modern: RinkModel; oldGhost: RinkModel } | null = null;
+  let parts: {
+    old: RinkModel;
+    modern: RinkModel;
+    oldGhost: RinkModel;
+    oldFlat: THREE.Group;
+    modernFlat: THREE.Group;
+  } | null = null;
   scene.add(world);
 
   const activeCamera = () => (view === "overhead" ? ortho : perspective);
@@ -640,8 +692,12 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
     const modern = buildRink(state.modern, state, { ghost: false });
     const oldGhost = buildRink(state.old, state, { ghost: true });
     const extra = extraIce(state.old, state.modern);
-    world.add(old.group, modern.group, oldGhost.group, extra);
-    parts = { old, modern, oldGhost };
+    const oldFlat = flatRink(state.old, COLORS.old);
+    const modernFlat = flatRink(state.modern, COLORS.modernFlat);
+    oldFlat.visible = false;
+    modernFlat.visible = false;
+    world.add(old.group, modern.group, oldGhost.group, extra, oldFlat, modernFlat);
+    parts = { old, modern, oldGhost, oldFlat, modernFlat };
     world.userData["extra"] = extra;
     scene.add(world);
     applyVisibility();
@@ -659,6 +715,9 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
       model.boards.visible = show.boards;
       model.dimensions.visible = show.dimensions;
     }
+    parts.old.goals.visible = show.oldGoals;
+    parts.oldGhost.goals.visible = show.oldGoals;
+    parts.modern.goals.visible = show.modernGoals;
     resize();
   }
 
@@ -706,13 +765,16 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
     const height = renderer.domElement.clientHeight;
     if (state.mode === "split" && parts) {
       renderer.setScissorTest(true);
-      const halves: [RinkModel, RinkModel][] = [
-        [parts.old, parts.modern],
-        [parts.modern, parts.old],
+      // Each half shows one rink in 3D with the other drawn flat beneath it.
+      const halves: [RinkModel, RinkModel, THREE.Group, THREE.Group][] = [
+        [parts.old, parts.modern, parts.modernFlat, parts.oldFlat],
+        [parts.modern, parts.old, parts.oldFlat, parts.modernFlat],
       ];
-      halves.forEach(([show, hide], i) => {
+      halves.forEach(([show, hide, under, other], i) => {
         show.group.visible = true;
         hide.group.visible = false;
+        under.visible = true;
+        other.visible = false;
         renderer.setViewport((i * width) / 2, 0, width / 2, height);
         renderer.setScissor((i * width) / 2, 0, width / 2, height);
         renderer.render(scene, camera);
@@ -721,6 +783,8 @@ export function createScene(container: HTMLElement, initial: SceneState): SceneC
       renderer.setViewport(0, 0, width, height);
       parts.old.group.visible = true;
       parts.modern.group.visible = true;
+      parts.oldFlat.visible = false;
+      parts.modernFlat.visible = false;
     } else {
       renderer.setViewport(0, 0, width, height);
       renderer.render(scene, camera);
